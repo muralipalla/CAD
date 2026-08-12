@@ -29,6 +29,7 @@ function gradeQuiz() {
 
   const total = Object.keys(answers).length;
   scoreNode.textContent = `${score}/${total}`;
+  scoreNode.setAttribute("aria-label", `Score ${score} of ${total}`);
   scoreNode.classList.add("complete");
   scoreTitle.textContent = score === total ? "Strong foundation" : score >= 4 ? "Nearly there" : "Worth a review";
   messageNode.textContent = score === total
@@ -38,10 +39,12 @@ function gradeQuiz() {
       : "Use the explanations as a map for what to revisit before trying again.";
   submitButton.hidden = true;
   resetButton.hidden = false;
-  scoreNode.focus?.();
+  for (const input of form.querySelectorAll("input")) input.disabled = true;
+  scoreNode.focus();
 }
 
 function resetQuiz() {
+  for (const input of form.querySelectorAll("input")) input.disabled = false;
   form.reset();
   for (const question of form.querySelectorAll("[data-question]")) {
     question.classList.remove("correct", "incorrect");
@@ -49,6 +52,7 @@ function resetQuiz() {
     feedback.textContent = feedback.textContent.replace(/^(Correct\. |Review: )/, "");
   }
   scoreNode.textContent = "—";
+  scoreNode.setAttribute("aria-label", "Quiz not yet scored");
   scoreNode.classList.remove("complete");
   scoreTitle.textContent = "Ready when you are";
   messageNode.textContent = "Answer all six questions, then check your understanding.";

@@ -7,6 +7,7 @@ const captionNode = document.querySelector("[data-caption]");
 const copyButton = document.querySelector("[data-copy]");
 
 function readNumber(input, fallback) {
+  if (!input || input.value.trim() === "") return fallback;
   const number = Number(input?.value);
   return Number.isFinite(number) ? number : fallback;
 }
@@ -93,12 +94,14 @@ function drawPattern(settings) {
   context.restore();
 }
 
-function update() {
+function update({ normalize = false } = {}) {
   const settings = values();
-  inputs.count.value = settings.count;
-  inputs.radius.value = settings.radius;
-  inputs.diameter.value = settings.diameter;
-  inputs.rotation.value = settings.rotation;
+  if (normalize) {
+    inputs.count.value = settings.count;
+    inputs.radius.value = settings.radius;
+    inputs.diameter.value = settings.diameter;
+    inputs.rotation.value = settings.rotation;
+  }
   const step = 360 / settings.count;
   stepNode.textContent = `${Number(step.toFixed(1))}°`;
   captionNode.textContent = `${settings.count} holes · radius ${settings.radius} mm · diameter ${settings.diameter} mm`;
@@ -107,8 +110,8 @@ function update() {
 }
 
 for (const input of Object.values(inputs)) {
-  input.addEventListener("input", update);
-  input.addEventListener("change", update);
+  input.addEventListener("input", () => update());
+  input.addEventListener("change", () => update({ normalize: true }));
 }
 
 copyButton?.addEventListener("click", async () => {

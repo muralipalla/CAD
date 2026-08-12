@@ -905,7 +905,7 @@ input:focus-visible {
 
 .canvas-frame canvas {
   width: 100%;
-  min-height: 24rem;
+  height: auto;
 }
 
 .canvas-caption {
@@ -1258,7 +1258,6 @@ input:focus-visible {
 
   .quiz-summary {
     position: static;
-    order: -1;
   }
 }
 
@@ -1330,9 +1329,6 @@ input:focus-visible {
     grid-column: 2;
   }
 
-  .canvas-frame canvas {
-    min-height: 19rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
