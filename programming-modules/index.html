@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Programming modules that connect coordinates, loops, vectors, and parameters to CAD geometry.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Programming Modules</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links">
+        <a href="../cad-modules/">CAD Modules</a>
+        <a href="./" aria-current="page">Programming Modules</a>
+        <a href="../self-assessment-quizzes/">Self Assessment Quizzes</a>
+      </div>
+    </nav>
+    <div class="page-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../index.html">Home</a></li><li aria-current="page">Programming Modules</li></ol>
+      <p class="eyebrow">Section 2</p>
+      <h1>Programming <em>Modules</em></h1>
+      <p class="page-lead">Turn geometric rules into clear, reusable instructions and see how a few parameters can generate a family of designs.</p>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="section compact" aria-labelledby="programming-list-title">
+      <div class="section-heading">
+        <div><p class="section-kicker">Module library</p><h2 id="programming-list-title">Describe geometry with code</h2></div>
+        <p>No CAD software or programming setup is required for the starter activity; the browser preview makes every parameter visible.</p>
+      </div>
+      <div class="module-grid">
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>Parametric Circular Patterns</h3>
+          <p>Generate evenly spaced points with angles, a loop, and a small set of driving parameters.</p>
+          <div class="card-actions"><a class="button primary" href="parametric-patterns/">Start module</a></div>
+        </article>
+        <article class="module-card">
+          <span class="status-chip">Planned</span>
+          <h3>Coordinates &amp; Transforms</h3>
+          <p>Move between local and global coordinates using translation, rotation, and scale.</p>
+        </article>
+        <article class="module-card">
+          <span class="status-chip">Planned</span>
+          <h3>Vectors for Geometry</h3>
+          <p>Use direction, magnitude, dot products, and cross products to answer practical modelling questions.</p>
+        </article>
+        <article class="module-card">
+          <span class="status-chip">Planned</span>
+          <h3>CAD Automation</h3>
+          <p>Structure scripts that create, name, validate, and export repeatable model variants safely.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="dark-band" aria-labelledby="mindset-title">
+      <div class="section">
+        <div class="section-heading"><div><p class="section-kicker">Programming mindset</p><h2 id="mindset-title">Parameters in, geometry out</h2></div><p>A useful CAD script separates design inputs from the geometry-building steps, making the result easier to test and adapt.</p></div>
+        <div class="feature-grid">
+          <article class="feature-card"><span class="feature-icon" aria-hidden="true">IN</span><h3>Name the inputs</h3><p>Give each driving value a clear unit, meaning, and safe range.</p></article>
+          <article class="feature-card"><span class="feature-icon" aria-hidden="true">RULE</span><h3>Express the rule</h3><p>Translate repetition and relationships into compact calculations.</p></article>
+          <article class="feature-card"><span class="feature-icon" aria-hidden="true">TEST</span><h3>Check edge cases</h3><p>Try minimum, maximum, and unusual inputs before trusting the output.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="starter-title">
+      <div class="callout">
+        <div><p class="section-kicker">Interactive starter</p><h2 id="starter-title">Build a bolt-circle pattern</h2><p>Change the count, radius, rotation, and hole size while the diagram and readable Python example update together.</p></div>
+        <a class="button primary" href="parametric-patterns/">Open the pattern lab</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>CAD</strong> · Programming Modules</p>
+    <ul class="footer-nav" aria-label="Footer navigation"><li><a href="../index.html">Home</a></li><li><a href="../cad-modules/">CAD Modules</a></li><li><a href="../self-assessment-quizzes/">Self Assessment Quizzes</a></li></ul>
+    <p>Created by Murali Palla · <span data-year>2026</span></p>
+  </footer>
+</body>
+</html>

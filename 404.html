@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>Page not found · CAD</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: radial-gradient(circle at 10% 10%, #ffe5dc, transparent 24rem), #fdf6ec; color: #292568; }
+    main { display: grid; width: min(calc(100% - 2rem), 52rem); min-height: 100vh; place-items: center; margin: auto; padding: 2rem 0; }
+    section { width: 100%; padding: clamp(2rem, 8vw, 5rem); border: 1px solid rgba(41,37,104,.14); border-radius: 2.25rem; background: rgba(255,255,255,.86); box-shadow: 0 18px 48px rgba(41,37,104,.11); text-align: center; }
+    .code { margin: 0; color: #f05b3f; font-size: clamp(4rem, 18vw, 9rem); font-weight: 950; line-height: .9; letter-spacing: -.08em; }
+    h1 { margin: 1rem 0 0; font-size: clamp(2rem, 5vw, 3.2rem); }
+    p:not(.code) { max-width: 35rem; margin: .8rem auto 0; color: #514c7d; }
+    a { display: inline-flex; min-height: 3.1rem; align-items: center; justify-content: center; padding: .7rem 1.18rem; margin-top: 1.8rem; border-radius: 999px; background: #c83d24; color: white; font-weight: 850; text-decoration: none; }
+    a:focus-visible { outline: 3px solid #f05b3f; outline-offset: 3px; }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const projectRoot = location.hostname.endsWith("github.io")
+        ? `/${location.pathname.split("/").filter(Boolean)[0] || ""}/`
+        : "/";
+      document.querySelector("[data-home]").href = projectRoot;
+    });
+  </script>
+</head>
+<body>
+  <main>
+    <section aria-labelledby="not-found-title">
+      <p class="code" aria-hidden="true">404</p>
+      <h1 id="not-found-title">This geometry is missing.</h1>
+      <p>The page may have moved, or the address may contain an extra line or point.</p>
+      <a href="./" data-home>Return to CAD</a>
+    </section>
+  </main>
+</body>
+</html>

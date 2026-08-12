@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A six-question self-assessment covering foundational CAD concepts and modelling practice.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD Foundations Quiz · CAD</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/">CAD Modules</a><a href="../../programming-modules/">Programming Modules</a><a href="../">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../">Self Assessment Quizzes</a></li><li aria-current="page">CAD Foundations</li></ol>
+      <p class="eyebrow">Self assessment quiz</p>
+      <h1>CAD <em>Foundations</em></h1>
+      <p class="activity-lead">Choose one answer for each question. Submit when you are ready to see your score and an explanation for every concept.</p>
+      <ul class="meta-list"><li>6 questions</li><li>About 5 minutes</li><li>Repeat as needed</li></ul>
+    </header>
+
+    <section class="quiz-layout" aria-label="CAD Foundations quiz">
+      <form class="quiz-form" data-quiz-form novalidate>
+        <fieldset class="question" data-question="q1">
+          <legend><span class="question-number">01</span>What does design intent describe in a CAD model?</legend>
+          <div class="answers">
+            <label class="answer"><input type="radio" name="q1" value="a"><span>The file format used to save the model</span></label>
+            <label class="answer"><input type="radio" name="q1" value="b"><span>How the model should behave when dimensions or conditions change</span></label>
+            <label class="answer"><input type="radio" name="q1" value="c"><span>The colour and material shown in the viewport</span></label>
+          </div>
+          <p class="question-feedback" data-feedback>Design intent captures the functional relationships and expected behaviour of the model when it is edited.</p>
+        </fieldset>
+
+        <fieldset class="question" data-question="q2">
+          <legend><span class="question-number">02</span>Which sketch constraint forces two line segments to meet at the same point?</legend>
+          <div class="answers">
+            <label class="answer"><input type="radio" name="q2" value="a"><span>Coincident</span></label>
+            <label class="answer"><input type="radio" name="q2" value="b"><span>Parallel</span></label>
+            <label class="answer"><input type="radio" name="q2" value="c"><span>Equal</span></label>
+          </div>
+          <p class="question-feedback" data-feedback>A coincident constraint places two points at the same location, which can join line endpoints.</p>
+        </fieldset>
+
+        <fieldset class="question" data-question="q3">
+          <legend><span class="question-number">03</span>A sketch can still be dragged after adding several dimensions. What is the best description?</legend>
+          <div class="answers">
+            <label class="answer"><input type="radio" name="q3" value="a"><span>Over-constrained</span></label>
+            <label class="answer"><input type="radio" name="q3" value="b"><span>Under-constrained</span></label>
+            <label class="answer"><input type="radio" name="q3" value="c"><span>Projected</span></label>
+          </div>
+          <p class="question-feedback" data-feedback>If geometry can still move in an unintended way, at least one degree of freedom remains and the sketch is under-constrained.</p>
+        </fieldset>
+
+        <fieldset class="question" data-question="q4">
+          <legend><span class="question-number">04</span>Why is it usually better to use symmetry instead of dimensioning both sides independently?</legend>
+          <div class="answers">
+            <label class="answer"><input type="radio" name="q4" value="a"><span>Symmetry makes the file smaller</span></label>
+            <label class="answer"><input type="radio" name="q4" value="b"><span>Symmetry communicates the relationship and avoids duplicate control</span></label>
+            <label class="answer"><input type="radio" name="q4" value="c"><span>Symmetry automatically adds manufacturing tolerances</span></label>
+          </div>
+          <p class="question-feedback" data-feedback>A symmetry relationship directly expresses intent and lets one change preserve both sides without competing dimensions.</p>
+        </fieldset>
+
+        <fieldset class="question" data-question="q5">
+          <legend><span class="question-number">05</span>Which orthographic view should normally be chosen as the front view?</legend>
+          <div class="answers">
+            <label class="answer"><input type="radio" name="q5" value="a"><span>The view with the fewest visible edges, regardless of function</span></label>
+            <label class="answer"><input type="radio" name="q5" value="b"><span>The view that best communicates the part’s characteristic shape and function</span></label>
+            <label class="answer"><input type="radio" name="q5" value="c"><span>Always the longest side of the bounding box</span></label>
+          </div>
+          <p class="question-feedback" data-feedback>The principal view should explain the object clearly, show its characteristic form, and minimise hidden detail where practical.</p>
+        </fieldset>
+
+        <fieldset class="question" data-question="q6">
+          <legend><span class="question-number">06</span>What makes a feature reference more robust?</legend>
+          <div class="answers">
+            <label class="answer"><input type="radio" name="q6" value="a"><span>Referencing stable origin geometry or design datums</span></label>
+            <label class="answer"><input type="radio" name="q6" value="b"><span>Referencing whichever small edge is nearest</span></label>
+            <label class="answer"><input type="radio" name="q6" value="c"><span>Suppressing all earlier features before saving</span></label>
+          </div>
+          <p class="question-feedback" data-feedback>Origins, primary planes, and intentional datums are less likely to disappear or be renumbered when surrounding geometry changes.</p>
+        </fieldset>
+      </form>
+
+      <aside class="quiz-card quiz-summary" aria-labelledby="score-title">
+        <p class="card-kicker">Your result</p>
+        <h2 id="score-title">Ready when you are</h2>
+        <div class="score-ring" data-score aria-label="Quiz score">—</div>
+        <p class="quiz-message" data-message aria-live="polite">Answer all six questions, then check your understanding.</p>
+        <button class="button primary" type="button" data-submit>Check answers</button>
+        <button class="button ghost" type="button" data-reset hidden>Try again</button>
+      </aside>
+    </section>
+
+    <section class="section compact" aria-labelledby="review-title"><div class="callout"><div><p class="section-kicker">Review a core idea</p><h2 id="review-title">Make constraints visible</h2><p>The interactive sketch module shows how each relationship removes a freedom from a profile.</p></div><a class="button secondary" href="../../cad-modules/sketch-constraints/">Open Sketch Constraints</a></div></section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · CAD Foundations Quiz</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../">Self Assessment Quizzes</a></li><li><a href="../../cad-modules/">CAD Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

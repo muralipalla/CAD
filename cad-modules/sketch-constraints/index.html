@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive introduction to geometric and dimensional constraints in CAD sketches.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Sketch Constraints</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../">CAD Modules</a><a href="../../programming-modules/">Programming Modules</a><a href="../../self-assessment-quizzes/">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../">CAD Modules</a></li><li aria-current="page">Sketch Constraints</li></ol>
+      <p class="eyebrow">Interactive CAD module</p>
+      <h1>Sketch <em>Constraints</em></h1>
+      <p class="activity-lead">A constraint removes a specific freedom while preserving design intent. Apply the four relationships below and watch a loose rectangular profile become fully defined.</p>
+      <ul class="meta-list"><li>Beginner</li><li>10–15 minutes</li><li>No CAD software required</li></ul>
+    </header>
+
+    <section class="activity-grid" aria-labelledby="constraint-lab-title">
+      <article class="activity-card">
+        <p class="card-kicker">Your task</p>
+        <h2 id="constraint-lab-title">Define the plate sketch</h2>
+        <p>Activate each constraint. A real sketch may need more individual relationships; this simplified profile groups them into four design decisions.</p>
+
+        <div class="control-stack" role="group" aria-label="Sketch constraints">
+          <label class="check-control">
+            <input type="checkbox" data-constraint="orientation">
+            <span><strong>Horizontal &amp; vertical</strong><small>Locks the four edges to the sketch axes.</small></span>
+            <span class="constraint-value">−3 DoF</span>
+          </label>
+          <label class="check-control">
+            <input type="checkbox" data-constraint="origin">
+            <span><strong>Coincident with origin</strong><small>Anchors the lower-left corner.</small></span>
+            <span class="constraint-value">−2 DoF</span>
+          </label>
+          <label class="check-control">
+            <input type="checkbox" data-constraint="width">
+            <span><strong>Width: 80 mm</strong><small>Controls the horizontal size.</small></span>
+            <span class="constraint-value">−1 DoF</span>
+          </label>
+          <label class="check-control">
+            <input type="checkbox" data-constraint="height">
+            <span><strong>Height: 50 mm</strong><small>Controls the vertical size.</small></span>
+            <span class="constraint-value">−1 DoF</span>
+          </label>
+        </div>
+
+        <div class="status-panel" data-status-panel aria-live="polite">
+          <span class="status-badge" data-dof>7</span>
+          <span><strong data-status-title>Under-constrained</strong><span data-status-copy>Seven grouped degrees of freedom remain.</span></span>
+        </div>
+        <div class="activity-actions"><button class="button ghost" type="button" data-reset>Reset sketch</button></div>
+      </article>
+
+      <article class="activity-card">
+        <p class="card-kicker">Sketch view</p>
+        <h2>Read the visual feedback</h2>
+        <p>Blue geometry still has freedom. Green geometry represents a fully defined profile.</p>
+        <div class="canvas-frame">
+          <canvas data-sketch-canvas width="760" height="520" aria-label="Constraint diagram showing a rectangular plate sketch and its remaining freedom"></canvas>
+          <p class="canvas-caption">Dashed arrows show unresolved movement · dimensions appear when applied</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section compact" aria-labelledby="constraint-notes-title">
+      <div class="content-panel">
+        <p class="section-kicker">What to carry into a CAD tool</p>
+        <h2 id="constraint-notes-title">Constrain relationships before dimensions</h2>
+        <ul class="concept-list">
+          <li><strong>Start with geometry</strong><span>Horizontal, vertical, parallel, perpendicular, tangent, and coincident constraints capture relationships.</span></li>
+          <li><strong>Anchor with intent</strong><span>Relate a meaningful point to the origin or stable reference geometry so the profile cannot drift.</span></li>
+          <li><strong>Add driving dimensions</strong><span>Dimension the values that must control the design and avoid repeating information already implied.</span></li>
+          <li><strong>Do not chase “fully constrained” blindly</strong><span>A technically fixed sketch can still be fragile if its references do not reflect how the part should change.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section compact" aria-labelledby="next-title">
+      <div class="callout"><div><p class="section-kicker">Next step</p><h2 id="next-title">Check the foundation</h2><p>Use the quiz to connect constraints with design intent, degrees of freedom, and stable modelling practice.</p></div><a class="button primary" href="../../self-assessment-quizzes/cad-foundations/">Take the CAD Foundations quiz</a></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Sketch Constraints</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../">CAD Modules</a></li><li><a href="../../programming-modules/">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build a parametric circular pattern and connect its geometry to a readable Python loop.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Parametric Circular Patterns</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/">CAD Modules</a><a href="../">Programming Modules</a><a href="../../self-assessment-quizzes/">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../">Programming Modules</a></li><li aria-current="page">Parametric Circular Patterns</li></ol>
+      <p class="eyebrow">Interactive programming module</p>
+      <h1>Parametric <em>Patterns</em></h1>
+      <p class="activity-lead">A circular pattern places each instance at an equal angular step. Change the design inputs and connect the diagram to the compact loop that generates its coordinates.</p>
+      <ul class="meta-list"><li>Beginner</li><li>15–20 minutes</li><li>Python-style example</li></ul>
+    </header>
+
+    <section class="activity-grid" aria-labelledby="pattern-lab-title">
+      <article class="activity-card">
+        <p class="card-kicker">Design inputs</p>
+        <h2 id="pattern-lab-title">Define the bolt circle</h2>
+        <p>All dimensions are in millimetres. Rotation changes the first instance without changing the equal spacing.</p>
+        <div class="field-grid">
+          <label class="field"><span>Instance count</span><input type="number" min="3" max="16" step="1" value="6" data-input="count"></label>
+          <label class="field"><span>Pattern radius</span><input type="number" min="20" max="90" step="5" value="60" data-input="radius"></label>
+          <label class="field"><span>Hole diameter</span><input type="number" min="4" max="24" step="1" value="12" data-input="diameter"></label>
+          <label class="field"><span>Start rotation</span><input type="number" min="0" max="359" step="5" value="0" data-input="rotation"></label>
+        </div>
+        <div class="status-panel" aria-live="polite"><span class="status-badge" data-step>60°</span><span><strong>Angular step</strong><span>360° divided by the instance count.</span></span></div>
+
+        <div class="code-panel">
+          <div class="code-toolbar"><span>pattern.py</span><button class="copy-button" type="button" data-copy>Copy code</button></div>
+          <pre><code data-code></code></pre>
+        </div>
+      </article>
+
+      <article class="activity-card">
+        <p class="card-kicker">Generated geometry</p>
+        <h2>Follow one instance</h2>
+        <p>The coral hole is instance 0. Every later point adds one angular step before converting polar coordinates to x and y.</p>
+        <div class="canvas-frame">
+          <canvas data-pattern-canvas width="760" height="620" aria-label="Circular pattern diagram with evenly spaced holes around a bolt circle"></canvas>
+          <p class="canvas-caption" data-caption>6 holes · radius 60 mm · diameter 12 mm</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section compact" aria-labelledby="pattern-notes-title">
+      <div class="content-panel">
+        <p class="section-kicker">Read the algorithm</p>
+        <h2 id="pattern-notes-title">One loop, four ideas</h2>
+        <ul class="concept-list">
+          <li><strong>Parameter</strong><span>A named input such as count or radius controls a whole family of valid patterns.</span></li>
+          <li><strong>Iteration</strong><span>The loop repeats the same point-building operation once for each instance.</span></li>
+          <li><strong>Angle conversion</strong><span>Most programming language trigonometry functions expect radians rather than degrees.</span></li>
+          <li><strong>Coordinate calculation</strong><span>x = r cos θ and y = r sin θ convert each polar position to Cartesian coordinates.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section compact" aria-labelledby="next-title"><div class="callout"><div><p class="section-kicker">Connect both paths</p><h2 id="next-title">Return to design intent</h2><p>Programming automates a rule; constraints express how geometry should behave. Explore the sketch module to compare the two.</p></div><a class="button secondary" href="../../cad-modules/sketch-constraints/">Open Sketch Constraints</a></div></section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Parametric Circular Patterns</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../">Programming Modules</a></li><li><a href="../../cad-modules/">CAD Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>
