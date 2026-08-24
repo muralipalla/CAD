@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CAD modules for sketching, constraints, technical drawing, dimensioning, and solid modelling workflows.">
+  <meta name="description" content="Teaching modules on geometric transformations, curves, B-splines, surfaces, and solid modeling.">
   <meta name="theme-color" content="#fdf6ec">
-  <title>CAD · CAD Modules</title>
+  <title>CAD · Theory</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="../assets/js/main.js" defer></script>
 </head>
@@ -18,17 +18,17 @@
         <span class="brand-copy"><strong>CAD</strong></span>
       </a>
       <div class="nav-links">
-        <a href="./" aria-current="page">CAD Modules</a>
-        <a href="../programming-modules/">Programming Modules</a>
-        <a href="../self-assessment-quizzes/">Self Assessment Quizzes</a>
+        <a href="./index.html" aria-current="page">Theory</a>
+        <a href="../programming-modules/index.html">Programming Modules</a>
+        <a href="../self-assessment-quizzes/index.html">Self Assessment Quizzes</a>
       </div>
     </nav>
 
     <div class="page-hero">
-      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../index.html">Home</a></li><li aria-current="page">CAD Modules</li></ol>
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../index.html">Home</a></li><li aria-current="page">Theory</li></ol>
       <p class="eyebrow">Section 1</p>
-      <h1>CAD <em>Modules</em></h1>
-      <p class="page-lead">Learn to translate design intent into stable sketches, readable drawings, and economical feature-based models.</p>
+      <h1>Theory</h1>
+      <p class="page-lead">Computer Aided Design: geometric transformations, curves, B-splines, surfaces, and solid modeling.</p>
     </div>
   </header>
 
@@ -36,60 +36,72 @@
     <section class="section compact" aria-labelledby="module-list-title">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">Module library</p>
-          <h2 id="module-list-title">Build from the sketch outward</h2>
+          <p class="section-kicker">Teaching modules</p>
+          <h2 id="module-list-title">Computer Aided Design notes</h2>
         </div>
-        <p>The first activity is ready now. The remaining cards map the next core topics without sending you to empty pages.</p>
+        <p>Converted directly from the course LaTeX document.</p>
       </div>
 
       <div class="module-grid">
         <article class="module-card available">
           <span class="status-chip available">Available now</span>
-          <h3>Sketch Constraints</h3>
-          <p>Apply geometric and dimensional constraints, track degrees of freedom, and recognise a fully defined profile.</p>
-          <div class="card-actions"><a class="button primary" href="sketch-constraints/">Start module</a></div>
+          <h3>Geometric Transformations</h3>
+          <p>Affine transformations, rotations, Euler angles, quaternions, and projections.</p>
+          <div class="card-actions"><a class="button primary" href="geometric-transformations/index.html">Open module</a></div>
         </article>
-        <article class="module-card">
-          <span class="status-chip">Planned</span>
-          <h3>Orthographic Projection</h3>
-          <p>Relate front, top, and side views; choose a revealing principal view; and identify hidden detail.</p>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>Curves</h3>
+          <p>Parametric curves, differential geometry, Bezier curves, and rational curves.</p>
+          <div class="card-actions"><a class="button primary" href="curves/index.html">Open module</a></div>
         </article>
-        <article class="module-card">
-          <span class="status-chip">Planned</span>
-          <h3>Dimensions &amp; Tolerances</h3>
-          <p>Communicate size and allowable variation without duplicate dimensions or ambiguous references.</p>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>B-Splines</h3>
+          <p>Splines, basis functions, Cox–de Boor recursion, and divided differences.</p>
+          <div class="card-actions"><a class="button primary" href="b-splines/index.html">Open module</a></div>
         </article>
-        <article class="module-card">
-          <span class="status-chip">Planned</span>
-          <h3>Feature-Based Modelling</h3>
-          <p>Plan robust base features, reference stable geometry, and keep the design tree easy to revise.</p>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>Surfaces</h3>
+          <p>Parametric surfaces, differential geometry, Coons patches, and surface continuity.</p>
+          <div class="card-actions"><a class="button primary" href="surfaces/index.html">Open module</a></div>
+        </article>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>Solid Modeling</h3>
+          <p>Topology, boundary representation, CSG, half-edge data structures, and Euler operators.</p>
+          <div class="card-actions"><a class="button primary" href="solid-modeling/index.html">Open module</a></div>
         </article>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="path-title">
+    <section class="section compact" aria-labelledby="practice-title">
       <div class="section-heading">
-        <div><p class="section-kicker">Suggested sequence</p><h2 id="path-title">A durable modelling workflow</h2></div>
-        <p>Good CAD work is less about adding features quickly and more about making future changes predictable.</p>
+        <div><p class="section-kicker">Interactive practice</p><h2 id="practice-title">Sketch Constraints</h2></div>
+        <p>Apply geometric and dimensional constraints, track degrees of freedom, and recognise a fully defined profile.</p>
       </div>
-      <ol class="learning-path">
-        <li class="path-step"><h3>Define intent</h3><p>Identify the function, controlling dimensions, symmetry, and likely revisions before modelling.</p></li>
-        <li class="path-step"><h3>Constrain deliberately</h3><p>Use geometric relationships first, then add the minimum set of driving dimensions.</p></li>
-        <li class="path-step"><h3>Review change</h3><p>Edit key values and confirm that the model updates without broken or circular references.</p></li>
-      </ol>
+      <div class="module-grid">
+        <article class="module-card available">
+          <span class="status-chip available">Interactive</span>
+          <h3>Sketch Constraints</h3>
+          <p>Turn a loose sketch into a fully constrained profile.</p>
+          <div class="card-actions"><a class="button secondary" href="sketch-constraints/index.html">Start activity</a></div>
+        </article>
+      </div>
     </section>
 
-    <section class="section compact" aria-labelledby="quiz-callout-title">
+    <section class="section compact" aria-labelledby="assessment-callout-title">
       <div class="callout">
-        <div><p class="section-kicker">Check your baseline</p><h2 id="quiz-callout-title">Know the idea, not just the icon</h2><p>Take the CAD Foundations quiz to check vocabulary, constraints, drawing views, and modelling practice.</p></div>
-        <a class="button secondary" href="../self-assessment-quizzes/cad-foundations/">Take the quiz</a>
+        <div><p class="section-kicker">Self assessment</p><h2 id="assessment-callout-title">Questions will be added separately</h2><p>The self-assessment area is ready for future question sets.</p></div>
+        <a class="button secondary" href="../self-assessment-quizzes/index.html">Open placeholder</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p><strong>CAD</strong> · CAD Modules</p>
-    <ul class="footer-nav" aria-label="Footer navigation"><li><a href="../index.html">Home</a></li><li><a href="../programming-modules/">Programming Modules</a></li><li><a href="../self-assessment-quizzes/">Self Assessment Quizzes</a></li></ul>
+    <p><strong>CAD</strong> · Theory</p>
+    <ul class="footer-nav" aria-label="Footer navigation"><li><a href="../index.html">Home</a></li><li><a href="../programming-modules/index.html">Programming Modules</a></li><li><a href="../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li></ul>
     <p>Created by Murali Palla · <span data-year>2026</span></p>
   </footer>
 </body>

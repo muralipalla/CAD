@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore global polynomial interpolation by adding and dragging data points.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Interpolation Lab</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/js/curve-lab.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html" aria-current="page">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">Interpolation</li></ol>
+      <p class="eyebrow">Interactive programming module 01</p>
+      <h1>Global <em>Interpolation</em></h1>
+      <p class="activity-lead">Place data points in click order and drag them while a chord-length-parametrized polynomial is rebuilt. Compare the curve with the points’ convex hull.</p>
+      <ul class="meta-list"><li>Click and drag</li><li>Python or MATLAB</li><li>Global Lagrange polynomial</li></ul>
+    </header>
+
+    <section class="curve-lab-grid" aria-label="Interpolation code and graphics workspaces">
+      <article class="lab-window" aria-labelledby="interpolation-code-title">
+        <div class="window-heading">
+          <div><p class="card-kicker">Window 1 · Code</p><h2 id="interpolation-code-title">Interpolation program</h2></div>
+          <div class="language-toggle" role="group" aria-label="Code language">
+            <button class="language-button" type="button" data-language="python" aria-pressed="true">Python</button>
+            <button class="language-button" type="button" data-language="matlab" aria-pressed="false">MATLAB</button>
+          </div>
+        </div>
+        <p>The point array updates with the geometry. The code uses the same chord-length nodes and barycentric Lagrange formula as the browser view.</p>
+        <div class="curve-code-panel">
+          <div class="code-toolbar"><span data-code-filename>interpolation.py</span><button class="copy-button" type="button" data-copy-code>Copy code</button></div>
+          <pre><code data-code-output></code></pre>
+        </div>
+      </article>
+
+      <article class="lab-window" aria-labelledby="interpolation-graphics-title">
+        <div class="window-heading"><div><p class="card-kicker">Window 2 · Graphics</p><h2 id="interpolation-graphics-title">Interpolate clicked points</h2></div></div>
+        <div class="visual-toolbar">
+          <label class="toggle-control"><input type="checkbox" data-show-hull checked><span>Convex hull</span></label>
+          <label class="toggle-control"><input type="checkbox" data-mark-overshoot checked><span>Highlight outside curve</span></label>
+          <button class="mini-button" type="button" data-undo>Undo point</button>
+          <button class="mini-button" type="button" data-clear>Clear</button>
+          <button class="mini-button" type="button" data-reset>Reset example</button>
+        </div>
+        <div class="canvas-frame">
+          <canvas class="interactive-canvas" data-curve-canvas width="900" height="600" tabindex="0" aria-label="Interactive interpolation plot. Click empty space to add a point, drag a point to move it, or use arrow keys to move the selected point." aria-describedby="interpolation-hint"></canvas>
+        </div>
+        <div class="legend-row" aria-hidden="true"><span class="legend-item"><span class="legend-swatch" style="--swatch:#8ac7ff"></span>inside hull</span><span class="legend-item"><span class="legend-swatch" style="--swatch:#f05b3f"></span>outside hull</span><span class="legend-item"><span class="legend-swatch" style="--swatch:#ffb29e"></span>data points</span></div>
+        <p class="interaction-hint" id="interpolation-hint">Click empty space to add a point. Drag a point, or select it and use the arrow keys. Delete removes the selected point.</p>
+        <div class="lab-status" data-status role="status" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="section compact" aria-labelledby="interpolation-learning-title">
+      <div class="content-panel"><p class="section-kicker">Learning point</p><h2 id="interpolation-learning-title">Interpolation does not guarantee a convex-hull curve</h2><p>The polynomial passes through every data point, but portions can overshoot beyond the convex hull. Moving one point can change the curve everywhere because this interpolant is global.</p></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Interpolation Lab</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Programming modules that connect coordinates, loops, vectors, and parameters to CAD geometry.">
+  <meta name="description" content="Interactive programming modules for interpolation, Bezier curves, Hermite curves, and B-splines/NURBS.">
   <meta name="theme-color" content="#fdf6ec">
   <title>CAD · Programming Modules</title>
   <link rel="stylesheet" href="../assets/css/style.css">
@@ -15,46 +15,49 @@
     <nav class="top-nav" aria-label="Main navigation">
       <a class="brand" href="../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
       <div class="nav-links">
-        <a href="../cad-modules/">CAD Modules</a>
-        <a href="./" aria-current="page">Programming Modules</a>
-        <a href="../self-assessment-quizzes/">Self Assessment Quizzes</a>
+        <a href="../cad-modules/index.html">Theory</a>
+        <a href="./index.html" aria-current="page">Programming Modules</a>
+        <a href="../self-assessment-quizzes/index.html">Self Assessment Quizzes</a>
       </div>
     </nav>
     <div class="page-hero">
       <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../index.html">Home</a></li><li aria-current="page">Programming Modules</li></ol>
       <p class="eyebrow">Section 2</p>
       <h1>Programming <em>Modules</em></h1>
-      <p class="page-lead">Turn geometric rules into clear, reusable instructions and see how a few parameters can generate a family of designs.</p>
+      <p class="page-lead">Compare Python or MATLAB code with an interactive JavaScript visualization of the same curve construction.</p>
     </div>
   </header>
 
   <main id="main-content">
     <section class="section compact" aria-labelledby="programming-list-title">
       <div class="section-heading">
-        <div><p class="section-kicker">Module library</p><h2 id="programming-list-title">Describe geometry with code</h2></div>
-        <p>No CAD software or programming setup is required for the starter activity; the browser preview makes every parameter visible.</p>
+        <div><p class="section-kicker">Curve laboratories</p><h2 id="programming-list-title">Code in one window, geometry in the other</h2></div>
+        <p>Choose Python or MATLAB in each curve lab, then click and drag the geometry while the visualization updates.</p>
       </div>
       <div class="module-grid">
         <article class="module-card available">
           <span class="status-chip available">Available now</span>
-          <h3>Parametric Circular Patterns</h3>
-          <p>Generate evenly spaced points with angles, a loop, and a small set of driving parameters.</p>
-          <div class="card-actions"><a class="button primary" href="parametric-patterns/">Start module</a></div>
+          <h3>Interpolation</h3>
+          <p>Interpolate clicked points, drag them, and compare the curve with the points’ convex hull.</p>
+          <div class="card-actions"><a class="button primary" href="interpolation/index.html">Start module</a></div>
         </article>
-        <article class="module-card">
-          <span class="status-chip">Planned</span>
-          <h3>Coordinates &amp; Transforms</h3>
-          <p>Move between local and global coordinates using translation, rotation, and scale.</p>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>Bezier Curves</h3>
+          <p>Plot the curve, control polygon, convex hull, and Bernstein basis functions.</p>
+          <div class="card-actions"><a class="button primary" href="bezier-curves/index.html">Start module</a></div>
         </article>
-        <article class="module-card">
-          <span class="status-chip">Planned</span>
-          <h3>Vectors for Geometry</h3>
-          <p>Use direction, magnitude, dot products, and cross products to answer practical modelling questions.</p>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>Hermite Curves</h3>
+          <p>Set two endpoints and edit their tangent vectors directly on screen.</p>
+          <div class="card-actions"><a class="button primary" href="hermite-curves/index.html">Start module</a></div>
         </article>
-        <article class="module-card">
-          <span class="status-chip">Planned</span>
-          <h3>CAD Automation</h3>
-          <p>Structure scripts that create, name, validate, and export repeatable model variants safely.</p>
+        <article class="module-card available">
+          <span class="status-chip available">Available now</span>
+          <h3>B-Splines / NURBS</h3>
+          <p>Change curve type, knots, local hulls, span colors, and control-point weights.</p>
+          <div class="card-actions"><a class="button primary" href="b-splines-nurbs/index.html">Start module</a></div>
         </article>
       </div>
     </section>
@@ -70,17 +73,32 @@
       </div>
     </section>
 
+    <section class="section compact" aria-labelledby="additional-practice-title">
+      <div class="section-heading">
+        <div><p class="section-kicker">Additional practice</p><h2 id="additional-practice-title">Parametric Circular Patterns</h2></div>
+        <p>Generate evenly spaced points with angles, a loop, and a small set of driving parameters.</p>
+      </div>
+      <div class="module-grid">
+        <article class="module-card available">
+          <span class="status-chip available">Interactive activity</span>
+          <h3>Build a bolt-circle pattern</h3>
+          <p>Change the count, radius, rotation, and hole size while the diagram and Python example update together.</p>
+          <div class="card-actions"><a class="button secondary" href="parametric-patterns/index.html">Open activity</a></div>
+        </article>
+      </div>
+    </section>
+
     <section class="section" aria-labelledby="starter-title">
       <div class="callout">
-        <div><p class="section-kicker">Interactive starter</p><h2 id="starter-title">Build a bolt-circle pattern</h2><p>Change the count, radius, rotation, and hole size while the diagram and readable Python example update together.</p></div>
-        <a class="button primary" href="parametric-patterns/">Open the pattern lab</a>
+        <div><p class="section-kicker">Interactive starter</p><h2 id="starter-title">Interpolate points on screen</h2><p>Click a set of points, drag them into new positions, and observe when the interpolation curve leaves their convex hull.</p></div>
+        <a class="button primary" href="interpolation/index.html">Open interpolation</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <p><strong>CAD</strong> · Programming Modules</p>
-    <ul class="footer-nav" aria-label="Footer navigation"><li><a href="../index.html">Home</a></li><li><a href="../cad-modules/">CAD Modules</a></li><li><a href="../self-assessment-quizzes/">Self Assessment Quizzes</a></li></ul>
+    <ul class="footer-nav" aria-label="Footer navigation"><li><a href="../index.html">Home</a></li><li><a href="../cad-modules/index.html">Theory</a></li><li><a href="../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li></ul>
     <p>Created by Murali Palla · <span data-year>2026</span></p>
   </footer>
 </body>

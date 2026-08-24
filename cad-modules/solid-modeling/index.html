@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Solid modeling is the branch of CAD concerned with the representation, construction, manipulation and analysis of three-dimensional solid objects.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Solid Modeling</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Solid Modeling</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>Solid Modeling</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol><li class="toc-section"><a href="#solid-modeling-vs-engineering-graphics">Solid Modeling vs. Engineering Graphics</a></li>
+<li class="toc-section"><a href="#geometry-vs-topology">Geometry vs. Topology</a></li>
+<li class="toc-subsection"><a href="#geometry">Geometry</a></li>
+<li class="toc-subsection"><a href="#topology">Topology</a></li>
+<li class="toc-section"><a href="#interior-boundary-and-exterior-of-a-solid">Interior, Boundary and Exterior of a Solid</a></li>
+<li class="toc-section"><a href="#definition-of-homeomorphism">Definition of Homeomorphism</a></li>
+<li class="toc-section"><a href="#euler-characteristic">Euler Characteristic</a></li>
+<li class="toc-section"><a href="#concept-of-genus">Concept of Genus</a></li>
+<li class="toc-section"><a href="#types-of-solid-modeling">Types of Solid Modeling</a></li>
+<li class="toc-section"><a href="#boundary-representation">Boundary Representation</a></li>
+<li class="toc-subsection"><a href="#advantages-of-b-rep">Advantages of B-Rep</a></li>
+<li class="toc-subsection"><a href="#limitations-of-b-rep">Limitations of B-Rep</a></li>
+<li class="toc-section"><a href="#winged-edge-data-structure">Winged-Edge Data Structure</a></li>
+<li class="toc-subsection"><a href="#advantages">Advantages</a></li>
+<li class="toc-subsection"><a href="#limitations">Limitations</a></li>
+<li class="toc-section"><a href="#half-edge-data-structure">Half-Edge Data Structure</a></li>
+<li class="toc-subsection"><a href="#basic-queries">Basic Queries</a></li>
+<li class="toc-section"><a href="#implementation-of-half-edge-queries-in-python">Implementation of Half-Edge Queries in Python</a></li>
+<li class="toc-subsection"><a href="#query-vertices-of-a-face">Query: Vertices of a Face</a></li>
+<li class="toc-subsection"><a href="#query-half-edges-of-a-face">Query: Half-Edges of a Face</a></li>
+<li class="toc-subsection"><a href="#query-adjacent-faces">Query: Adjacent Faces</a></li>
+<li class="toc-subsection"><a href="#query-neighboring-vertices-of-a-vertex">Query: Neighboring Vertices of a Vertex</a></li>
+<li class="toc-section"><a href="#constructive-solid-geometry">Constructive Solid Geometry</a></li>
+<li class="toc-subsection"><a href="#example">Example</a></li>
+<li class="toc-subsection"><a href="#advantages-of-csg">Advantages of CSG</a></li>
+<li class="toc-subsection"><a href="#limitations-of-csg">Limitations of CSG</a></li>
+<li class="toc-section"><a href="#introduction-to-openscad">Introduction to OpenSCAD</a></li>
+<li class="toc-section"><a href="#creation-of-half-edge-data-structure-using-euler-operators">Creation of Half-Edge Data Structure using Euler Operators</a></li>
+<li class="toc-subsection"><a href="#illustrative-construction-of-a-face">Illustrative Construction of a Face</a></li>
+<li class="toc-section"><a href="#uses-of-euler-operators">Uses of Euler Operators</a></li>
+<li class="toc-section"><a href="#summary">Summary</a></li>
+<li class="toc-section"><a href="#summary-2">Summary</a></li></ol>
+    </nav>
+    <article class="notes-article">
+      <p>Solid modeling is the branch of CAD concerned with the representation, construction, manipulation and analysis of three-dimensional solid objects. A solid model is not merely a visual drawing of an object. It is a mathematically meaningful representation that can answer geometric and topological questions such as volume, surface area, inside–outside classification, intersection, adjacency, mass properties and manufacturability.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A solid model must represent a closed, bounded and physically meaningful three-dimensional object. It should be possible to distinguish the interior, boundary and exterior of the object.</p></div></aside>
+<h2 id="solid-modeling-vs-engineering-graphics">Solid Modeling vs. Engineering Graphics</h2>
+<p>Engineering graphics and solid modeling are closely related, but they are not the same.</p>
+<p>Engineering graphics is mainly concerned with representing three-dimensional objects using two-dimensional drawings. Orthographic views, sectional views, dimensioning, tolerances and projection methods are important in engineering graphics.</p>
+<p>Solid modeling, on the other hand, represents the object itself in a computer. The model stores enough information to support operations such as sectioning, Boolean operations, mass-property calculation, meshing, tool-path generation and finite element analysis.</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Aspect</strong></th><th scope="col"><strong>Engineering Graphics</strong></th><th scope="col"><strong>Solid Modeling</strong></th></tr></thead><tbody><tr><td>Main purpose</td><td>Communication through drawings</td><td>Mathematical and computational representation of solids</td></tr><tr><td>Primary output</td><td>2D views, sections, dimensions</td><td>3D solid model</td></tr><tr><td>Emphasis</td><td>Projection, visualization and standards</td><td>Geometry, topology and operations</td></tr><tr><td>Typical question</td><td>How does the object look from a direction?</td><td>What is the object, and how is it connected?</td></tr><tr><td>Examples</td><td>Orthographic drawing, sectional view</td><td>B-Rep model, CSG model, feature model</td></tr></tbody></table></div></div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Engineering graphics is a language for communicating design intent. Solid modeling is a computational representation of the designed object. Modern CAD systems combine both: the user creates a solid model, and engineering drawings are generated from it.</p></div></aside>
+<h2 id="geometry-vs-topology">Geometry vs. Topology</h2>
+<p>A solid model contains two different kinds of information: geometry and topology.</p>
+<h3 id="geometry">Geometry</h3>
+<p>Geometry describes the actual shape, size and position of entities. It answers questions such as:</p>
+<ol class="roman-list"><li><p>Where is a vertex located?</p></li><li><p>What is the equation of an edge curve?</p></li><li><p>What is the equation of a surface?</p></li><li><p>What are the dimensions and coordinates of the object?</p></li></ol>
+<p>Examples of geometric data are:</p>
+<div class="math-display">\[
+\mathbf P=(x,y,z),
+\]</div>
+<div class="math-display">\[
+\mathbf r(u),
+\]</div>
+<div class="math-display">\[
+\mathbf r(u,v),
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+ax+by+cz+d=0.
+\]</div>
+<h3 id="topology">Topology</h3>
+<p>Topology describes how geometric entities are connected. It answers questions such as:</p>
+<ol class="roman-list"><li><p>Which vertices form an edge?</p></li><li><p>Which edges bound a face?</p></li><li><p>Which faces meet at an edge?</p></li><li><p>Which faces are adjacent to a given face?</p></li><li><p>Is the object closed?</p></li><li><p>Does the object contain holes or handles?</p></li></ol>
+<p>Topology is independent of exact dimensions. For example, a cube and a deformed cuboid have different geometry but the same topology.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Geometry tells us where things are. Topology tells us how things are connected.</p></div></aside>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>A square and a rectangle have different geometry because their dimensions are different. However, they have the same topology: four vertices, four edges and one face bounded by a closed loop.</p></div></aside>
+<h2 id="interior-boundary-and-exterior-of-a-solid">Interior, Boundary and Exterior of a Solid</h2>
+<p>For a solid object \(S\subset \mathbb R^3\), every point in space belongs to one of three sets:</p>
+<div class="math-display">\[
+\operatorname{int}(S),
+\qquad
+\partial S,
+\qquad
+\operatorname{ext}(S).
+\]</div>
+<p>The interior of \(S\), denoted by \(\operatorname{int}(S)\), is the set of points that lie strictly inside the solid. Around every interior point, one can draw a small ball that lies completely inside the solid.</p>
+<p>The boundary of \(S\), denoted by \(\partial S\), is the set of points that separate the inside from the outside. These are the points on the surface of the solid.</p>
+<p>The exterior of \(S\), denoted by \(\operatorname{ext}(S)\), is the set of points that lie outside the solid.</p>
+<p>Thus,</p>
+<div class="math-display">\[
+\mathbb R^3
+=
+\operatorname{int}(S)
+\cup
+\partial S
+\cup
+\operatorname{ext}(S).
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A valid solid model must support inside–outside classification. Given a point \(\mathbf p\), the model should be able to determine whether</p>
+<div class="math-display">\[
+\mathbf p\in\operatorname{int}(S),
+\qquad
+\mathbf p\in\partial S,
+\qquad
+\text{or}
+\qquad
+\mathbf p\in\operatorname{ext}(S).
+\]</div></div></aside>
+<h2 id="definition-of-homeomorphism">Definition of Homeomorphism</h2>
+<p>Two objects are said to be homeomorphic if one can be continuously deformed into the other without cutting, tearing or gluing.</p>
+<p>More formally, two topological spaces \(X\) and \(Y\) are homeomorphic if there exists a map</p>
+<div class="math-display">\[
+f:X\rightarrow Y
+\]</div>
+<p>such that:</p>
+<ol class="roman-list"><li><p>\(f\) is one-to-one,</p></li><li><p>\(f\) is onto,</p></li><li><p>\(f\) is continuous,</p></li><li><p>\(f^{-1}\) is continuous.</p></li></ol>
+<p>If such a map exists, we write</p>
+<div class="math-display">\[
+X\cong Y.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Homeomorphism captures the idea of topological equivalence. It ignores exact lengths and angles, but preserves connectivity and the number of holes.</p></div></aside>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>A sphere and a cube are homeomorphic because a cube can be continuously rounded into a sphere without cutting or gluing.</p>
+<p>A sphere and a torus are not homeomorphic because a torus has a hole, while a sphere does not.</p></div></aside>
+<h2 id="euler-characteristic">Euler Characteristic</h2>
+<p>The Euler characteristic is a topological invariant that relates the number of vertices, edges and faces of a polyhedral surface.</p>
+<p>For a closed polyhedral surface,</p>
+<div class="math-display">\[
+\boxed{
+\chi=V-E+F
+}
+\]</div>
+<p>where \(V\) is the number of vertices, \(E\) is the number of edges and \(F\) is the number of faces.</p>
+<p>For a closed orientable surface of genus \(g\),</p>
+<div class="math-display">\[
+\boxed{
+\chi=2-2g.
+}
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\boxed{
+V-E+F=2-2g.
+}
+\]</div>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>For a cube,</p>
+<div class="math-display">\[
+V=8,\qquad E=12,\qquad F=6.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\chi=V-E+F=8-12+6=2.
+\]</div>
+<p>Thus, the cube is topologically equivalent to a sphere, whose genus is \(g=0\).</p></div></aside>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>For a torus,</p>
+<div class="math-display">\[
+g=1.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\chi=2-2g=2-2=0.
+\]</div>
+<p>A torus has one handle.</p></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>For more general boundary representations involving multiple shells, holes in faces and internal cavities, the Euler–Poincare formula contains additional terms. CAD systems use such extended formulas to check whether a B-Rep model is topologically valid.</p></div></aside>
+<h2 id="concept-of-genus">Concept of Genus</h2>
+<p>The genus of a closed orientable surface is the number of handles or through-holes in the object.</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Object</strong></th><th scope="col"><strong>Genus \(g\)</strong></th><th scope="col"><strong>Euler Characteristic \(\chi=2-2g\)</strong></th></tr></thead><tbody><tr><td>Sphere-like object</td><td>\(0\)</td><td>\(2\)</td></tr><tr><td>Torus</td><td>\(1\)</td><td>\(0\)</td></tr><tr><td>Double torus</td><td>\(2\)</td><td>\(-2\)</td></tr><tr><td>Triple torus</td><td>\(3\)</td><td>\(-4\)</td></tr></tbody></table></div></div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The genus is a topological quantity. Stretching or bending a solid does not change its genus. Cutting or creating a new through-hole changes its genus.</p></div></aside>
+<h2 id="types-of-solid-modeling">Types of Solid Modeling</h2>
+<p>There are several ways to represent solids in a CAD system. The most important are:</p>
+<ol class="roman-list"><li><p>Boundary Representation,</p></li><li><p>Constructive Solid Geometry,</p></li><li><p>Sweep Representation,</p></li><li><p>Feature-Based Modeling,</p></li><li><p>Spatial Decomposition.</p></li></ol>
+<p>In these notes, we focus mainly on Boundary Representation and Constructive Solid Geometry.</p>
+<h2 id="boundary-representation">Boundary Representation</h2>
+<p>Boundary Representation, usually abbreviated as B-Rep, represents a solid through its boundary. The boundary is made of faces, edges and vertices.</p>
+<p>A B-Rep model stores both geometry and topology.</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Entity</strong></th><th scope="col"><strong>Meaning</strong></th></tr></thead><tbody><tr><td>Vertex</td><td>A point in space</td></tr><tr><td>Edge</td><td>A curve segment joining two vertices</td></tr><tr><td>Face</td><td>A bounded portion of a surface</td></tr><tr><td>Loop</td><td>A closed sequence of edges bounding a face</td></tr><tr><td>Shell</td><td>A connected set of faces forming a closed boundary</td></tr><tr><td>Solid</td><td>A region of space bounded by one or more shells</td></tr></tbody></table></div></div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>In B-Rep, a solid is represented by its boundary. The boundary must be closed, consistently oriented and topologically valid.</p></div></aside>
+<h3 id="advantages-of-b-rep">Advantages of B-Rep</h3>
+<ol class="roman-list"><li><p>It represents complex freeform surfaces naturally.</p></li><li><p>It supports local queries such as adjacent faces and incident edges.</p></li><li><p>It is suitable for rendering, meshing and surface-based operations.</p></li><li><p>It is the dominant representation in many CAD kernels.</p></li></ol>
+<h3 id="limitations-of-b-rep">Limitations of B-Rep</h3>
+<ol class="roman-list"><li><p>Boolean operations are algorithmically difficult.</p></li><li><p>Topological consistency must be carefully maintained.</p></li><li><p>Small numerical errors can create gaps, sliver faces or non-manifold edges.</p></li></ol>
+<h2 id="winged-edge-data-structure">Winged-Edge Data Structure</h2>
+<p>The winged-edge data structure is a classical data structure for representing polyhedral boundary models.</p>
+<p>Each edge stores references to:</p>
+<ol class="roman-list"><li><p>its two endpoint vertices,</p></li><li><p>its two adjacent faces,</p></li><li><p>the previous and next edges around each adjacent face.</p></li></ol>
+<p>Thus, an edge is treated as the central entity. The two faces adjacent to the edge are sometimes called its left and right faces.</p>
+<p>A typical winged-edge record contains:</p>
+<div class="math-display">\[
+\text{Edge}=
+(v_1,v_2,f_L,f_R,e_{L}^{prev},e_{L}^{next},e_{R}^{prev},e_{R}^{next}).
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The winged-edge data structure is designed to answer adjacency queries efficiently. For example, it can quickly find the faces adjacent to an edge or the neighboring edges around a face.</p></div></aside>
+<h3 id="advantages">Advantages</h3>
+<ol class="roman-list"><li><p>Efficient adjacency queries.</p></li><li><p>Good for closed orientable polyhedral surfaces.</p></li><li><p>Useful for mesh editing and traversal.</p></li></ol>
+<h3 id="limitations">Limitations</h3>
+<ol class="roman-list"><li><p>The data structure is relatively complex.</p></li><li><p>Careful handling is required for boundary edges.</p></li><li><p>Implementation of topological operations can be cumbersome.</p></li></ol>
+<h2 id="half-edge-data-structure">Half-Edge Data Structure</h2>
+<p>The half-edge data structure is one of the most widely used data structures for polygon meshes and B-Rep topology.</p>
+<p>The main idea is to split each edge into two oppositely oriented half-edges.</p>
+<p>If an edge connects vertices \(v_i\) and \(v_j\), then the two half-edges are:</p>
+<div class="math-display">\[
+h_{ij}:v_i\rightarrow v_j,
+\qquad
+h_{ji}:v_j\rightarrow v_i.
+\]</div>
+<p>Each half-edge stores references to:</p>
+<ol class="roman-list"><li><p>its origin vertex,</p></li><li><p>its twin half-edge,</p></li><li><p>the next half-edge around the face,</p></li><li><p>the previous half-edge around the face,</p></li><li><p>the face to its left.</p></li></ol>
+<p>A typical half-edge record is</p>
+<div class="math-display">\[
+h=(\text{origin},\text{twin},\text{next},\text{prev},\text{face}).
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The half-edge data structure represents orientation explicitly. This makes it very convenient for traversing faces, vertices and neighboring elements.</p></div></aside>
+<h3 id="basic-queries">Basic Queries</h3>
+<p>The half-edge data structure makes the following queries easy:</p>
+<ol class="roman-list"><li><p>find all vertices of a face,</p></li><li><p>find all edges of a face,</p></li><li><p>find all faces adjacent to a given face,</p></li><li><p>find all edges incident on a vertex,</p></li><li><p>find all neighboring vertices of a vertex,</p></li><li><p>test whether an edge is on the boundary.</p></li></ol>
+<h2 id="implementation-of-half-edge-queries-in-python">Implementation of Half-Edge Queries in Python</h2>
+<p>The following Python code shows a minimal half-edge data structure. It is intended for teaching purposes and is not a complete CAD kernel.</p>
+<pre class="notes-code"><code>from dataclasses import dataclass
+from typing import Optional, List
+
+
+@dataclass
+class Vertex:
+    id: int
+    x: float
+    y: float
+    z: float
+    halfedge: Optional["HalfEdge"] = None
+
+
+@dataclass
+class Face:
+    id: int
+    halfedge: Optional["HalfEdge"] = None
+
+
+@dataclass
+class HalfEdge:
+    id: int
+    origin: Vertex
+    twin: Optional["HalfEdge"] = None
+    next: Optional["HalfEdge"] = None
+    prev: Optional["HalfEdge"] = None
+    face: Optional[Face] = None</code></pre>
+<h3 id="query-vertices-of-a-face">Query: Vertices of a Face</h3>
+<p>To obtain all vertices of a face, start from one half-edge of the face and repeatedly follow the <code>next</code> pointer until the starting half-edge is reached again.</p>
+<pre class="notes-code"><code>def vertices_of_face(face: Face) -&gt; List[Vertex]:
+    vertices = []
+    start = face.halfedge
+    h = start
+
+    while True:
+        vertices.append(h.origin)
+        h = h.next
+        if h == start:
+            break
+
+    return vertices</code></pre>
+<h3 id="query-half-edges-of-a-face">Query: Half-Edges of a Face</h3>
+<pre class="notes-code"><code>def halfedges_of_face(face: Face) -&gt; List[HalfEdge]:
+    halfedges = []
+    start = face.halfedge
+    h = start
+
+    while True:
+        halfedges.append(h)
+        h = h.next
+        if h == start:
+            break
+
+    return halfedges</code></pre>
+<h3 id="query-adjacent-faces">Query: Adjacent Faces</h3>
+<p>A face adjacent to a given face across a half-edge is obtained by crossing the twin half-edge.</p>
+<pre class="notes-code"><code>def adjacent_faces(face: Face) -&gt; List[Face]:
+    neighbors = []
+
+    for h in halfedges_of_face(face):
+        if h.twin is not None and h.twin.face is not None:
+            neighbors.append(h.twin.face)
+
+    return neighbors</code></pre>
+<h3 id="query-neighboring-vertices-of-a-vertex">Query: Neighboring Vertices of a Vertex</h3>
+<p>To find neighboring vertices of a vertex, move around the vertex by repeatedly using the <code>twin</code> and <code>next</code> pointers.</p>
+<pre class="notes-code"><code>def neighboring_vertices(vertex: Vertex) -&gt; List[Vertex]:
+    neighbors = []
+    start = vertex.halfedge
+    h = start
+
+    while True:
+        if h.twin is None:
+            break
+
+        neighbors.append(h.twin.origin)
+        h = h.twin.next
+
+        if h == start:
+            break
+
+    return neighbors</code></pre>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The above code assumes a consistently oriented manifold mesh. Boundary edges, non-manifold vertices and disconnected components require additional checks.</p></div></aside>
+<h2 id="constructive-solid-geometry">Constructive Solid Geometry</h2>
+<p>Constructive Solid Geometry, abbreviated as CSG, represents solids by combining primitive solids using Boolean operations.</p>
+<p>Common primitive solids are:</p>
+<ol class="roman-list"><li><p>cube,</p></li><li><p>sphere,</p></li><li><p>cylinder,</p></li><li><p>cone,</p></li><li><p>torus.</p></li></ol>
+<p>The main Boolean operations are:</p>
+<div class="math-display">\[
+A\cup B
+\quad\text{union},
+\]</div>
+<div class="math-display">\[
+A\cap B
+\quad\text{intersection},
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+A-B
+\quad\text{difference}.
+\]</div>
+<p>A CSG model is commonly represented as a tree. The leaves of the tree are primitive solids, and the internal nodes are Boolean operations.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>In CSG, a complex solid is built by combining simple primitive solids using Boolean operations.</p></div></aside>
+<h3 id="example">Example</h3>
+<p>A block with a cylindrical hole may be represented as</p>
+<div class="math-display">\[
+\text{Block with hole}
+=
+\text{Cube}
+-
+\text{Cylinder}.
+\]</div>
+<p>This representation directly captures the design intention: a cylinder has been removed from a block.</p>
+<h3 id="advantages-of-csg">Advantages of CSG</h3>
+<ol class="roman-list"><li><p>Simple and intuitive construction.</p></li><li><p>Compact representation.</p></li><li><p>Design history is naturally represented.</p></li><li><p>Boolean operations correspond to manufacturing-like operations.</p></li></ol>
+<h3 id="limitations-of-csg">Limitations of CSG</h3>
+<ol class="roman-list"><li><p>Rendering and meshing require conversion to boundary representation.</p></li><li><p>Local surface adjacency information is not directly available.</p></li><li><p>Complex freeform surfaces are harder to represent directly.</p></li></ol>
+<h2 id="introduction-to-openscad">Introduction to OpenSCAD</h2>
+<p>OpenSCAD is a script-based solid modeling tool based largely on the CSG philosophy. Instead of interactively dragging features with a mouse, the user writes code to create solids.</p>
+<p>A simple cube is created as:</p>
+<pre class="notes-code"><code>cube([20, 20, 10]);</code></pre>
+<p>A sphere is created as:</p>
+<pre class="notes-code"><code>sphere(r = 10);</code></pre>
+<p>A cylinder is created as:</p>
+<pre class="notes-code"><code>cylinder(h = 30, r = 5);</code></pre>
+<p>The following OpenSCAD code creates a block with a cylindrical hole:</p>
+<pre class="notes-code"><code>difference() {
+    cube([40, 30, 20], center = true);
+
+    cylinder(h = 30, r = 6, center = true);
+}</code></pre>
+<p>Here the <code>difference()</code> operation subtracts the cylinder from the cube.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>OpenSCAD is useful for teaching CSG because the modeling operations are explicit in the code. The model is described procedurally rather than interactively.</p></div></aside>
+<p>OpenSCAD also supports transformations:</p>
+<pre class="notes-code"><code>translate([20, 0, 0])
+rotate([0, 0, 45])
+cube([10, 10, 10]);</code></pre>
+<p>This creates a cube, rotates it about the \(z\)-axis and then translates it.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>OpenSCAD is especially useful for parametric modeling. Dimensions can be stored as variables, and changing a variable automatically changes the generated model.</p></div></aside>
+<h2 id="creation-of-half-edge-data-structure-using-euler-operators">Creation of Half-Edge Data Structure using Euler Operators</h2>
+<p>Euler operators are elementary topological operations used to construct and modify boundary representations while preserving topological validity.</p>
+<p>Instead of directly editing lists of vertices, edges and faces, a CAD kernel can use Euler operators to guarantee that the model remains consistent.</p>
+<p>Common Euler operators include:</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Operator</strong></th><th scope="col"><strong>Meaning</strong></th></tr></thead><tbody><tr><td>MVFS</td><td>Make Vertex Face Solid. Creates a new solid with one vertex and one face.</td></tr><tr><td>MEV</td><td>Make Edge Vertex. Creates a new edge and a new vertex from an existing vertex.</td></tr><tr><td>MEF</td><td>Make Edge Face. Creates a new edge between two vertices and splits a face into two faces.</td></tr><tr><td>KEV</td><td>Kill Edge Vertex. Deletes an edge and a vertex. It is the inverse of MEV.</td></tr><tr><td>KEF</td><td>Kill Edge Face. Deletes an edge and merges two faces. It is the inverse of MEF.</td></tr><tr><td>KEMR</td><td>Kill Edge Make Ring. Deletes an edge and creates an inner loop or ring.</td></tr><tr><td>MEKR</td><td>Make Edge Kill Ring. Creates an edge and removes a ring.</td></tr></tbody></table></div></div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler operators are topology-preserving construction rules for B-Rep models. They modify the numbers of vertices, edges, faces, loops, shells and genus in a controlled way.</p></div></aside>
+<h3 id="illustrative-construction-of-a-face">Illustrative Construction of a Face</h3>
+<p>A simple polygonal face can be created conceptually as follows.</p>
+<ol class="roman-list"><li><p>Use MVFS to create an initial solid with one vertex and one face.</p></li><li><p>Use MEV repeatedly to create additional vertices and edges.</p></li><li><p>Use MEF to close the polygon and split the face if necessary.</p></li></ol>
+<p>For example, a quadrilateral face may be created by starting with one vertex and adding vertices one by one using MEV. Finally, an edge is added between the last and first vertices to close the loop.</p>
+<p>At the half-edge level, each edge creation produces two half-edges:</p>
+<div class="math-display">\[
+h_{ij}:v_i\rightarrow v_j,
+\qquad
+h_{ji}:v_j\rightarrow v_i.
+\]</div>
+<p>The <code>next</code> and <code>prev</code> pointers are updated so that the boundary of the face forms a closed cycle.</p>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>For a face bounded by vertices</p>
+<div class="math-display">\[
+v_0,v_1,v_2,v_3,
+\]</div>
+<p>the half-edge loop is</p>
+<div class="math-display">\[
+h_{01}\rightarrow h_{12}\rightarrow h_{23}\rightarrow h_{30}\rightarrow h_{01}.
+\]</div>
+<p>The opposite half-edges form twin pairs:</p>
+<div class="math-display">\[
+h_{01}\leftrightarrow h_{10},
+\quad
+h_{12}\leftrightarrow h_{21},
+\quad
+h_{23}\leftrightarrow h_{32},
+\quad
+h_{30}\leftrightarrow h_{03}.
+\]</div></div></aside>
+<h2 id="uses-of-euler-operators">Uses of Euler Operators</h2>
+<p>Euler operators are used in solid modeling for several important purposes.</p>
+<ol class="roman-list"><li><p><strong>Construction of valid solids:</strong> They provide a systematic way to build B-Rep models while maintaining topological consistency.</p></li><li><p><strong>Editing of topology:</strong> They allow edges, faces, holes and loops to be added or removed in a controlled way.</p></li><li><p><strong>Implementation of CAD kernels:</strong> Many solid-modeling kernels use Euler operators internally to manage topological changes.</p></li><li><p><strong>Validation of models:</strong> Since Euler operators preserve Euler-type relations, they help detect invalid topology.</p></li><li><p><strong>Boolean operations:</strong> Boolean operations create and remove faces, edges and vertices. Euler operators provide the low-level topological tools needed for such updates.</p></li><li><p><strong>Mesh generation and repair:</strong> Euler operators are useful for splitting, merging and repairing mesh elements.</p></li></ol>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler operators provide the bridge between abstract topology and practical data-structure manipulation in solid modeling.</p></div></aside>
+<h2 id="summary">Summary</h2>
+<p>Solid modeling is concerned with representing complete three-dimensional objects, not merely their drawings. A valid solid model must clearly distinguish interior, boundary and exterior. B-Rep represents solids through vertices, edges and faces, while CSG represents solids through Boolean combinations of primitives.</p>
+<p>The distinction between geometry and topology is central to solid modeling. Geometry specifies coordinates, curves and surfaces. Topology specifies adjacency, connectivity and genus. Data structures such as winged-edge and half-edge representations are used to implement topological queries efficiently. Euler characteristic, genus, homeomorphism and Euler operators provide the mathematical foundation for checking and constructing valid solid models.</p>
+<h2 id="summary-2" class="notes-source-section">Summary</h2>
+<p>Geometric transformations provide the mathematical foundation for moving, rotating, scaling and projecting objects in CAD. Parametric curves provide flexible representations for design geometry. Bezier curves are simple and intuitive but lack local control. B-splines overcome this limitation through compactly supported basis functions and knot vectors. Rational curves extend polynomial curves and allow exact representation of conic sections. Surfaces extend these ideas to two parameters and require differential-geometric tools such as tangent vectors, normal vectors and curvature.</p>
+<p>These concepts form the mathematical core of modern CAD and CAAD systems.</p>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../surfaces/index.html"><span>Previous module</span><strong>Surfaces</strong></a><a class="notes-nav-link next" href="../index.html"><span>Module library</span><strong>Theory</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

@@ -1,0 +1,1715 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Geometric transformations are mathematical operations that modify the position, orientation, size or shape of geometric objects.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Geometric Transformations</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Geometric Transformations</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>Geometric Transformations</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol><li class="toc-section"><a href="#affine-transformations">Affine Transformations</a></li>
+<li class="toc-subsection"><a href="#homogeneous-coordinates">Homogeneous Coordinates</a></li>
+<li class="toc-section"><a href="#rotations">Rotations</a></li>
+<li class="toc-subsection"><a href="#2d-rotations">2D Rotations</a></li>
+<li class="toc-subsection"><a href="#rotation-about-an-arbitrary-point">Rotation about an Arbitrary Point</a></li>
+<li class="toc-subsection"><a href="#3d-rotations">3D Rotations</a></li>
+<li class="toc-subsection"><a href="#rodrigues-formula">Rodrigues Formula</a></li>
+<li class="toc-subsection"><a href="#rotation-axis-and-rotation-angle">Rotation Axis and Rotation Angle</a></li>
+<li class="toc-subsection"><a href="#euler-rotations">Euler Rotations</a></li>
+<li class="toc-section"><a href="#intrinsic-and-extrinsic-rotations">Intrinsic and Extrinsic Rotations</a></li>
+<li class="toc-subsection"><a href="#extraction-of-euler-angles-from-a-rotation-matrix">Extraction of Euler Angles from a Rotation Matrix</a></li>
+<li class="toc-section"><a href="#quaternions">Quaternions</a></li>
+<li class="toc-subsection"><a href="#multiplication-of-quaternions">Multiplication of Quaternions</a></li>
+<li class="toc-subsection"><a href="#conjugate-norm-and-inverse">Conjugate, Norm and Inverse</a></li>
+<li class="toc-subsection"><a href="#unit-quaternions">Unit Quaternions</a></li>
+<li class="toc-subsection"><a href="#euler-formula-for-quaternions">Euler Formula for Quaternions</a></li>
+<li class="toc-subsection"><a href="#parallel-and-perpendicular-components">Parallel and Perpendicular Components</a></li>
+<li class="toc-subsection"><a href="#quaternion-representation-of-rotations">Quaternion Representation of Rotations</a></li>
+<li class="toc-subsection"><a href="#advantages-of-quaternions-in-cad">Advantages of Quaternions in CAD</a></li>
+<li class="toc-section"><a href="#projections">Projections</a></li>
+<li class="toc-subsection"><a href="#perspective-projections">Perspective Projections</a></li>
+<li class="toc-section"><a href="#general-projection-onto-a-plane">General Projection onto a Plane</a></li>
+<li class="toc-subsection"><a href="#line-of-sight">Line of Sight</a></li>
+<li class="toc-subsection"><a href="#coordinates-of-the-projected-point">Coordinates of the Projected Point</a></li>
+<li class="toc-subsection"><a href="#compact-matrix-form">Compact Matrix Form</a></li>
+<li class="toc-section"><a href="#orthographic-projection-onto-a-plane">Orthographic Projection onto a Plane</a></li>
+<li class="toc-subsection"><a href="#viewpoint-at-infinity">Viewpoint at Infinity</a></li>
+<li class="toc-subsection"><a href="#projection-of-a-point">Projection of a Point</a></li>
+<li class="toc-subsection"><a href="#homogeneous-matrix-form">Homogeneous Matrix Form</a></li>
+<li class="toc-subsection"><a href="#connection-with-the-general-projection-matrix">Connection with the General Projection Matrix</a></li></ol>
+    </nav>
+    <article class="notes-article">
+      <aside class="notes-preface"><p>These notes give a compact but systematic introduction to important mathematical ideas used in Computer-Aided Design, CAD. The emphasis is on geometric representation, transformation, curves, B-splines and surfaces.</p></aside>
+<p>Geometric transformations are mathematical operations that modify the position, orientation, size or shape of geometric objects. In CAD, transformations are used to move parts, rotate models, scale drawings, assemble components, project three-dimensional objects onto a drawing plane, and convert between coordinate systems.</p>
+<p>A point in two dimensions is denoted by</p>
+<div class="math-display">\[
+\mathbf p =
+\begin{bmatrix}
+x\\y
+\end{bmatrix},
+\]</div>
+<p>and a point in three dimensions is denoted by</p>
+<div class="math-display">\[
+\mathbf p =
+\begin{bmatrix}
+x\\y\\z
+\end{bmatrix}.
+\]</div>
+<p>A transformation maps an input point $\mathbf p$ to a new point $\mathbf p'$:</p>
+<div class="math-display">\[
+\mathbf p' = T(\mathbf p).
+\]</div>
+<h2 id="affine-transformations">Affine Transformations</h2>
+<p>An affine transformation preserves straight lines and parallelism. Translation, rotation, scaling and shearing are common affine transformations.</p>
+<p>In two dimensions, an affine transformation can be written as</p>
+<div class="math-display">\[
+\mathbf p' = A\mathbf p+\mathbf b,
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+A =
+\begin{bmatrix}
+a_{11} &amp; a_{12}\\
+a_{21} &amp; a_{22}
+\end{bmatrix},
+\qquad
+\mathbf b =
+\begin{bmatrix}
+b_1\\b_2
+\end{bmatrix}.
+\]</div>
+<p>The matrix $A$ controls rotation, scaling and shearing. The vector $\mathbf b$ controls translation.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Affine transformations preserve:</p>
+<ol class="roman-list"><li><p>straightness of lines,</p></li><li><p>parallelism of lines,</p></li><li><p>ratios of distances along a straight line.</p></li></ol>
+<p>However, affine transformations do not necessarily preserve angles and lengths.</p></div></aside>
+<h3 id="homogeneous-coordinates">Homogeneous Coordinates</h3>
+<p>Translation cannot be represented by ordinary matrix multiplication in Cartesian coordinates. To combine translation with other transformations, homogeneous coordinates are used.</p>
+<p>In two dimensions,</p>
+<div class="math-display">\[
+(x,y) \quad \longrightarrow \quad (x,y,1).
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+\begin{bmatrix}
+x'\\y'\\1
+\end{bmatrix}
+=
+\begin{bmatrix}
+a_{11} &amp; a_{12} &amp; b_1\\
+a_{21} &amp; a_{22} &amp; b_2\\
+0 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+x\\y\\1
+\end{bmatrix}.
+\]</div>
+<p>In three dimensions,</p>
+<div class="math-display">\[
+(x,y,z) \quad \longrightarrow \quad (x,y,z,1),
+\]</div>
+<p>and an affine transformation is represented by a $4\times 4$ matrix:</p>
+<div class="math-display">\[
+\begin{bmatrix}
+x'\\y'\\z'\\1
+\end{bmatrix}
+=
+\begin{bmatrix}
+a_{11} &amp; a_{12} &amp; a_{13} &amp; b_1\\
+a_{21} &amp; a_{22} &amp; a_{23} &amp; b_2\\
+a_{31} &amp; a_{32} &amp; a_{33} &amp; b_3\\
+0 &amp; 0 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+x\\y\\z\\1
+\end{bmatrix}.
+\]</div>
+<h2 id="rotations">Rotations</h2>
+<h3 id="2d-rotations">2D Rotations</h3>
+<p>A rotation in the plane about the origin by an angle $\theta$ is given by</p>
+<div class="math-display">\[
+\begin{bmatrix}
+x'\\y'
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos\theta &amp; -\sin\theta\\
+\sin\theta &amp; \cos\theta
+\end{bmatrix}
+\begin{bmatrix}
+x\\y
+\end{bmatrix}.
+\]</div>
+<p>The rotation matrix is</p>
+<div class="math-display">\[
+R(\theta)=
+\begin{bmatrix}
+\cos\theta &amp; -\sin\theta\\
+\sin\theta &amp; \cos\theta
+\end{bmatrix}.
+\]</div>
+<aside class="notes-box theorem property"><p class="notes-box-title">Property 1.1</p><div class="notes-box-body"><p>A two-dimensional rotation matrix satisfies</p>
+<div class="math-display">\[
+R^T R = I,
+\qquad
+\det(R)=1.
+\]</div>
+<p>Thus, a rotation matrix is an orthogonal matrix with determinant $+1$.</p></div></aside>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>Rotate the point $(1,0)$ by $90^\circ$ about the origin.</p>
+<p>Since $\cos 90^\circ=0$ and $\sin 90^\circ=1$,</p>
+<div class="math-display">\[
+R(90^\circ)=
+\begin{bmatrix}
+0 &amp; -1\\
+1 &amp; 0
+\end{bmatrix}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\begin{bmatrix}
+x'\\y'
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 &amp; -1\\
+1 &amp; 0
+\end{bmatrix}
+\begin{bmatrix}
+1\\0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\1
+\end{bmatrix}.
+\]</div>
+<p>Hence, $(1,0)$ becomes $(0,1)$.</p></div></aside>
+<h3 id="rotation-about-an-arbitrary-point">Rotation about an Arbitrary Point</h3>
+<p>To rotate a point about a fixed point $(a,b)$:</p>
+<div class="math-display">\[
+\mathbf p' = \mathbf c + R(\theta)(\mathbf p-\mathbf c),
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\mathbf c =
+\begin{bmatrix}
+a\\b
+\end{bmatrix}.
+\]</div>
+<p>Using homogeneous coordinates, the transformation is</p>
+<div class="math-display">\[
+T(a,b)R(\theta)T(-a,-b),
+\]</div>
+<p>where $T(a,b)$ is the translation matrix.</p>
+<h3 id="3d-rotations">3D Rotations</h3>
+<p>In three dimensions, rotations may be performed about the $x$-, $y$-, and $z$-axes.</p>
+<p>Rotation about the $x$-axis:</p>
+<div class="math-display">\[
+R_x(\theta)=
+\begin{bmatrix}
+1 &amp; 0 &amp; 0\\
+0 &amp; \cos\theta &amp; -\sin\theta\\
+0 &amp; \sin\theta &amp; \cos\theta
+\end{bmatrix}.
+\]</div>
+<p>Rotation about the $y$-axis:</p>
+<div class="math-display">\[
+R_y(\theta)=
+\begin{bmatrix}
+\cos\theta &amp; 0 &amp; \sin\theta\\
+0 &amp; 1 &amp; 0\\
+-\sin\theta &amp; 0 &amp; \cos\theta
+\end{bmatrix}.
+\]</div>
+<p>Rotation about the $z$-axis:</p>
+<div class="math-display">\[
+R_z(\theta)=
+\begin{bmatrix}
+\cos\theta &amp; -\sin\theta &amp; 0\\
+\sin\theta &amp; \cos\theta &amp; 0\\
+0 &amp; 0 &amp; 1
+\end{bmatrix}.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A three-dimensional rotation matrix $R$ satisfies</p>
+<div class="math-display">\[
+R^T R = I,
+\qquad
+\det(R)=1.
+\]</div>
+<p>The set of all three-dimensional rotation matrices is denoted by $SO(3)$.</p></div></aside>
+<h3 id="rodrigues-formula">Rodrigues Formula</h3>
+<p>Rodrigues' formula gives the rotation matrix for a rotation by angle $\theta$ about a unit vector</p>
+<div class="math-display">\[
+\mathbf a =
+\begin{bmatrix}
+a_x\\a_y\\a_z
+\end{bmatrix},
+\qquad
+\|\mathbf a\|=1.
+\]</div>
+<p>Define the skew-symmetric matrix</p>
+<div class="math-display">\[
+[\mathbf a]_\times =
+\begin{bmatrix}
+0 &amp; -a_z &amp; a_y\\
+a_z &amp; 0 &amp; -a_x\\
+-a_y &amp; a_x &amp; 0
+\end{bmatrix}.
+\]</div>
+<p>Then the rotation matrix is</p>
+<div class="math-display">\[
+R = I\cos\theta + (1-\cos\theta)\mathbf a\mathbf a^T
++ [\mathbf a]_\times \sin\theta.
+\]</div>
+<p>Equivalently,</p>
+<div class="math-display">\[
+R = I + [\mathbf a]_\times\sin\theta
++ [\mathbf a]_\times^2(1-\cos\theta).
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Rodrigues' formula is very useful in CAD and computer graphics because it represents an arbitrary three-dimensional rotation using only an axis and an angle.</p></div></aside>
+<h3 id="rotation-axis-and-rotation-angle">Rotation Axis and Rotation Angle</h3>
+<p>Given a rotation matrix $R$, the rotation angle $\theta$ can be obtained from the trace:</p>
+<div class="math-display">\[
+\operatorname{tr}(R)=1+2\cos\theta.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\theta = \cos^{-1}\left(\frac{\operatorname{tr}(R)-1}{2}\right).
+\]</div>
+<p>The rotation axis $\mathbf a$ is the eigenvector associated with eigenvalue $1$:</p>
+<div class="math-display">\[
+R\mathbf a = \mathbf a.
+\]</div>
+<p>For $\theta\neq 0,\pi$, the axis components may also be computed from</p>
+<div class="math-display">\[
+\mathbf a =
+\frac{1}{2\sin\theta}
+\begin{bmatrix}
+R_{32}-R_{23}\\
+R_{13}-R_{31}\\
+R_{21}-R_{12}
+\end{bmatrix}.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A three-dimensional rotation always leaves one direction unchanged. This unchanged direction is the axis of rotation.</p></div></aside>
+<h3 id="euler-rotations">Euler Rotations</h3>
+<p>Euler rotations represent a general orientation by a sequence of three rotations. For example, a $z$-$y$-$x$ sequence may be written as</p>
+<div class="math-display">\[
+R = R_z(\alpha)R_y(\beta)R_x(\gamma).
+\]</div>
+<p>Here $\alpha$, $\beta$, and $\gamma$ are called Euler angles.</p>
+<p>Euler angles are intuitive, but they have disadvantages:</p>
+<ol class="roman-list"><li><p>the same orientation may sometimes be represented by different angle sets,</p></li><li><p>singularities may occur,</p></li><li><p>interpolation between orientations is not always smooth.</p></li></ol>
+<h2 id="intrinsic-and-extrinsic-rotations">Intrinsic and Extrinsic Rotations</h2>
+<p>There are two common interpretations of a sequence of rotations.</p>
+<aside class="notes-box theorem definition"><p class="notes-box-title">Definition 1.1</p><div class="notes-box-body"><p>An <strong>extrinsic rotation</strong> is a rotation about a fixed global coordinate axis.</p></div></aside>
+<aside class="notes-box theorem definition"><p class="notes-box-title">Definition 1.2</p><div class="notes-box-body"><p>An <strong>intrinsic rotation</strong> is a rotation about a moving local coordinate axis attached to the body.</p></div></aside>
+<ul><li><p>Let</p>
+<div class="math-display">\[
+R_n=\operatorname{Rot}(\vec n,\theta_n)
+\]</div>
+<p>denote a rotation by angle $\theta_n$ about the axis $\vec n$.</p>
+<p>Similarly, let</p>
+<div class="math-display">\[
+R_m=\operatorname{Rot}(\vec m,\theta_m)
+\]</div>
+<p>denote a rotation by angle $\theta_m$ about the axis $\vec m$.</p></li><li><p>Now consider a rigid body which is first rotated about the fixed axis $\vec n$ using the rotation $R_n$.</p>
+<p>After this first rotation, the axis $\vec m$ attached to the body is also rotated. Let the rotated position of this axis be denoted by $\vec m'$.</p>
+<p>Thus,</p>
+<div class="math-display">\[
+\vec m' = R_n \vec m.
+\]</div></li><li><p>Suppose the body is now rotated by angle $\theta_m$ about this new rotated axis $\vec m'$. This rotation is denoted by</p>
+<div class="math-display">\[
+R_{m'}=\operatorname{Rot}(\vec m',\theta_m).
+\]</div>
+<p>This is an example of an intrinsic rotation, because the second rotation is performed about a body-fixed axis that has already moved with the body.</p></li><li><p>The total rotation may be described in two equivalent ways.</p>
+<p>First, we may say that the body is rotated about $\vec n$, and then about the rotated axis $\vec m'$:</p>
+<div class="math-display">\[
+R_{\text{total}} = R_{m'}R_n.
+\]</div>
+<p>Alternatively, the same final orientation can be obtained by first applying the rotation about $\vec m$ in the original coordinate frame, followed by the rotation about $\vec n$:</p>
+<div class="math-display">\[
+R_{\text{total}} = R_n R_m.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+R_{m'}R_n=R_nR_m.
+\]</div></li><li><p>Multiplying the above relation on the right by $R_n^T$, and using</p>
+<div class="math-display">\[
+R_n^{-1}=R_n^T,
+\]</div>
+<p>we get</p>
+<div class="math-display">\[
+R_{m'} = R_nR_mR_n^T.
+\]</div>
+<p>Thus, the rotation about the transformed axis $\vec m'$ is related to the original rotation about $\vec m$ by</p>
+<div class="math-display">\[
+\boxed{
+R_{m'} = R_nR_mR_n^T
+}
+\]</div></li></ul>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>If an axis $\vec m$ is rotated by $R_n$, its new direction is</p>
+<div class="math-display">\[
+\vec m'=R_n\vec m.
+\]</div>
+<p>A rotation about this transformed axis is given by</p>
+<div class="math-display">\[
+R_{m'}=R_nR_mR_n^T.
+\]</div>
+<p>Therefore, the intrinsic rotation sequence satisfies</p>
+<div class="math-display">\[
+R_{m'}R_n=R_nR_m.
+\]</div></div></aside>
+<p>Let</p>
+<div class="math-display">\[
+R_\ell=\operatorname{Rot}(\vec\ell,\theta_\ell),
+\qquad
+R_m=\operatorname{Rot}(\vec m,\theta_m),
+\qquad
+R_n=\operatorname{Rot}(\vec n,\theta_n).
+\]</div>
+<p>Suppose a rigid body is first rotated about its body-fixed axis \(\vec\ell\). The first rotation is</p>
+<div class="math-display">\[
+A_1=R_\ell.
+\]</div>
+<p>After this rotation, the original body-fixed axis \(\vec m\) moves to</p>
+<div class="math-display">\[
+\vec m'=R_\ell\vec m.
+\]</div>
+<p>Therefore, the rotation about the transformed axis \(\vec m'\) is</p>
+<div class="math-display">\[
+R_{m'}=R_\ell R_mR_\ell^T.
+\]</div>
+<p>Hence, the total rotation after the first two intrinsic rotations is</p>
+<div class="math-display">\[
+A_2=R_{m'}R_\ell
+=
+(R_\ell R_mR_\ell^T)R_\ell
+=
+R_\ell R_m.
+\]</div>
+<p>Now the original body-fixed axis \(\vec n\) has moved twice. Its new direction is</p>
+<div class="math-display">\[
+\vec n''=A_2\vec n=R_\ell R_m\vec n.
+\]</div>
+<p>Thus, the rotation about \(\vec n''\) is</p>
+<div class="math-display">\[
+R_{n''}=A_2R_nA_2^T.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+R_{n''}
+=
+(R_\ell R_m)R_n(R_\ell R_m)^T
+=
+R_\ell R_mR_nR_m^TR_\ell^T.
+\]</div>
+<p>The complete intrinsic rotation is</p>
+<div class="math-display">\[
+R_{\text{intrinsic}}
+=
+R_{n''}R_{m'}R_\ell.
+\]</div>
+<p>Substituting the above expressions,</p>
+<div class="math-display">\[
+R_{\text{intrinsic}}
+=
+(R_\ell R_mR_nR_m^TR_\ell^T)
+(R_\ell R_mR_\ell^T)
+R_\ell.
+\]</div>
+<p>Using the orthogonality of rotation matrices,</p>
+<div class="math-display">\[
+R_\ell^TR_\ell=I,
+\qquad
+R_m^TR_m=I,
+\]</div>
+<p>we obtain</p>
+<div class="math-display">\[
+\boxed{
+R_{\text{intrinsic}}
+=
+R_\ell R_mR_n.
+}
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+\boxed{
+R_{n''}R_{m'}R_\ell
+=
+R_\ell R_mR_n.
+}
+\]</div>
+<p>Since the rightmost matrix acts first, the product</p>
+<div class="math-display">\[
+R_\ell R_mR_n
+\]</div>
+<p>corresponds to extrinsic rotations about the fixed axes in the order</p>
+<div class="math-display">\[
+\vec n \rightarrow \vec m \rightarrow \vec \ell.
+\]</div>
+<p>Therefore, the intrinsic sequence</p>
+<div class="math-display">\[
+\vec \ell \rightarrow \vec m' \rightarrow \vec n''
+\]</div>
+<p>is equivalent to the extrinsic sequence</p>
+<div class="math-display">\[
+\vec n \rightarrow \vec m \rightarrow \vec \ell.
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>In CAD software, confusion between intrinsic and extrinsic rotations can lead to incorrect model orientation. It is therefore important to specify the convention clearly.</p></div></aside>
+<h3 id="extraction-of-euler-angles-from-a-rotation-matrix">Extraction of Euler Angles from a Rotation Matrix</h3>
+<p>Consider the rotation matrix obtained as the product of three elementary rotations:</p>
+<div class="math-display">\[
+R = R_x(\theta)R_y(\phi)R_z(\psi),
+\]</div>
+<p>where \(\theta\), \(\phi\), and \(\psi\) are the rotation angles about the \(x\)-, \(y\)- and \(z\)-axes respectively.</p>
+<p>The three rotation matrices are</p>
+<div class="math-display">\[
+R_x(\theta)=
+\begin{bmatrix}
+1 &amp; 0 &amp; 0\\
+0 &amp; \cos \theta &amp; -\sin \theta\\
+0 &amp; \sin \theta &amp; \cos \theta
+\end{bmatrix},
+\]</div>
+<div class="math-display">\[
+R_y(\phi)=
+\begin{bmatrix}
+\cos \phi &amp; 0 &amp; \sin \phi\\
+0 &amp; 1 &amp; 0\\
+-\sin \phi &amp; 0 &amp; \cos \phi
+\end{bmatrix},
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+R_z(\psi)=
+\begin{bmatrix}
+\cos \psi &amp; -\sin \psi &amp; 0\\
+\sin \psi &amp; \cos \psi &amp; 0\\
+0 &amp; 0 &amp; 1
+\end{bmatrix}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+R = R_x(\theta)R_y(\phi)R_z(\psi).
+\]</div>
+<p>Multiplying the three matrices, we obtain</p>
+<div class="math-display">\[
+R =
+\begin{bmatrix}
+\cos \phi \cos \psi
+&amp; -\cos \phi \sin \psi
+&amp; \sin \phi \\[1mm]
+\sin \theta \sin \phi \cos \psi+\cos \theta \sin \psi
+&amp; -\sin \theta \sin \phi \sin \psi+\cos \theta \cos \psi
+&amp; -\sin \theta \cos \phi \\[1mm]
+\sin \theta \sin \psi-\cos \theta \sin \phi \cos \psi
+&amp; \sin \theta \cos \psi+\cos \theta \sin \phi \sin \psi
+&amp; \cos \theta \cos \phi
+\end{bmatrix}.
+\]</div>
+<p>Let the entries of \(R\) be denoted by</p>
+<div class="math-display">\[
+R=
+\begin{bmatrix}
+r_{11} &amp; r_{12} &amp; r_{13}\\
+r_{21} &amp; r_{22} &amp; r_{23}\\
+r_{31} &amp; r_{32} &amp; r_{33}
+\end{bmatrix}.
+\]</div>
+<p>Comparing the entries, we observe that</p>
+<div class="math-display">\[
+r_{13}=\sin\phi.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\phi=\sin^{-1}(r_{13}).
+\]</div>
+<p>Next,</p>
+<div class="math-display">\[
+r_{23}=-\sin\theta\cos\phi,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+r_{33}=\cos\theta\cos\phi.
+\]</div>
+<p>Assuming \(\cos\phi\neq 0\), we get</p>
+<div class="math-display">\[
+\frac{r_{23}}{r_{33}}
+=
+\frac{-\sin\theta\cos\phi}{\cos\theta\cos\phi}
+=
+-\tan\theta.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\theta=-\tan^{-1}\left(\frac{r_{23}}{r_{33}}\right).
+\]</div>
+<p>Similarly,</p>
+<div class="math-display">\[
+r_{12}=-\cos\phi\sin\psi,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+r_{11}=\cos\phi\cos\psi.
+\]</div>
+<p>Again, assuming \(\cos\phi\neq 0\),</p>
+<div class="math-display">\[
+\frac{r_{12}}{r_{11}}
+=
+\frac{-\cos\phi\sin\psi}{\cos\phi\cos\psi}
+=
+-\tan\psi.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\psi=-\tan^{-1}\left(\frac{r_{12}}{r_{11}}\right).
+\]</div>
+<p>Thus, for the rotation sequence</p>
+<div class="math-display">\[
+R=R_x(\theta)R_y(\phi)R_z(\psi),
+\]</div>
+<p>the Euler angles are given by</p>
+<div class="math-display">\[
+\boxed{
+\theta=-\tan^{-1}\left(\frac{r_{23}}{r_{33}}\right),
+\qquad
+\phi=\sin^{-1}(r_{13}),
+\qquad
+\psi=-\tan^{-1}\left(\frac{r_{12}}{r_{11}}\right).
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>For numerical computation, it is better to use the two-argument inverse tangent function \(\operatorname{atan2}\), because it gives the correct quadrant of the angle. Thus, the angles may be computed as</p>
+<div class="math-display">\[
+\boxed{
+\theta=\operatorname{atan2}(-r_{23},r_{33}),
+\qquad
+\phi=\sin^{-1}(r_{13}),
+\qquad
+\psi=\operatorname{atan2}(-r_{12},r_{11}).
+}
+\]</div></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The above formula assumes that \(\cos\phi\neq 0\). If \(\cos\phi=0\), then</p>
+<div class="math-display">\[
+\phi=\pm\frac{\pi}{2},
+\]</div>
+<p>and the Euler-angle representation becomes singular. This situation is commonly known as gimbal lock.</p></div></aside>
+<h2 id="quaternions">Quaternions</h2>
+<p>Quaternions provide a compact and elegant way of representing rotations in three dimensions. They may be viewed as an extension of complex numbers. A complex number has one real component and one imaginary component, whereas a quaternion has one real component and three imaginary components.</p>
+<p>A quaternion is written as</p>
+<div class="math-display">\[
+q=a+b\mathbf i+c\mathbf j+d\mathbf k,
+\]</div>
+<p>where $a,b,c,d$ are real numbers, and $\mathbf i,\mathbf j,\mathbf k$ are imaginary units.</p>
+<p>It is often useful to separate a quaternion into its scalar and vector parts:</p>
+<div class="math-display">\[
+q=a+\mathbf u,
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\mathbf u=b\mathbf i+c\mathbf j+d\mathbf k.
+\]</div>
+<p>Thus, the same quaternion may be represented in different notations:</p>
+<div class="math-display">\[
+q=a+b\mathbf i+c\mathbf j+d\mathbf k,
+\qquad
+q=a+\mathbf u,
+\qquad
+q=(a,\mathbf u),
+\qquad
+q=[a\;b\;c\;d].
+\]</div>
+<p>Here $a$ is called the scalar part and $\mathbf u$ is called the vector part of the quaternion.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Quaternions were introduced by William Rowan Hamilton in the nineteenth century. Historically, they played an important role in the development of vector algebra. In modern CAD, computer graphics, robotics and rigid-body mechanics, quaternions are widely used to represent three-dimensional rotations.</p></div></aside>
+<p>The imaginary units of quaternions satisfy Hamilton's fundamental identities:</p>
+<div class="math-display">\[
+\mathbf i^2=\mathbf j^2=\mathbf k^2=\mathbf i\mathbf j\mathbf k=-1.
+\]</div>
+<p>These identities imply the following multiplication rules:</p>
+<div class="math-display">\[
+\mathbf i\mathbf j=\mathbf k,
+\qquad
+\mathbf j\mathbf k=\mathbf i,
+\qquad
+\mathbf k\mathbf i=\mathbf j.
+\]</div>
+<p>However, reversing the order changes the sign:</p>
+<div class="math-display">\[
+\mathbf j\mathbf i=-\mathbf k,
+\qquad
+\mathbf k\mathbf j=-\mathbf i,
+\qquad
+\mathbf i\mathbf k=-\mathbf j.
+\]</div>
+<p>Therefore, quaternion multiplication is not commutative. The multiplication table is shown below. The entry in the table is obtained by multiplying the symbol in the left column with the symbol in the top row.</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><tbody><tr><td></td><td>$\mathbf i$</td><td>$\mathbf j$</td><td>$\mathbf k$</td></tr><tr><td>$\mathbf i$</td><td>$-1$</td><td>$\mathbf k$</td><td>$-\mathbf j$</td></tr><tr><td>$\mathbf j$</td><td>$-\mathbf k$</td><td>$-1$</td><td>$\mathbf i$</td></tr><tr><td>$\mathbf k$</td><td>$\mathbf j$</td><td>$-\mathbf i$</td><td>$-1$</td></tr></tbody></table></div></div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Quaternion multiplication is generally not commutative:</p>
+<div class="math-display">\[
+q_1q_2\neq q_2q_1.
+\]</div>
+<p>This is consistent with the fact that rotations in three dimensions are also generally not commutative.</p></div></aside>
+<h3 id="multiplication-of-quaternions">Multiplication of Quaternions</h3>
+<p>Let</p>
+<div class="math-display">\[
+q_1=a+b\mathbf i+c\mathbf j+d\mathbf k
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+q_2=e+f\mathbf i+g\mathbf j+h\mathbf k.
+\]</div>
+<p>We write these in scalar-vector form as</p>
+<div class="math-display">\[
+q_1=a+\mathbf u,
+\qquad
+q_2=e+\mathbf v,
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\mathbf u=b\mathbf i+c\mathbf j+d\mathbf k,
+\qquad
+\mathbf v=f\mathbf i+g\mathbf j+h\mathbf k.
+\]</div>
+<p>The product is</p>
+<div class="math-display">\[
+q_1q_2=(a+\mathbf u)(e+\mathbf v).
+\]</div>
+<p>Expanding the product and using Hamilton's multiplication rules, we obtain</p>
+<div class="math-display">\begin{align*}
+q_1q_2
+&amp;=(ae-bf-cg-dh) \\
+&amp;\quad +(be+af-dg+ch)\mathbf i \\
+&amp;\quad +(ce+df+ag-bh)\mathbf j \\
+&amp;\quad +(de-cf+bg+ah)\mathbf k.
+\end{align*}</div>
+<p>Although this component form is correct, it does not clearly show the geometric meaning of quaternion multiplication. A more useful expression is obtained by using the dot product and cross product of the vector parts.</p>
+<p>The product can be written compactly as</p>
+<div class="math-display">\[
+\boxed{
+q_1q_2
+=
+(a+\mathbf u)(e+\mathbf v)
+=
+(ae-\mathbf u\cdot\mathbf v)
++
+(a\mathbf v+e\mathbf u+\mathbf u\times\mathbf v)
+}
+\]</div>
+<p>Thus, the scalar part of $q_1q_2$ is</p>
+<div class="math-display">\[
+ae-\mathbf u\cdot\mathbf v,
+\]</div>
+<p>and the vector part of $q_1q_2$ is</p>
+<div class="math-display">\[
+a\mathbf v+e\mathbf u+\mathbf u\times\mathbf v.
+\]</div>
+<p>This formula is important because it shows that quaternion multiplication naturally contains both the dot product and the cross product.</p>
+<p>If both quaternions are pure vector quaternions, that is, if their scalar parts are zero, then</p>
+<div class="math-display">\[
+q_1=\mathbf u,
+\qquad
+q_2=\mathbf v.
+\]</div>
+<p>Their product becomes</p>
+<div class="math-display">\[
+\mathbf u\mathbf v
+=
+-\mathbf u\cdot\mathbf v+\mathbf u\times\mathbf v.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\mathbf u\mathbf v-\mathbf v\mathbf u
+=
+2(\mathbf u\times\mathbf v),
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\mathbf u\mathbf v+\mathbf v\mathbf u
+=
+-2(\mathbf u\cdot\mathbf v).
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>For pure vector quaternions,</p>
+<div class="math-display">\[
+\mathbf u\mathbf v
+=
+-\mathbf u\cdot\mathbf v+\mathbf u\times\mathbf v.
+\]</div>
+<p>Thus, the symmetric part of the product is related to the dot product, while the antisymmetric part is related to the cross product.</p></div></aside>
+<p>The following two special cases are useful.</p>
+<p>If</p>
+<div class="math-display">\[
+\mathbf u\parallel \mathbf v,
+\]</div>
+<p>then</p>
+<div class="math-display">\[
+\mathbf u\times\mathbf v=\mathbf 0.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\mathbf u\mathbf v=\mathbf v\mathbf u.
+\]</div>
+<p>Therefore, parallel pure vector quaternions commute.</p>
+<p>If</p>
+<div class="math-display">\[
+\mathbf u\perp \mathbf v,
+\]</div>
+<p>then</p>
+<div class="math-display">\[
+\mathbf u\cdot\mathbf v=0.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\mathbf u\mathbf v=-\mathbf v\mathbf u.
+\]</div>
+<p>Therefore, perpendicular pure vector quaternions anticommute.</p>
+<p>The identity quaternion is</p>
+<div class="math-display">\[
+1=(1,0,0,0).
+\]</div>
+<p>For every quaternion $q$,</p>
+<div class="math-display">\[
+1q=q1=q.
+\]</div>
+<h3 id="conjugate-norm-and-inverse">Conjugate, Norm and Inverse</h3>
+<p>As with complex numbers, quaternions also have a conjugate. If</p>
+<div class="math-display">\[
+q=a+\mathbf u,
+\]</div>
+<p>then the conjugate of $q$ is defined as</p>
+<div class="math-display">\[
+q^*=a-\mathbf u.
+\]</div>
+<p>In component form, if</p>
+<div class="math-display">\[
+q=a+b\mathbf i+c\mathbf j+d\mathbf k,
+\]</div>
+<p>then</p>
+<div class="math-display">\[
+q^*=a-b\mathbf i-c\mathbf j-d\mathbf k.
+\]</div>
+<p>The conjugate changes the sign of the vector part but leaves the scalar part unchanged.</p>
+<p>Now consider the product of a quaternion and its conjugate:</p>
+<div class="math-display">\[
+qq^*=(a+\mathbf u)(a-\mathbf u).
+\]</div>
+<p>Using the multiplication formula,</p>
+<div class="math-display">\[
+qq^*=a^2+\mathbf u\cdot\mathbf u.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+qq^*=a^2+b^2+c^2+d^2.
+\]</div>
+<p>Similarly,</p>
+<div class="math-display">\[
+q^*q=a^2+b^2+c^2+d^2.
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+qq^*=q^*q=|q|^2,
+\]</div>
+<p>where the norm of $q$ is</p>
+<div class="math-display">\[
+|q|=\sqrt{a^2+b^2+c^2+d^2}.
+\]</div>
+<p>If $q\neq 0$, the inverse of $q$ is defined as</p>
+<div class="math-display">\[
+q^{-1}=\frac{q^*}{|q|^2}.
+\]</div>
+<p>Using this definition, we get</p>
+<div class="math-display">\[
+qq^{-1}=q^{-1}q=1.
+\]</div>
+<p>Thus, division by a quaternion is possible. We define</p>
+<div class="math-display">\[
+\frac{q_1}{q_2}=q_1q_2^{-1}.
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Since quaternion multiplication is not commutative, the order of multiplication is important. In general,</p>
+<div class="math-display">\[
+q_1q_2^{-1}\neq q_2^{-1}q_1.
+\]</div>
+<p>Therefore, one should be careful while interpreting division of quaternions.</p></div></aside>
+<h3 id="unit-quaternions">Unit Quaternions</h3>
+<p>A quaternion $q$ is called a unit quaternion if</p>
+<div class="math-display">\[
+|q|=1.
+\]</div>
+<p>For a unit quaternion,</p>
+<div class="math-display">\[
+q^{-1}=q^*.
+\]</div>
+<p>Unit quaternions are especially important in three-dimensional rotations. They provide a numerically stable and compact way of representing orientation.</p>
+<p>A unit quaternion used for rotation has the form</p>
+<div class="math-display">\[
+q=\cos\frac{\theta}{2}
++
+\hat{\mathbf n}\sin\frac{\theta}{2},
+\]</div>
+<p>where $\hat{\mathbf n}$ is a unit vector along the axis of rotation and $\theta$ is the angle of rotation.</p>
+<h3 id="euler-formula-for-quaternions">Euler Formula for Quaternions</h3>
+<p>Euler's formula for complex numbers is</p>
+<div class="math-display">\[
+e^{i\theta}=\cos\theta+i\sin\theta.
+\]</div>
+<p>A similar formula exists for quaternions. Consider a pure vector quaternion</p>
+<div class="math-display">\[
+q=\theta\hat{\mathbf n},
+\]</div>
+<p>where $\hat{\mathbf n}$ is a unit vector and $\theta$ is a scalar.</p>
+<p>Since $\hat{\mathbf n}$ is a pure unit vector quaternion, we have</p>
+<div class="math-display">\[
+\hat{\mathbf n}^2=-1.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+q^2=(\theta\hat{\mathbf n})^2=-\theta^2.
+\]</div>
+<p>The higher powers of $q$ are</p>
+<div class="math-display">\[
+q^3=-\theta^3\hat{\mathbf n},
+\qquad
+q^4=\theta^4,
+\qquad
+q^5=\theta^5\hat{\mathbf n},
+\qquad
+q^6=-\theta^6,
+\]</div>
+<p>and so on.</p>
+<p>Now consider the exponential series</p>
+<div class="math-display">\[
+e^q
+=
+1+q+\frac{q^2}{2!}+\frac{q^3}{3!}
++\frac{q^4}{4!}+\cdots.
+\]</div>
+<p>Substituting the powers of $q$ into the exponential series, and separating scalar and vector terms, gives</p>
+<div class="math-display">\[
+e^{\theta\hat{\mathbf n}}
+=
+\left(
+1-\frac{\theta^2}{2!}
++\frac{\theta^4}{4!}
+-\frac{\theta^6}{6!}
++\cdots
+\right)
++
+\hat{\mathbf n}
+\left(
+\theta-\frac{\theta^3}{3!}
++\frac{\theta^5}{5!}
+-\cdots
+\right).
+\]</div>
+<p>The first bracket is the Taylor series for $\cos\theta$, and the second bracket is the Taylor series for $\sin\theta$. Hence,</p>
+<div class="math-display">\[
+\boxed{
+e^{\theta\hat{\mathbf n}}
+=
+\cos\theta+\hat{\mathbf n}\sin\theta
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler's formula for quaternions is</p>
+<div class="math-display">\[
+e^{\theta\hat{\mathbf n}}
+=
+\cos\theta+\hat{\mathbf n}\sin\theta.
+\]</div>
+<p>It is analogous to the complex formula</p>
+<div class="math-display">\[
+e^{i\theta}=\cos\theta+i\sin\theta,
+\]</div>
+<p>but the imaginary direction $i$ is replaced by the unit vector direction $\hat{\mathbf n}$.</p></div></aside>
+<h3 id="parallel-and-perpendicular-components">Parallel and Perpendicular Components</h3>
+<p>Let a vector $\mathbf v$ be decomposed into components parallel and perpendicular to a unit vector $\hat{\mathbf n}$:</p>
+<div class="math-display">\[
+\mathbf v=\mathbf v_{\parallel}+\mathbf v_{\perp}.
+\]</div>
+<p>The parallel component is</p>
+<div class="math-display">\[
+\mathbf v_{\parallel}
+=
+(\mathbf v\cdot\hat{\mathbf n})\hat{\mathbf n},
+\]</div>
+<p>and the perpendicular component is</p>
+<div class="math-display">\[
+\mathbf v_{\perp}
+=
+\mathbf v-\mathbf v_{\parallel}.
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+\mathbf v_{\parallel}\times\hat{\mathbf n}=\mathbf 0,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\mathbf v_{\perp}\cdot\hat{\mathbf n}=0.
+\]</div>
+<p>These two components behave differently under multiplication with a quaternion exponential.</p>
+<p>If $\mathbf v_{\parallel}$ is parallel to $\hat{\mathbf n}$, then it commutes with $\hat{\mathbf n}$:</p>
+<div class="math-display">\[
+\hat{\mathbf n}\mathbf v_{\parallel}
+=
+\mathbf v_{\parallel}\hat{\mathbf n}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+e^{\hat{\mathbf n}\omega}\mathbf v_{\parallel}
+=
+\mathbf v_{\parallel}e^{\hat{\mathbf n}\omega}.
+\]</div>
+<p>On the other hand, if $\mathbf v_{\perp}$ is perpendicular to $\hat{\mathbf n}$, then it anticommutes with $\hat{\mathbf n}$:</p>
+<div class="math-display">\[
+\hat{\mathbf n}\mathbf v_{\perp}
+=
+-\mathbf v_{\perp}\hat{\mathbf n}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+e^{\hat{\mathbf n}\omega}\mathbf v_{\perp}
+=
+\mathbf v_{\perp}e^{-\hat{\mathbf n}\omega}.
+\]</div>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>Show that if</p>
+<div class="math-display">\[
+\mathbf v_{\parallel}\times\hat{\mathbf n}=\mathbf 0,
+\qquad
+\mathbf v_{\perp}\cdot\hat{\mathbf n}=0,
+\]</div>
+<p>then</p>
+<div class="math-display">\[
+e^{\hat{\mathbf n}\omega}\mathbf v_{\parallel}
+=
+\mathbf v_{\parallel}e^{\hat{\mathbf n}\omega},
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+e^{\hat{\mathbf n}\omega}\mathbf v_{\perp}
+=
+\mathbf v_{\perp}e^{-\hat{\mathbf n}\omega}.
+\]</div>
+<p>This result is useful in deriving the quaternion formula for three-dimensional rotation.</p></div></aside>
+<h3 id="quaternion-representation-of-rotations">Quaternion Representation of Rotations</h3>
+<p>Let $\mathbf v$ be a vector to be rotated by an angle $\theta$ about a unit axis $\hat{\mathbf n}$.</p>
+<p>First decompose $\mathbf v$ into components parallel and perpendicular to $\hat{\mathbf n}$:</p>
+<div class="math-display">\[
+\mathbf v=\mathbf v_{\parallel}+\mathbf v_{\perp}.
+\]</div>
+<p>The component parallel to the axis remains unchanged during rotation:</p>
+<div class="math-display">\[
+\mathbf v'_{\parallel}=\mathbf v_{\parallel}.
+\]</div>
+<p>The perpendicular component rotates in the plane normal to $\hat{\mathbf n}$. Rodrigues' formula gives</p>
+<div class="math-display">\[
+\mathbf v'
+=
+(1-\cos\theta)(\mathbf v\cdot\hat{\mathbf n})\hat{\mathbf n}
++
+\cos\theta\,\mathbf v
++
+\sin\theta(\hat{\mathbf n}\times\mathbf v).
+\]</div>
+<p>Equivalently, using parallel and perpendicular components,</p>
+<div class="math-display">\[
+\mathbf v'
+=
+\mathbf v_{\parallel}
++
+\cos\theta\,\mathbf v_{\perp}
++
+\sin\theta(\hat{\mathbf n}\times\mathbf v_{\perp}).
+\]</div>
+<p>Now, since $\mathbf v_{\perp}$ is perpendicular to $\hat{\mathbf n}$,</p>
+<div class="math-display">\[
+\hat{\mathbf n}\mathbf v_{\perp}
+=
+\hat{\mathbf n}\times\mathbf v_{\perp}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\mathbf v'_{\perp}
+=
+\cos\theta\,\mathbf v_{\perp}
++
+\sin\theta\,\hat{\mathbf n}\mathbf v_{\perp}.
+\]</div>
+<p>Factoring $\mathbf v_{\perp}$ from the right gives</p>
+<div class="math-display">\[
+\mathbf v'_{\perp}
+=
+(\cos\theta+\hat{\mathbf n}\sin\theta)\mathbf v_{\perp}.
+\]</div>
+<p>Using the quaternion exponential formula,</p>
+<div class="math-display">\[
+\cos\theta+\hat{\mathbf n}\sin\theta
+=
+e^{\hat{\mathbf n}\theta}.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\mathbf v'_{\perp}
+=
+e^{\hat{\mathbf n}\theta}\mathbf v_{\perp}.
+\]</div>
+<p>Thus, the full rotated vector is</p>
+<div class="math-display">\[
+\mathbf v'
+=
+\mathbf v_{\parallel}
++
+e^{\hat{\mathbf n}\theta}\mathbf v_{\perp}.
+\]</div>
+<p>Now write</p>
+<div class="math-display">\[
+e^{\hat{\mathbf n}\theta}
+=
+e^{\frac{\hat{\mathbf n}\theta}{2}}
+e^{\frac{\hat{\mathbf n}\theta}{2}}.
+\]</div>
+<p>Using the multiplication properties of the parallel and perpendicular components, the rotation can be written in the symmetric form</p>
+<div class="math-display">\[
+\mathbf v'
+=
+e^{\frac{\hat{\mathbf n}\theta}{2}}
+\mathbf v
+e^{-\frac{\hat{\mathbf n}\theta}{2}}.
+\]</div>
+<p>Define the unit quaternion</p>
+<div class="math-display">\[
+q=
+e^{\frac{\hat{\mathbf n}\theta}{2}}.
+\]</div>
+<p>Using Euler's formula for quaternions,</p>
+<div class="math-display">\[
+q=
+\cos\frac{\theta}{2}
++
+\hat{\mathbf n}\sin\frac{\theta}{2}.
+\]</div>
+<p>The inverse of this unit quaternion is</p>
+<div class="math-display">\[
+q^{-1}
+=
+e^{-\frac{\hat{\mathbf n}\theta}{2}}
+=
+\cos\frac{\theta}{2}
+-
+\hat{\mathbf n}\sin\frac{\theta}{2}.
+\]</div>
+<p>Therefore, the quaternion rotation formula is</p>
+<div class="math-display">\[
+\boxed{
+\mathbf v'=q\mathbf v q^{-1}
+}
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\boxed{
+q=
+\cos\frac{\theta}{2}
++
+\hat{\mathbf n}\sin\frac{\theta}{2}
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A rotation by angle $\theta$ about a unit axis $\hat{\mathbf n}$ is represented by the unit quaternion</p>
+<div class="math-display">\[
+q=
+\cos\frac{\theta}{2}
++
+\hat{\mathbf n}\sin\frac{\theta}{2}.
+\]</div>
+<p>The rotated vector is obtained from</p>
+<div class="math-display">\[
+\mathbf v'=q\mathbf vq^{-1}.
+\]</div></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The vector $\mathbf v$ is treated as a pure quaternion:</p>
+<div class="math-display">\[
+\mathbf v=(0,\mathbf v).
+\]</div>
+<p>The result $q\mathbf vq^{-1}$ is also a pure quaternion, whose vector part gives the rotated vector.</p></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The half-angle appears in the quaternion because the rotation is applied by multiplication from both sides: once by $q$ and once by $q^{-1}$. Together, these two half-angle operations produce a full rotation by angle $\theta$.</p></div></aside>
+<h3 id="advantages-of-quaternions-in-cad">Advantages of Quaternions in CAD</h3>
+<p>Quaternions are commonly used in CAD, computer graphics and robotics because they have several advantages over Euler angles.</p>
+<ol class="roman-list"><li><p>They avoid gimbal lock.</p></li><li><p>They provide a compact representation of rotation using four numbers.</p></li><li><p>They are numerically stable for repeated rotations.</p></li><li><p>They allow smooth interpolation between orientations.</p></li><li><p>They are more efficient than rotation matrices for some computational tasks.</p></li></ol>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler angles are intuitive, rotation matrices are directly applicable to coordinates, and quaternions are compact and robust for representing orientations. In practical CAD and graphics applications, all three representations are useful.</p></div></aside>
+<h2 id="projections">Projections</h2>
+<p>Projection converts a three-dimensional object into a two-dimensional representation. It is central to engineering drawing, computer graphics and visualization.</p>
+<p>The two main types are:</p>
+<ol class="roman-list"><li><p>perspective projection,</p></li><li><p>orthographic projection.</p></li></ol>
+<h3 id="perspective-projections">Perspective Projections</h3>
+<p>In perspective projection, objects farther from the viewer appear smaller. This resembles human vision and camera images.</p>
+<p>For a simple pinhole camera model, suppose the image plane is at $z=d$. A three-dimensional point</p>
+<div class="math-display">\[
+P=(x,y,z)
+\]</div>
+<p>is projected to</p>
+<div class="math-display">\[
+P'=(x',y')
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+x'=\frac{d x}{z},
+\qquad
+y'=\frac{d y}{z}.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Perspective projection does not preserve parallelism. Parallel lines may appear to meet at a vanishing point.</p></div></aside>
+<h2 id="general-projection-onto-a-plane">General Projection onto a Plane</h2>
+<p>Consider a set of points in three-dimensional space. Let a point be written in homogeneous coordinates as</p>
+<div class="math-display">\[
+\mathbf P=
+\begin{bmatrix}
+X\\Y\\Z\\1
+\end{bmatrix}.
+\]</div>
+<p>Suppose these points are to be projected onto the plane</p>
+<div class="math-display">\[
+\Pi:\quad ax+by+cz+d=0.
+\]</div>
+<p>The plane can also be represented in homogeneous form as</p>
+<div class="math-display">\[
+\boldsymbol{\Pi}=
+\begin{bmatrix}
+a\\b\\c\\d
+\end{bmatrix}.
+\]</div>
+<p>Thus, a point \(\mathbf P=(X,Y,Z,1)^T\) lies on the plane if</p>
+<div class="math-display">\[
+\boldsymbol{\Pi}^T\mathbf P=0.
+\]</div>
+<p>Let the viewpoint, or center of projection, be</p>
+<div class="math-display">\[
+\mathbf V=
+\begin{bmatrix}
+X_v\\Y_v\\Z_v\\1
+\end{bmatrix}.
+\]</div>
+<p>The projection of \(\mathbf P\) onto the plane \(\Pi\) is denoted by \(\mathbf P'\). The point \(\mathbf P'\) is defined by two conditions:</p>
+<ol class="roman-list"><li><p>\(\mathbf P'\) lies on the plane \(\Pi\),</p></li><li><p>\(\mathbf P'\) lies on the line joining the viewpoint \(\mathbf V\) and the point \(\mathbf P\).</p></li></ol>
+<p>Thus,</p>
+<div class="math-display">\[
+\mathbf P'=\operatorname{Proj}(\Pi,\mathbf V)\mathbf P.
+\]</div>
+<figure class="notes-figure" id="fig:general-plane-projection" style="--figure-width: 55%"><img src="../../assets/images/caad-notes/Projections2.png" alt="Projection of a point P onto the plane Pi from the viewpoint V." loading="lazy" decoding="async"><figcaption>Projection of a point \(\mathbf P\) onto the plane \(\Pi\) from the viewpoint \(\mathbf V\).</figcaption></figure>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The projected point \(\mathbf P'\) is the intersection of the projection plane and the line of sight from the viewpoint \(\mathbf V\) to the point \(\mathbf P\).</p></div></aside>
+<h3 id="line-of-sight">Line of Sight</h3>
+<p>Since \(\mathbf P'\) lies on the line joining \(\mathbf V\) and \(\mathbf P\), we may write</p>
+<div class="math-display">\[
+\mathbf P'=\mathbf V+\lambda(\mathbf P-\mathbf V),
+\]</div>
+<p>where \(\lambda\) is a scalar parameter.</p>
+<p>In Cartesian coordinates, this gives</p>
+<div class="math-display">\[
+X'=X_v+\lambda(X-X_v),
+\]</div>
+<div class="math-display">\[
+Y'=Y_v+\lambda(Y-Y_v),
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+Z'=Z_v+\lambda(Z-Z_v).
+\]</div>
+<p>Equivalently,</p>
+<div class="math-display">\[
+\frac{X'-X_v}{X-X_v}
+=
+\frac{Y'-Y_v}{Y-Y_v}
+=
+\frac{Z'-Z_v}{Z-Z_v}
+=
+\lambda.
+\]</div>
+<p>Since \(\mathbf P'\) lies on the plane \(\Pi\), it must satisfy</p>
+<div class="math-display">\[
+aX'+bY'+cZ'+d=0.
+\]</div>
+<p>Substituting</p>
+<div class="math-display">\[
+X'=X_v+\lambda(X-X_v),
+\]</div>
+<div class="math-display">\[
+Y'=Y_v+\lambda(Y-Y_v),
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+Z'=Z_v+\lambda(Z-Z_v),
+\]</div>
+<p>we get</p>
+<div class="math-display">\[
+a\{X_v+\lambda(X-X_v)\}
++
+b\{Y_v+\lambda(Y-Y_v)\}
++
+c\{Z_v+\lambda(Z-Z_v)\}
++d=0.
+\]</div>
+<p>Rearranging,</p>
+<div class="math-display">\[
+aX_v+bY_v+cZ_v+d
++
+\lambda
+\left[
+a(X-X_v)+b(Y-Y_v)+c(Z-Z_v)
+\right]
+=0.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\lambda
+=
+-\frac{aX_v+bY_v+cZ_v+d}
+{aX+bY+cZ-aX_v-bY_v-cZ_v}.
+\]</div>
+<p>Now define</p>
+<div class="math-display">\[
+Q=aX_v+bY_v+cZ_v+d.
+\]</div>
+<p>Here \(Q\) is the value obtained by substituting the viewpoint into the plane equation. Therefore,</p>
+<div class="math-display">\[
+Q=\boldsymbol{\Pi}^T\mathbf V.
+\]</div>
+<p>Using this notation,</p>
+<div class="math-display">\[
+\lambda=
+-\frac{Q}
+{aX+bY+cZ+d-Q}.
+\]</div>
+<h3 id="coordinates-of-the-projected-point">Coordinates of the Projected Point</h3>
+<p>From the line equation,</p>
+<div class="math-display">\[
+X'=X_v+\lambda(X-X_v).
+\]</div>
+<p>Substituting the value of \(\lambda\),</p>
+<div class="math-display">\[
+X'
+=
+X_v
+-
+\frac{Q(X-X_v)}
+{aX+bY+cZ+d-Q}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+X'
+=
+\frac{
+(aX_v-Q)X+bX_vY+cX_vZ+dX_v
+}
+{aX+bY+cZ+d-Q}.
+\]</div>
+<p>Similarly,</p>
+<div class="math-display">\[
+Y'
+=
+\frac{
+aY_vX+(bY_v-Q)Y+cY_vZ+dY_v
+}
+{aX+bY+cZ+d-Q},
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+Z'
+=
+\frac{
+aZ_vX+bZ_vY+(cZ_v-Q)Z+dZ_v
+}
+{aX+bY+cZ+d-Q}.
+\]</div>
+<p>Thus, the projected point can be represented in homogeneous coordinates as</p>
+<div class="math-display">\[
+\mathbf P'_h=
+\begin{bmatrix}
+X'_h\\Y'_h\\Z'_h\\S'
+\end{bmatrix},
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+X'=\frac{X'_h}{S'},
+\qquad
+Y'=\frac{Y'_h}{S'},
+\qquad
+Z'=\frac{Z'_h}{S'}.
+\]</div>
+<p>The homogeneous coordinates are given by</p>
+<div class="math-display">\[
+\begin{bmatrix}
+X'_h\\Y'_h\\Z'_h\\S'
+\end{bmatrix}
+=
+\begin{bmatrix}
+aX_v-Q &amp; bX_v &amp; cX_v &amp; dX_v\\
+aY_v &amp; bY_v-Q &amp; cY_v &amp; dY_v\\
+aZ_v &amp; bZ_v &amp; cZ_v-Q &amp; dZ_v\\
+a &amp; b &amp; c &amp; d-Q
+\end{bmatrix}
+\begin{bmatrix}
+X\\Y\\Z\\1
+\end{bmatrix}.
+\]</div>
+<p>Therefore, the projection matrix is</p>
+<div class="math-display">\[
+\operatorname{Proj}(\Pi,\mathbf V)
+=
+\begin{bmatrix}
+aX_v-Q &amp; bX_v &amp; cX_v &amp; dX_v\\
+aY_v &amp; bY_v-Q &amp; cY_v &amp; dY_v\\
+aZ_v &amp; bZ_v &amp; cZ_v-Q &amp; dZ_v\\
+a &amp; b &amp; c &amp; d-Q
+\end{bmatrix}.
+\]</div>
+<h3 id="compact-matrix-form">Compact Matrix Form</h3>
+<p>Using the homogeneous representations</p>
+<div class="math-display">\[
+\mathbf V=
+\begin{bmatrix}
+X_v\\Y_v\\Z_v\\1
+\end{bmatrix},
+\qquad
+\boldsymbol{\Pi}=
+\begin{bmatrix}
+a\\b\\c\\d
+\end{bmatrix},
+\]</div>
+<p>we have</p>
+<div class="math-display">\[
+Q=\boldsymbol{\Pi}^T\mathbf V.
+\]</div>
+<p>The projection matrix can be written compactly as</p>
+<div class="math-display">\[
+\boxed{
+\operatorname{Proj}(\Pi,\mathbf V)
+=
+\mathbf V\boldsymbol{\Pi}^T
+-
+(\boldsymbol{\Pi}^T\mathbf V)I
+}
+\]</div>
+<p>or equivalently,</p>
+<div class="math-display">\[
+\boxed{
+\operatorname{Proj}(\Pi,\mathbf V)
+=
+\mathbf V\boldsymbol{\Pi}^T-QI.
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The general perspective projection of a point \(\mathbf P\) onto a plane \(\Pi\), from viewpoint \(\mathbf V\), is represented in homogeneous coordinates by</p>
+<div class="math-display">\[
+\mathbf P'_h
+=
+\operatorname{Proj}(\Pi,\mathbf V)\mathbf P,
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\operatorname{Proj}(\Pi,\mathbf V)
+=
+\mathbf V\boldsymbol{\Pi}^T
+-
+(\boldsymbol{\Pi}^T\mathbf V)I.
+\]</div>
+<p>The Cartesian projected point is obtained by dividing by the last homogeneous coordinate:</p>
+<div class="math-display">\[
+X'=\frac{X'_h}{S'},
+\qquad
+Y'=\frac{Y'_h}{S'},
+\qquad
+Z'=\frac{Z'_h}{S'}.
+\]</div></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>If the viewpoint \(\mathbf V\) lies on the projection plane, then</p>
+<div class="math-display">\[
+Q=\boldsymbol{\Pi}^T\mathbf V=0.
+\]</div>
+<p>In this case, the projection operation becomes singular because the center of projection lies on the target plane.</p></div></aside>
+<h2 id="orthographic-projection-onto-a-plane">Orthographic Projection onto a Plane</h2>
+<p>In perspective projection, all projection rays pass through a finite viewpoint. In orthographic projection, however, the projection rays are parallel to each other. More specifically, for orthographic projection onto a plane, the projection rays are normal to the plane of projection.</p>
+<p>Let the plane of projection be</p>
+<div class="math-display">\[
+\Pi:\quad ax+by+cz+d=0.
+\]</div>
+<p>In homogeneous form, the plane is represented as</p>
+<div class="math-display">\[
+\boldsymbol{\Pi}=
+\begin{bmatrix}
+a\\b\\c\\d
+\end{bmatrix}.
+\]</div>
+<p>The vector</p>
+<div class="math-display">\[
+\mathbf n=
+\begin{bmatrix}
+a\\b\\c
+\end{bmatrix}
+\]</div>
+<p>is normal to the plane \(\Pi\). Therefore, in orthographic projection, every point is projected along the direction \(\mathbf n\), or along the opposite direction \(-\mathbf n\).</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>In orthographic projection, the projection rays are parallel and normal to the projection plane. Thus, the direction of projection is determined by the normal vector of the plane.</p></div></aside>
+<h3 id="viewpoint-at-infinity">Viewpoint at Infinity</h3>
+<p>A useful way to understand orthographic projection is to treat it as a limiting case of perspective projection. In perspective projection, the viewpoint is finite. As the viewpoint moves farther and farther away, the rays from the viewpoint become nearly parallel. In the limiting case, the viewpoint may be regarded as being at infinity.</p>
+<p>In homogeneous coordinates, a finite point has the form</p>
+<div class="math-display">\[
+\mathbf V=
+\begin{bmatrix}
+X_v\\Y_v\\Z_v\\1
+\end{bmatrix}.
+\]</div>
+<p>The last coordinate is \(1\), indicating that \(\mathbf V\) is a finite point. On the other hand, a point at infinity has last homogeneous coordinate equal to zero.</p>
+<p>Since the orthographic projection rays are normal to the plane \(\Pi\), the viewpoint at infinity is chosen in the direction of the plane normal:</p>
+<div class="math-display">\[
+\mathbf V_{\infty}=
+\begin{bmatrix}
+a\\b\\c\\0
+\end{bmatrix}.
+\]</div>
+<p>Thus, if</p>
+<div class="math-display">\[
+\boldsymbol{\Pi}=
+\begin{bmatrix}
+a\\b\\c\\d
+\end{bmatrix},
+\]</div>
+<p>then the corresponding viewpoint at infinity for orthographic projection is</p>
+<div class="math-display">\[
+\mathbf V_{\infty}=
+\begin{bmatrix}
+a\\b\\c\\0
+\end{bmatrix}.
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The plane \(\boldsymbol{\Pi}\) and the viewpoint at infinity \(\mathbf V_{\infty}\) have the same first three components. These components define the normal direction to the plane. The difference is in the last homogeneous coordinate. The plane has last coordinate \(d\), whereas the viewpoint at infinity has last coordinate \(0\).</p></div></aside>
+<h3 id="projection-of-a-point">Projection of a Point</h3>
+<p>Let</p>
+<div class="math-display">\[
+\mathbf P=
+\begin{bmatrix}
+X\\Y\\Z\\1
+\end{bmatrix}
+\]</div>
+<p>be a point to be projected onto the plane \(\Pi\).</p>
+<p>In ordinary vector notation, write</p>
+<div class="math-display">\[
+\mathbf p=
+\begin{bmatrix}
+X\\Y\\Z
+\end{bmatrix}.
+\]</div>
+<p>The signed quantity</p>
+<div class="math-display">\[
+aX+bY+cZ+d
+\]</div>
+<p>measures how far the point is from satisfying the plane equation. If this quantity is zero, then the point already lies on the plane.</p>
+<p>The orthographic projection of \(\mathbf p\) onto the plane is obtained by moving \(\mathbf p\) along the normal direction \(\mathbf n\) until it reaches the plane.</p>
+<p>Therefore,</p>
+<div class="math-display">\[
+\mathbf p'
+=
+\mathbf p-\lambda\mathbf n,
+\]</div>
+<p>where \(\lambda\) is chosen so that \(\mathbf p'\) lies on \(\Pi\).</p>
+<p>Since \(\mathbf p'\) lies on the plane,</p>
+<div class="math-display">\[
+\mathbf n^T\mathbf p'+d=0.
+\]</div>
+<p>Substituting</p>
+<div class="math-display">\[
+\mathbf p'=\mathbf p-\lambda\mathbf n,
+\]</div>
+<p>we get</p>
+<div class="math-display">\[
+\mathbf n^T(\mathbf p-\lambda\mathbf n)+d=0.
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+\mathbf n^T\mathbf p-\lambda\mathbf n^T\mathbf n+d=0.
+\]</div>
+<p>Solving for \(\lambda\),</p>
+<div class="math-display">\[
+\lambda=
+\frac{\mathbf n^T\mathbf p+d}{\mathbf n^T\mathbf n}.
+\]</div>
+<p>Since</p>
+<div class="math-display">\[
+\mathbf n^T\mathbf n=a^2+b^2+c^2,
+\]</div>
+<p>we obtain</p>
+<div class="math-display">\[
+\lambda=
+\frac{aX+bY+cZ+d}{a^2+b^2+c^2}.
+\]</div>
+<p>Hence, the orthographic projection is</p>
+<div class="math-display">\[
+\boxed{
+\mathbf p'
+=
+\mathbf p
+-
+\frac{aX+bY+cZ+d}{a^2+b^2+c^2}
+\begin{bmatrix}
+a\\b\\c
+\end{bmatrix}
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Orthographic projection onto a plane is obtained by subtracting from the point its normal component relative to the plane.</p>
+<div class="math-display">\[
+\mathbf p'
+=
+\mathbf p
+-
+\frac{\mathbf n^T\mathbf p+d}{\mathbf n^T\mathbf n}\mathbf n.
+\]</div></div></aside>
+<h3 id="homogeneous-matrix-form">Homogeneous Matrix Form</h3>
+<p>Let</p>
+<div class="math-display">\[
+Q=a^2+b^2+c^2.
+\]</div>
+<p>The orthographic projection may be written in homogeneous matrix form as</p>
+<div class="math-display">\[
+\begin{bmatrix}
+X'_h\\Y'_h\\Z'_h\\S'
+\end{bmatrix}
+=
+\begin{bmatrix}
+Q-a^2 &amp; -ab &amp; -ac &amp; -ad\\
+-ab &amp; Q-b^2 &amp; -bc &amp; -bd\\
+-ac &amp; -bc &amp; Q-c^2 &amp; -cd\\
+0 &amp; 0 &amp; 0 &amp; Q
+\end{bmatrix}
+\begin{bmatrix}
+X\\Y\\Z\\1
+\end{bmatrix}.
+\]</div>
+<p>The Cartesian coordinates of the projected point are obtained by dividing by the last homogeneous coordinate:</p>
+<div class="math-display">\[
+X'=\frac{X'_h}{S'},
+\qquad
+Y'=\frac{Y'_h}{S'},
+\qquad
+Z'=\frac{Z'_h}{S'}.
+\]</div>
+<p>Since</p>
+<div class="math-display">\[
+S'=Q,
+\]</div>
+<p>we get</p>
+<div class="math-display">\[
+X'=\frac{X'_h}{Q},
+\qquad
+Y'=\frac{Y'_h}{Q},
+\qquad
+Z'=\frac{Z'_h}{Q}.
+\]</div>
+<p>Thus, the orthographic projection matrix is</p>
+<div class="math-display">\[
+\boxed{
+\operatorname{Proj}_{\perp}(\Pi)
+=
+\begin{bmatrix}
+Q-a^2 &amp; -ab &amp; -ac &amp; -ad\\
+-ab &amp; Q-b^2 &amp; -bc &amp; -bd\\
+-ac &amp; -bc &amp; Q-c^2 &amp; -cd\\
+0 &amp; 0 &amp; 0 &amp; Q
+\end{bmatrix}
+}
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+Q=a^2+b^2+c^2.
+\]</div>
+<h3 id="connection-with-the-general-projection-matrix">Connection with the General Projection Matrix</h3>
+<p>Earlier, for projection from a viewpoint \(\mathbf V\) onto a plane \(\Pi\), the homogeneous projection matrix was written as</p>
+<div class="math-display">\[
+\operatorname{Proj}(\Pi,\mathbf V)
+=
+\mathbf V\boldsymbol{\Pi}^T
+-
+(\boldsymbol{\Pi}^T\mathbf V)I.
+\]</div>
+<p>For orthographic projection, the viewpoint is taken at infinity in the normal direction:</p>
+<div class="math-display">\[
+\mathbf V_{\infty}=
+\begin{bmatrix}
+a\\b\\c\\0
+\end{bmatrix}.
+\]</div>
+<p>Then</p>
+<div class="math-display">\[
+\boldsymbol{\Pi}^T\mathbf V_{\infty}
+=
+\begin{bmatrix}
+a &amp; b &amp; c &amp; d
+\end{bmatrix}
+\begin{bmatrix}
+a\\b\\c\\0
+\end{bmatrix}
+=
+a^2+b^2+c^2
+=
+Q.
+\]</div>
+<p>Therefore, the projection matrix becomes</p>
+<div class="math-display">\[
+\mathbf V_{\infty}\boldsymbol{\Pi}^T-QI.
+\]</div>
+<p>This matrix differs from the orthographic projection matrix written above only by a nonzero scalar factor \(-1\). Since homogeneous coordinates are unchanged by multiplication by a nonzero scalar, both matrices represent the same geometric projection.</p>
+<p>Thus, we may write the orthographic projection matrix as</p>
+<div class="math-display">\[
+\boxed{
+\operatorname{Proj}_{\perp}(\Pi)
+=
+QI-\mathbf V_{\infty}\boldsymbol{\Pi}^T
+}
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\mathbf V_{\infty}=
+\begin{bmatrix}
+a\\b\\c\\0
+\end{bmatrix},
+\qquad
+Q=\boldsymbol{\Pi}^T\mathbf V_{\infty}
+=
+a^2+b^2+c^2.
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The sign of the direction vector \(\mathbf V_{\infty}\) is not important for the final projected point. Choosing \(\mathbf V_{\infty}\) or \(-\mathbf V_{\infty}\) only reverses the direction of the parallel projection rays, but the point of intersection with the plane remains the same.</p></div></aside>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Orthographic projection is a special case of perspective projection in which the viewpoint is at infinity. For the plane</p>
+<div class="math-display">\[
+\Pi=[a\;b\;c\;d]^T,
+\]</div>
+<p>the corresponding viewpoint at infinity is</p>
+<div class="math-display">\[
+\mathbf V_{\infty}=[a\;b\;c\;0]^T.
+\]</div>
+<p>This encodes the fact that the projection rays are parallel to the normal direction of the plane.</p></div></aside>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Orthographic projection is widely used in engineering drawings because it preserves true dimensions in directions parallel to the projection plane.</p></div></aside>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../index.html"><span>Module library</span><strong>Theory</strong></a><a class="notes-nav-link next" href="../curves/index.html"><span>Next module</span><strong>Curves</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

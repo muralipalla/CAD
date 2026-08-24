@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Surfaces are two-parameter geometric objects.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Surfaces</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Surfaces</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>Surfaces</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol><li class="toc-section"><a href="#parametric-representation">Parametric Representation</a></li>
+<li class="toc-section"><a href="#differential-geometry-of-surfaces">Differential Geometry of Surfaces</a></li>
+<li class="toc-subsection"><a href="#tangents-and-tangent-plane">Tangents and Tangent Plane</a></li>
+<li class="toc-subsection"><a href="#first-fundamental-form">First Fundamental Form</a></li>
+<li class="toc-subsection"><a href="#surface-normal-and-area-element">Surface Normal and Area Element</a></li>
+<li class="toc-subsection"><a href="#second-fundamental-form">Second Fundamental Form</a></li>
+<li class="toc-subsection"><a href="#normal-curvature">Normal Curvature</a></li>
+<li class="toc-subsection"><a href="#principal-curvatures">Principal Curvatures</a></li>
+<li class="toc-subsection"><a href="#derivative-of-the-normal-and-gaussian-curvature">Derivative of the Normal and Gaussian Curvature</a></li>
+<li class="toc-subsection"><a href="#gauss-map">Gauss Map</a></li>
+<li class="toc-subsection"><a href="#classification-of-surface-points">Classification of Surface Points</a></li>
+<li class="toc-subsection"><a href="#gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</a></li>
+<li class="toc-section"><a href="#coons-surface-patch">Coons Surface Patch</a></li>
+<li class="toc-section"><a href="#surface-continuity">Surface Continuity</a></li></ol>
+    </nav>
+    <article class="notes-article">
+      <p>Surfaces are two-parameter geometric objects. They are used to represent freeform shapes such as car bodies, aircraft wings, turbine blades, architectural forms and consumer-product surfaces.</p>
+<h2 id="parametric-representation">Parametric Representation</h2>
+<p>A parametric surface is represented as</p>
+<div class="math-display">\[
+\mathbf r(u,v)=
+\begin{bmatrix}
+x(u,v)\\
+y(u,v)\\
+z(u,v)
+\end{bmatrix},
+\]</div>
+<p>where $u$ and $v$ are parameters.</p>
+<p>For example, a sphere of radius $R$ may be represented by</p>
+<div class="math-display">\[
+\mathbf r(u,v)=
+\begin{bmatrix}
+R\sin u\cos v\\
+R\sin u\sin v\\
+R\cos u
+\end{bmatrix},
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+0\le u\le \pi,\qquad 0\le v\le 2\pi.
+\]</div>
+<p>A tensor-product Bezier surface is</p>
+<div class="math-display">\[
+\mathbf r(u,v)=
+\sum_{i=0}^{n}\sum_{j=0}^{p}
+B_{i,n}(u)B_{j,p}(v)\mathbf P_{ij}.
+\]</div>
+<p>A tensor-product B-spline surface is</p>
+<div class="math-display">\[
+\mathbf r(u,v)=
+\sum_i\sum_j
+N_{m,i}(u)M_{\ell,j}(v)\mathbf P_{ij},
+\]</div>
+<p>where $N_{m,i}$ and $M_{\ell,j}$ are B-spline basis functions in the $u$ and $v$ directions respectively.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A surface is a two-parameter extension of a curve. Curves use one parameter, while surfaces use two.</p></div></aside>
+<h2 id="differential-geometry-of-surfaces">Differential Geometry of Surfaces</h2>
+<p>A surface may be represented parametrically as</p>
+<div class="math-display">\[
+\mathbf r(u,v)=
+\begin{bmatrix}
+x(u,v)\\y(u,v)\\z(u,v)
+\end{bmatrix},
+\]</div>
+<p>or implicitly as</p>
+<div class="math-display">\[
+f(x,y,z)=0.
+\]</div>
+<p>In CAD, parametric representation is especially important because most surface patches are constructed using two parameters \(u\) and \(v\).</p>
+<h3 id="tangents-and-tangent-plane">Tangents and Tangent Plane</h3>
+<p>Let \(P\) be a point on the surface \(S\), and let \(\alpha(s)\) be a curve drawn on the surface passing through \(P\). Suppose \(s\) is the arc length parameter of this curve.</p>
+<p>Since \(\alpha(s)\) lies on the surface, it may be written as</p>
+<div class="math-display">\[
+\alpha(s)=\mathbf r(u(s),v(s)).
+\]</div>
+<p>Differentiating with respect to \(s\), we get</p>
+<div class="math-display">\[
+\frac{d\alpha}{ds}
+=
+\frac{\partial\mathbf r}{\partial u}\frac{du}{ds}
++
+\frac{\partial\mathbf r}{\partial v}\frac{dv}{ds}.
+\]</div>
+<p>Using the notation</p>
+<div class="math-display">\[
+\mathbf r_u=\frac{\partial\mathbf r}{\partial u},
+\qquad
+\mathbf r_v=\frac{\partial\mathbf r}{\partial v},
+\]</div>
+<p>the tangent vector becomes</p>
+<div class="math-display">\[
+\hat{\mathbf t}
+=
+\frac{d\alpha}{ds}
+=
+\mathbf r_u\frac{du}{ds}
++
+\mathbf r_v\frac{dv}{ds}.
+\]</div>
+<p>Thus, every tangent vector to a curve on the surface can be written as a linear combination of \(\mathbf r_u\) and \(\mathbf r_v\).</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>At a regular point of a parametric surface, the tangent plane is spanned by</p>
+<div class="math-display">\[
+\mathbf r_u
+\quad\text{and}\quad
+\mathbf r_v.
+\]</div>
+<p>The tangent space is denoted by</p>
+<div class="math-display">\[
+T_P(S).
+\]</div></div></aside>
+<h3 id="first-fundamental-form">First Fundamental Form</h3>
+<p>The first fundamental form describes how lengths and angles are measured on a surface.</p>
+<p>For a small displacement on the surface,</p>
+<div class="math-display">\[
+d\mathbf r
+=
+\mathbf r_u\,du+\mathbf r_v\,dv.
+\]</div>
+<p>The squared differential length is</p>
+<div class="math-display">\[
+ds^2=d\mathbf r\cdot d\mathbf r.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+ds^2
+=
+(\mathbf r_u\cdot\mathbf r_u)\,du^2
++
+2(\mathbf r_u\cdot\mathbf r_v)\,du\,dv
++
+(\mathbf r_v\cdot\mathbf r_v)\,dv^2.
+\]</div>
+<p>Define</p>
+<div class="math-display">\[
+E=\mathbf r_u\cdot\mathbf r_u,
+\qquad
+F=\mathbf r_u\cdot\mathbf r_v,
+\qquad
+G=\mathbf r_v\cdot\mathbf r_v.
+\]</div>
+<p>Then</p>
+<div class="math-display">\[
+\boxed{
+ds^2=E\,du^2+2F\,du\,dv+G\,dv^2.
+}
+\]</div>
+<p>In matrix form,</p>
+<div class="math-display">\[
+ds^2
+=
+\begin{bmatrix}
+du &amp; dv
+\end{bmatrix}
+\begin{bmatrix}
+E &amp; F\\
+F &amp; G
+\end{bmatrix}
+\begin{bmatrix}
+du\\dv
+\end{bmatrix}.
+\]</div>
+<p>The matrix</p>
+<div class="math-display">\[
+\mathbb G=
+\begin{bmatrix}
+E &amp; F\\
+F &amp; G
+\end{bmatrix}
+\]</div>
+<p>is called the first fundamental matrix or metric matrix.</p>
+<p>Its determinant is</p>
+<div class="math-display">\[
+\Delta_I=
+|\mathbb G|
+=
+EG-F^2.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The first fundamental form contains all information needed to measure lengths, angles and areas on a parametric surface.</p></div></aside>
+<h3 id="surface-normal-and-area-element">Surface Normal and Area Element</h3>
+<p>The unit normal vector to the surface is</p>
+<div class="math-display">\[
+\hat{\mathbf n}
+=
+\frac{\mathbf r_u\times\mathbf r_v}
+{\|\mathbf r_u\times\mathbf r_v\|}.
+\]</div>
+<p>Using the vector identity</p>
+<div class="math-display">\[
+(\mathbf A\times\mathbf B)\cdot(\mathbf C\times\mathbf D)
+=
+(\mathbf A\cdot\mathbf C)(\mathbf B\cdot\mathbf D)
+-
+(\mathbf A\cdot\mathbf D)(\mathbf B\cdot\mathbf C),
+\]</div>
+<p>we get</p>
+<div class="math-display">\[
+\|\mathbf r_u\times\mathbf r_v\|^2
+=
+(\mathbf r_u\cdot\mathbf r_u)(\mathbf r_v\cdot\mathbf r_v)
+-
+(\mathbf r_u\cdot\mathbf r_v)^2.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\|\mathbf r_u\times\mathbf r_v\|^2
+=
+EG-F^2
+=
+\Delta_I.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\boxed{
+\|\mathbf r_u\times\mathbf r_v\|
+=
+\sqrt{\Delta_I}.
+}
+\]</div>
+<p>The differential area element is</p>
+<div class="math-display">\[
+\boxed{
+dA=
+\|\mathbf r_u\times\mathbf r_v\|\,du\,dv
+=
+\sqrt{\Delta_I}\,du\,dv.
+}
+\]</div>
+<h3 id="second-fundamental-form">Second Fundamental Form</h3>
+<p>The first fundamental form measures the intrinsic geometry of the surface. To describe how the surface bends in three-dimensional space, we use the second fundamental form.</p>
+<p>Let \(\mathbf r\) be a point on the surface and let \(\mathbf r+d\mathbf r\) be a neighboring point. The signed distance of the neighboring point from the tangent plane is, to second order,</p>
+<div class="math-display">\[
+d
+=
+\frac{1}{2}
+\left(
+\mathbf r_{uu}\cdot\hat{\mathbf n}\,du^2
++
+2\mathbf r_{uv}\cdot\hat{\mathbf n}\,du\,dv
++
+\mathbf r_{vv}\cdot\hat{\mathbf n}\,dv^2
+\right).
+\]</div>
+<p>Define</p>
+<div class="math-display">\[
+L=\mathbf r_{uu}\cdot\hat{\mathbf n},
+\qquad
+M=\mathbf r_{uv}\cdot\hat{\mathbf n},
+\qquad
+N=\mathbf r_{vv}\cdot\hat{\mathbf n}.
+\]</div>
+<p>Then the second fundamental form is</p>
+<div class="math-display">\[
+\boxed{
+II=L\,du^2+2M\,du\,dv+N\,dv^2.
+}
+\]</div>
+<p>The second fundamental matrix is</p>
+<div class="math-display">\[
+\mathbb C=
+\begin{bmatrix}
+L &amp; M\\
+M &amp; N
+\end{bmatrix}.
+\]</div>
+<p>Its determinant is</p>
+<div class="math-display">\[
+\Delta_{II}=|\mathbb C|=LN-M^2.
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The coefficients \(L,M,N\) are similar in spirit to second derivatives of a function, but they measure second derivatives of the surface in the normal direction.</p></div></aside>
+<h3 id="normal-curvature">Normal Curvature</h3>
+<p>Let \(\alpha(s)\) be a curve on the surface and let</p>
+<div class="math-display">\[
+\hat{\mathbf t}=\alpha'(s)
+\]</div>
+<p>be its unit tangent vector.</p>
+<p>The curvature vector of the curve is</p>
+<div class="math-display">\[
+\frac{d\hat{\mathbf t}}{ds}.
+\]</div>
+<p>This vector can be decomposed into a component normal to the surface and a component tangent to the surface:</p>
+<div class="math-display">\[
+\frac{d\hat{\mathbf t}}{ds}
+=
+\mathbf k_n+\mathbf k_g.
+\]</div>
+<p>Here \(\mathbf k_n\) is the normal curvature component and \(\mathbf k_g\) is the geodesic curvature component.</p>
+<p>The normal curvature is</p>
+<div class="math-display">\[
+\kappa_n
+=
+\frac{d\hat{\mathbf t}}{ds}\cdot\hat{\mathbf n}.
+\]</div>
+<p>It can be expressed as the ratio of the second and first fundamental forms:</p>
+<div class="math-display">\[
+\boxed{
+\kappa_n
+=
+\frac{
+L\,du^2+2M\,du\,dv+N\,dv^2
+}{
+E\,du^2+2F\,du\,dv+G\,dv^2
+}.
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Normal curvature depends on the direction in which one moves on the surface. At a given point, different tangent directions generally have different normal curvatures.</p></div></aside>
+<h3 id="principal-curvatures">Principal Curvatures</h3>
+<p>The principal curvatures are the maximum and minimum values of the normal curvature at a point on the surface.</p>
+<p>Let</p>
+<div class="math-display">\[
+x=\frac{dv}{du}.
+\]</div>
+<p>Then</p>
+<div class="math-display">\[
+\kappa_n
+=
+\frac{L+2Mx+Nx^2}{E+2Fx+Gx^2}.
+\]</div>
+<p>Extremizing \(\kappa_n\) with respect to the direction \(x\) leads to the characteristic equation</p>
+<div class="math-display">\[
+(EG-F^2)\kappa_n^2
+-
+(EN+GL-2MF)\kappa_n
++
+(LN-M^2)
+=
+0.
+\]</div>
+<p>Let the two roots be</p>
+<div class="math-display">\[
+\kappa_1,\qquad \kappa_2.
+\]</div>
+<p>These are the principal curvatures.</p>
+<p>The mean curvature is</p>
+<div class="math-display">\[
+\boxed{
+H=
+\frac{\kappa_1+\kappa_2}{2}
+=
+\frac{EN+GL-2MF}{2(EG-F^2)}.
+}
+\]</div>
+<p>The Gaussian curvature is</p>
+<div class="math-display">\[
+\boxed{
+K=
+\kappa_1\kappa_2
+=
+\frac{LN-M^2}{EG-F^2}
+=
+\frac{\Delta_{II}}{\Delta_I}.
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The principal curvatures \(\kappa_1\) and \(\kappa_2\) are the extreme values of normal curvature. Their average is the mean curvature \(H\), and their product is the Gaussian curvature \(K\).</p></div></aside>
+<h3 id="derivative-of-the-normal-and-gaussian-curvature">Derivative of the Normal and Gaussian Curvature</h3>
+<p>The derivatives of the unit normal vector lie in the tangent plane. Therefore,</p>
+<div class="math-display">\[
+\hat{\mathbf n}_u=a\mathbf r_u+b\mathbf r_v,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\hat{\mathbf n}_v=c\mathbf r_u+d\mathbf r_v.
+\]</div>
+<p>By taking inner products with \(\mathbf r_u\) and \(\mathbf r_v\), one obtains</p>
+<div class="math-display">\[
+\Delta_I \hat{\mathbf n}_u
+=
+(FM-GL)\mathbf r_u
++
+(FL-EM)\mathbf r_v,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\Delta_I \hat{\mathbf n}_v
+=
+(FN-GM)\mathbf r_u
++
+(FM-EN)\mathbf r_v.
+\]</div>
+<p>These relations connect changes in the surface normal to the first and second fundamental forms.</p>
+<p>Taking the cross product gives</p>
+<div class="math-display">\[
+\Delta_I^2
+(\hat{\mathbf n}_u\times\hat{\mathbf n}_v)
+=
+\Delta_I\Delta_{II}
+(\mathbf r_u\times\mathbf r_v).
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\boxed{
+K
+=
+\frac{\Delta_{II}}{\Delta_I}.
+}
+\]</div>
+<p>This also leads to the geometric interpretation</p>
+<div class="math-display">\[
+\boxed{
+K
+=
+\frac{\|\hat{\mathbf n}_u\times\hat{\mathbf n}_v\|}
+{\|\mathbf r_u\times\mathbf r_v\|},
+}
+\]</div>
+<p>with sign determined by orientation.</p>
+<h3 id="gauss-map">Gauss Map</h3>
+<p>At each regular point \(P\) on a surface, the unit normal vector</p>
+<div class="math-display">\[
+\hat{\mathbf n}(P)
+\]</div>
+<p>defines a point on the unit sphere. The map that sends each surface point to its corresponding unit normal direction is called the Gauss map.</p>
+<div class="math-display">\[
+g:S\rightarrow S^2,
+\qquad
+g(P)=\hat{\mathbf n}(P).
+\]</div>
+<figure class="notes-figure" id="fig:gauss-map" style="--figure-width: 50%"><img src="../../assets/images/caad-notes/GaussMap2.png" alt="Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere." loading="lazy" decoding="async"><figcaption>Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere.</figcaption></figure>
+<p>Gaussian curvature measures the local area distortion produced by the Gauss map. Informally,</p>
+<div class="math-display">\[
+\boxed{
+K
+=
+\frac{\text{area change under Gauss map}}
+{\text{area on the original surface}}.
+}
+\]</div>
+<p>More precisely, for a sufficiently small region \(S\),</p>
+<div class="math-display">\[
+\int_S K\,dA
+\]</div>
+<p>measures the signed area of its image under the Gauss map.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Gaussian curvature can be interpreted as the rate at which the surface normal changes from point to point.</p></div></aside>
+<h3 id="classification-of-surface-points">Classification of Surface Points</h3>
+<p>A point \(P\) on a surface is called regular if</p>
+<div class="math-display">\[
+\mathbf r_u\times\mathbf r_v\neq \mathbf 0.
+\]</div>
+<p>At a regular point, the tangent plane and unit normal are well defined.</p>
+<p>Surface points may be classified using Gaussian curvature:</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Condition</strong></th><th scope="col"><strong>Type of Point</strong></th></tr></thead><tbody><tr><td>\(K&gt;0\)</td><td>Elliptic point. The surface is locally dome-like, as on a sphere.</td></tr><tr><td>\(K=0\)</td><td>Parabolic point. The surface is locally developable in one direction, as on a cylinder.</td></tr><tr><td>\(K&lt;0\)</td><td>Hyperbolic point. The surface is locally saddle-like.</td></tr></tbody></table></div></div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A surface can be developed onto a plane without stretching if its Gaussian curvature is zero everywhere. Cylinders and cones are developable surfaces; spheres are not.</p></div></aside>
+<h3 id="gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</h3>
+<p>The Gauss–Bonnet theorem relates the total Gaussian curvature of a surface to its topology. In broad terms, it connects geometry with the Euler characteristic of the surface.</p>
+<p>Gauss's Theorema Egregium states that Gaussian curvature is invariant under local isometry. This means that Gaussian curvature can be determined entirely from measurements made on the surface itself, without reference to how the surface is embedded in three-dimensional space.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>A flat sheet can be rolled into a cylinder without stretching. Hence, the plane and cylinder are locally isometric, and both have \(K=0\). A sphere cannot be flattened into a plane without stretching, because a sphere has positive Gaussian curvature.</p></div></aside>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>For a sphere of radius $R$, the Gaussian curvature is</p>
+<div class="math-display">\[
+K=\frac{1}{R^2}.
+\]</div>
+<p>Thus, a smaller sphere has larger curvature.</p></div></aside>
+<h2 id="coons-surface-patch">Coons Surface Patch</h2>
+<p>A Coons patch constructs a surface from boundary curves. Suppose four boundary curves are given:</p>
+<div class="math-display">\[
+\mathbf C_0(v),\quad \mathbf C_1(v),
+\quad
+\mathbf D_0(u),\quad \mathbf D_1(u).
+\]</div>
+<p>They satisfy the corner compatibility conditions:</p>
+<div class="math-display">\[
+\mathbf C_0(0)=\mathbf D_0(0),\qquad
+\mathbf C_0(1)=\mathbf D_1(0),
+\]</div>
+<div class="math-display">\[
+\mathbf C_1(0)=\mathbf D_0(1),\qquad
+\mathbf C_1(1)=\mathbf D_1(1).
+\]</div>
+<p>The bilinearly blended Coons patch is</p>
+<div class="math-display">\[
+\mathbf r(u,v)
+=
+(1-u)\mathbf C_0(v)+u\mathbf C_1(v)
++
+(1-v)\mathbf D_0(u)+v\mathbf D_1(u)
+-
+\mathbf B(u,v),
+\]</div>
+<p>where the bilinear correction term is</p>
+<div class="math-display">\[
+\mathbf B(u,v)
+=
+(1-u)(1-v)\mathbf P_{00}
++
+u(1-v)\mathbf P_{10}
++
+(1-u)v\mathbf P_{01}
++
+uv\mathbf P_{11}.
+\]</div>
+<p>The four corner points are</p>
+<div class="math-display">\[
+\mathbf P_{00},\mathbf P_{10},\mathbf P_{01},\mathbf P_{11}.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A Coons patch interpolates four boundary curves. It is useful for constructing a surface when the boundary curves are known.</p></div></aside>
+<h2 id="surface-continuity">Surface Continuity</h2>
+<p>When two surface patches meet, continuity conditions are important.</p>
+<ol class="roman-list"><li><p><strong>Position continuity</strong> $C^0$: the patches meet without a gap.</p></li><li><p><strong>Tangent continuity</strong> $C^1$: tangent vectors also match across the boundary.</p></li><li><p><strong>Curvature continuity</strong> $C^2$: curvature information matches across the boundary.</p></li></ol>
+<p>In aesthetic surface design, $C^2$ continuity is often desirable because it gives visually smooth reflection lines.</p>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../b-splines/index.html"><span>Previous module</span><strong>B-Splines</strong></a><a class="notes-nav-link next" href="../solid-modeling/index.html"><span>Next module</span><strong>Solid Modeling</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

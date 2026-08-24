@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Construct B-spline and NURBS curves while changing degree, knot vector, closure mode, local hulls, spans, and weights.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · B-Splines and NURBS Lab</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/js/curve-lab.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html" aria-current="page">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">B-Splines and NURBS</li></ol>
+      <p class="eyebrow">Interactive programming module 04</p>
+      <h1>B-Splines &amp; <em>NURBS</em></h1>
+      <p class="activity-lead">Build a spline from clicked control points. Change its degree, knot vector, boundary mode, local convex hulls, span colors, and positive rational weights.</p>
+      <ul class="meta-list"><li>Cox–de Boor basis</li><li>Editable knots and weights</li><li>Python or MATLAB</li></ul>
+    </header>
+
+    <section class="spline-lab-stack" aria-label="B-spline and NURBS graphics and code workspaces">
+      <article class="lab-window spline-graphics-window" aria-labelledby="spline-graphics-title">
+        <div class="window-heading"><div><p class="card-kicker">Window 1 · Graphics</p><h2 id="spline-graphics-title">Construct the spline</h2></div></div>
+        <div class="visual-toolbar">
+          <label class="lab-field"><span>Boundary mode</span><select data-mode><option value="clamped">Clamped</option><option value="unclamped">Not clamped</option><option value="periodic">Periodic</option></select></label>
+          <label class="lab-field"><span>Degree</span><select data-degree><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+          <label class="toggle-control"><input type="checkbox" data-show-polygon checked><span>Control polygon</span></label>
+          <label class="toggle-control"><input type="checkbox" data-show-hulls><span>Local convex hulls</span></label>
+          <label class="toggle-control"><input type="checkbox" data-color-spans checked><span>Color knot spans</span></label>
+          <label class="toggle-control"><input type="checkbox" data-show-basis><span>Show basis functions</span></label>
+        </div>
+
+        <div class="knot-editor">
+          <label class="lab-field grow"><span>Effective knot vector</span><input class="knot-input" type="text" data-knot-vector spellcheck="false" aria-describedby="knot-help"></label>
+          <div class="lab-actions"><button class="mini-button" type="button" data-apply-knots>Apply knots</button><button class="mini-button" type="button" data-reset-knots>Reset for mode</button></div>
+          <p class="interaction-hint" id="knot-help" data-knot-help></p>
+        </div>
+
+        <div class="spline-edit-row">
+          <label class="lab-field selected-weight-field"><span data-weight-label>Weight of P1</span><input type="number" min="0.1" max="5" step="0.01" value="1" data-weight-number aria-label="Weight of selected control point"></label>
+          <div class="lab-actions"><button class="mini-button" type="button" data-undo>Undo point</button><button class="mini-button" type="button" data-reset-weights>All weights = 1</button><button class="mini-button" type="button" data-clear>Clear all points</button><button class="mini-button" type="button" data-reset>Reset example</button></div>
+        </div>
+
+        <div class="spline-plot-grid" data-plot-grid>
+          <section class="spline-plot-panel spline-curve-panel" aria-labelledby="curve-plot-title">
+            <div class="subgraph-heading"><h3 id="curve-plot-title">Curve and control points</h3><p>Drag in x and y</p></div>
+            <div class="canvas-frame spline-canvas-frame">
+              <canvas class="interactive-canvas" data-curve-canvas width="900" height="600" tabindex="0" aria-label="Interactive B-spline and NURBS plot. Click to add a control point, drag to move it, and select a point to change its weight." aria-describedby="spline-hint">Interactive curve plot</canvas>
+            </div>
+            <div class="legend-row" aria-hidden="true"><span class="legend-item"><span class="legend-swatch" style="--swatch:#ff725c"></span>unit-weight point</span><span class="legend-item"><span class="legend-swatch" style="--swatch:#ffd166"></span>selected point</span><span class="legend-item"><span class="legend-swatch" style="--swatch:#a99ae0"></span>non-unit weight</span></div>
+          </section>
+
+          <section class="spline-plot-panel spline-weight-panel" aria-labelledby="weight-plot-title">
+            <div class="subgraph-heading"><h3 id="weight-plot-title">Weight editor</h3><p>Drag horizontally</p></div>
+            <div class="canvas-frame spline-canvas-frame">
+              <canvas class="interactive-canvas spline-weight-canvas" data-weight-canvas width="420" height="600" tabindex="0" aria-label="Weight editor. Point indices P1 through Pn are on the vertical axis and weights are on the horizontal axis. Drag a handle horizontally to change its weight." aria-describedby="weight-hint weight-summary">Interactive weight graph</canvas>
+            </div>
+            <p class="interaction-hint" id="weight-hint">Horizontal axis: weight w. Vertical axis: point index P1…Pn. Use Left/Right to change a weight and Up/Down to select a point.</p>
+            <p class="spline-panel-summary" id="weight-summary" data-weight-summary></p>
+          </section>
+
+          <section class="spline-plot-panel spline-basis-panel" data-basis-panel hidden aria-labelledby="basis-plot-title">
+            <div class="subgraph-heading"><h3 id="basis-plot-title">Basis functions</h3><p data-basis-kind>B-spline basis</p></div>
+            <div class="canvas-frame spline-canvas-frame">
+              <canvas class="basis-canvas spline-basis-canvas" data-basis-canvas width="520" height="600" role="img" aria-label="Basis functions over the active knot domain" aria-describedby="basis-summary">Basis-function graph</canvas>
+            </div>
+            <ul class="basis-function-key" data-basis-key aria-label="Basis function legend"></ul>
+            <p class="spline-panel-summary" id="basis-summary" data-basis-summary></p>
+          </section>
+        </div>
+        <p class="interaction-hint" id="spline-hint">Click empty space to add a point. Drag or use arrow keys to move the selected point; Delete removes it. Select a point before changing its weight.</p>
+        <div class="lab-status" data-status role="status" aria-live="polite"></div>
+      </article>
+
+      <article class="lab-window spline-code-window" aria-labelledby="spline-code-title">
+        <div class="window-heading">
+          <div><p class="card-kicker">Window 2 · Code</p><h2 id="spline-code-title">Spline program</h2></div>
+          <div class="language-toggle" role="group" aria-label="Code language">
+            <button class="language-button" type="button" data-language="python" aria-pressed="true">Python</button>
+            <button class="language-button" type="button" data-language="matlab" aria-pressed="false">MATLAB</button>
+          </div>
+        </div>
+        <p>The generated program uses the current control points, effective knot vector, degree, periodic extension, weights, and optional basis-function plot.</p>
+        <div class="curve-code-panel">
+          <div class="code-toolbar"><span data-code-filename>nurbs.py</span><button class="copy-button" type="button" data-copy-code>Copy code</button></div>
+          <pre><code data-code-output></code></pre>
+        </div>
+      </article>
+    </section>
+
+    <section class="section compact" aria-labelledby="spline-learning-title">
+      <div class="content-panel"><p class="section-kicker">Learning point</p><h2 id="spline-learning-title">Each knot span has local support</h2><p>A degree-p span depends on at most p + 1 neighboring control points. Positive weights preserve the corresponding local convex-hull property; unit weights reduce the NURBS expression to a B-spline.</p></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · B-Splines and NURBS Lab</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

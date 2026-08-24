@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Construct a cubic Hermite curve from two endpoints and two draggable tangent vectors.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Hermite Curves Lab</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/js/curve-lab.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html" aria-current="page">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">Hermite Curves</li></ol>
+      <p class="eyebrow">Interactive programming module 03</p>
+      <h1><em>Hermite</em> Curves</h1>
+      <p class="activity-lead">A cubic Hermite segment is controlled directly by its two endpoints and endpoint tangent vectors. Drag the circular endpoints or the diamond tangent handles.</p>
+      <ul class="meta-list"><li>Two endpoints</li><li>Two tangent vectors</li><li>Python or MATLAB</li></ul>
+    </header>
+
+    <section class="curve-lab-grid" aria-label="Hermite code and graphics workspaces">
+      <article class="lab-window" aria-labelledby="hermite-code-title">
+        <div class="window-heading">
+          <div><p class="card-kicker">Window 1 · Code</p><h2 id="hermite-code-title">Hermite program</h2></div>
+          <div class="language-toggle" role="group" aria-label="Code language">
+            <button class="language-button" type="button" data-language="python" aria-pressed="true">Python</button>
+            <button class="language-button" type="button" data-language="matlab" aria-pressed="false">MATLAB</button>
+          </div>
+        </div>
+        <p>The displayed endpoint and tangent arrays update while you drag. Both versions evaluate the same four cubic Hermite basis functions.</p>
+        <div class="curve-code-panel">
+          <div class="code-toolbar"><span data-code-filename>hermite.py</span><button class="copy-button" type="button" data-copy-code>Copy code</button></div>
+          <pre><code data-code-output></code></pre>
+        </div>
+      </article>
+
+      <article class="lab-window" aria-labelledby="hermite-graphics-title">
+        <div class="window-heading"><div><p class="card-kicker">Window 2 · Graphics</p><h2 id="hermite-graphics-title">Set endpoints and tangents</h2></div></div>
+        <div class="visual-toolbar">
+          <label class="toggle-control"><input type="checkbox" data-show-tangents checked><span>Tangent vectors</span></label>
+          <button class="mini-button" type="button" data-clear>Clear endpoints</button>
+          <button class="mini-button" type="button" data-reset>Reset example</button>
+        </div>
+        <div class="canvas-frame">
+          <canvas class="interactive-canvas" data-curve-canvas width="900" height="600" tabindex="0" aria-label="Interactive Hermite plot with two endpoints and two tangent handles. Drag a handle or use arrow keys to edit it." aria-describedby="hermite-hint"></canvas>
+        </div>
+        <div class="legend-row" aria-hidden="true"><span class="legend-item"><span class="legend-swatch" style="--swatch:#ff725c"></span>endpoints</span><span class="legend-item"><span class="legend-swatch" style="--swatch:#a99ae0"></span>tangent handles</span><span class="legend-item"><span class="legend-swatch" style="--swatch:#8ac7ff"></span>Hermite curve</span></div>
+        <p class="interaction-hint" id="hermite-hint">After clearing, click twice to place P0 and P1. Drag endpoint circles or tangent handles. Arrow keys move the selected handle.</p>
+        <div class="lab-status" data-status role="status" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="section compact" aria-labelledby="hermite-learning-title">
+      <div class="content-panel"><p class="section-kicker">Learning point</p><h2 id="hermite-learning-title">Position and direction are independent inputs</h2><p>The curve interpolates both endpoints. Moving a tangent handle changes the endpoint direction and speed without changing the corresponding endpoint position.</p></div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Hermite Curves Lab</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

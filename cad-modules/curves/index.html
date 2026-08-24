@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Curves are fundamental entities in CAD.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Curves</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Curves</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>Curves</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol><li class="toc-section"><a href="#parametric-representation-of-curves">Parametric Representation of Curves</a></li>
+<li class="toc-section"><a href="#differential-geometry-for-cad">Differential Geometry for CAD</a></li>
+<li class="toc-subsection"><a href="#differential-geometry-of-curves">Differential Geometry of Curves</a></li>
+<li class="toc-subsection"><a href="#arc-length-parametrization">Arc Length Parametrization</a></li>
+<li class="toc-subsection"><a href="#curvature">Curvature</a></li>
+<li class="toc-subsection"><a href="#binormal-and-torsion">Binormal and Torsion</a></li>
+<li class="toc-subsection"><a href="#frenetserret-formulae">Frenet–Serret Formulae</a></li>
+<li class="toc-section"><a href="#bezier-curves">Bezier Curves</a></li>
+<li class="toc-section"><a href="#properties">Properties</a></li>
+<li class="toc-section"><a href="#derivative-of-a-bezier-curve">Derivative of a Bezier Curve</a></li>
+<li class="toc-section"><a href="#curve-subdivision">Curve Subdivision</a></li>
+<li class="toc-section"><a href="#degree-elevation">Degree Elevation</a></li>
+<li class="toc-section"><a href="#rational-bezier-curves">Rational Bezier Curves</a></li>
+<li class="toc-section"><a href="#homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</a></li>
+<li class="toc-section"><a href="#rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</a></li></ol>
+    </nav>
+    <article class="notes-article">
+      <p>Curves are fundamental entities in CAD. They are used to describe edges, profiles, trajectories and design features. A curve may be represented explicitly, implicitly or parametrically. Parametric representation is the most common in CAD.</p>
+<h2 id="parametric-representation-of-curves">Parametric Representation of Curves</h2>
+<p>A parametric curve in two or three dimensions is written as</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\begin{bmatrix}
+x(u)\\y(u)
+\end{bmatrix}
+\quad \text{or} \quad
+\mathbf r(u)=
+\begin{bmatrix}
+x(u)\\y(u)\\z(u)
+\end{bmatrix},
+\]</div>
+<p>where $u$ is the parameter.</p>
+<p>For example, a circle of radius $R$ centered at the origin can be represented as</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\begin{bmatrix}
+R\cos u\\
+R\sin u
+\end{bmatrix},
+\qquad 0\le u\le 2\pi.
+\]</div>
+<p>A straight line segment between points $\mathbf P_0$ and $\mathbf P_1$ is</p>
+<div class="math-display">\[
+\mathbf r(u)=(1-u)\mathbf P_0+u\mathbf P_1,
+\qquad 0\le u\le 1.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Parametric curves are natural for CAD because they allow finite curve segments, easy differentiation, and direct construction from control points.</p></div></aside>
+<h2 id="differential-geometry-for-cad">Differential Geometry for CAD</h2>
+<p>Differential geometry provides the mathematical language for describing the local shape of curves and surfaces. In CAD, these ideas are useful for understanding tangents, normals, curvature, smoothness, surface fairness, developability and geometric continuity.</p>
+<h3 id="differential-geometry-of-curves">Differential Geometry of Curves</h3>
+<p>A parametric space curve is a vector-valued function</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\begin{bmatrix}
+x(u)\\y(u)\\z(u)
+\end{bmatrix},
+\qquad u\in(u_0,u_1).
+\]</div>
+<p>The scalar variable \(u\) is called the parameter of the curve.</p>
+<p>The derivative of the curve with respect to \(u\) is</p>
+<div class="math-display">\[
+\mathbf r'(u)=\frac{d\mathbf r}{du}.
+\]</div>
+<p>This vector is tangent to the curve. In mechanics terminology, if \(u\) is treated as time, then</p>
+<div class="math-display">\[
+\mathbf v=\mathbf r'(u)
+\]</div>
+<p>is the velocity,</p>
+<div class="math-display">\[
+\mathbf a=\mathbf r''(u)
+\]</div>
+<p>is the acceleration, and</p>
+<div class="math-display">\[
+\mathbf b=\mathbf r'''(u)
+\]</div>
+<p>is the jerk.</p>
+<p>The speed of the parametrization is</p>
+<div class="math-display">\[
+c=\|\mathbf r'(u)\|.
+\]</div>
+<p>The unit tangent vector is</p>
+<div class="math-display">\[
+\hat{\mathbf T}
+=
+\frac{\mathbf r'(u)}{\|\mathbf r'(u)\|}
+=
+\frac{\mathbf r'(u)}{c}.
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+\mathbf r'(u)=\mathbf v=c\hat{\mathbf T}.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The derivative \(\mathbf r'(u)\) gives the tangent direction and the speed of traversal of the curve. The unit tangent vector contains only direction information, while \(c=\|\mathbf r'(u)\|\) contains speed information.</p></div></aside>
+<h3 id="arc-length-parametrization">Arc Length Parametrization</h3>
+<p>The arc length of a curve is</p>
+<div class="math-display">\[
+s=\int c\,du
+=
+\int \|\mathbf r'(u)\|\,du.
+\]</div>
+<p>Since</p>
+<div class="math-display">\[
+c=\frac{ds}{du},
+\]</div>
+<p>we have</p>
+<div class="math-display">\[
+\frac{du}{ds}=\frac{1}{c}.
+\]</div>
+<p>If the curve is reparametrized using arc length \(s\), then</p>
+<div class="math-display">\[
+\frac{d\mathbf r}{ds}
+=
+\frac{d\mathbf r}{du}\frac{du}{ds}
+=
+\frac{\mathbf r'(u)}{c}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\boxed{
+\frac{d\mathbf r}{ds}=\hat{\mathbf T}
+}
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Arc length is a natural parameter for a curve because the speed with respect to \(s\) is one:</p>
+<div class="math-display">\[
+\left\|\frac{d\mathbf r}{ds}\right\|=1.
+\]</div>
+<p>This simplifies many differential-geometric formulas.</p></div></aside>
+<h3 id="curvature">Curvature</h3>
+<p>Curvature measures how rapidly the tangent direction changes as one moves along the curve. For an arc-length parametrized curve,</p>
+<div class="math-display">\[
+\frac{d\hat{\mathbf T}}{ds}
+\]</div>
+<p>is perpendicular to \(\hat{\mathbf T}\). Hence, it points in the normal direction.</p>
+<p>The curvature \(\kappa\) is defined by</p>
+<div class="math-display">\[
+\boxed{
+\frac{d\hat{\mathbf T}}{ds}
+=
+\kappa \hat{\mathbf N}
+}
+\]</div>
+<p>where \(\hat{\mathbf N}\) is the principal normal vector.</p>
+<p>Thus,</p>
+<div class="math-display">\[
+\kappa=
+\left\|
+\frac{d\hat{\mathbf T}}{ds}
+\right\|.
+\]</div>
+<p>The radius of curvature \(\rho\) is</p>
+<div class="math-display">\[
+\boxed{
+\rho=\frac{1}{\kappa}.
+}
+\]</div>
+<p>Since</p>
+<div class="math-display">\[
+\hat{\mathbf T}\cdot\hat{\mathbf T}=1,
+\]</div>
+<p>differentiating with respect to \(s\) gives</p>
+<div class="math-display">\[
+2\hat{\mathbf T}\cdot\frac{d\hat{\mathbf T}}{ds}=0.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\hat{\mathbf T}\cdot\hat{\mathbf N}=0.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The tangent vector \(\hat{\mathbf T}\) and the principal normal vector \(\hat{\mathbf N}\) are perpendicular:</p>
+<div class="math-display">\[
+\hat{\mathbf T}\cdot\hat{\mathbf N}=0.
+\]</div></div></aside>
+<p>For a general parameter \(u\), since</p>
+<div class="math-display">\[
+\mathbf v=c\hat{\mathbf T},
+\]</div>
+<p>the acceleration is</p>
+<div class="math-display">\[
+\mathbf a
+=
+\frac{d}{du}(c\hat{\mathbf T})
+=
+\frac{dc}{du}\hat{\mathbf T}
++
+c\frac{d\hat{\mathbf T}}{du}.
+\]</div>
+<p>Using</p>
+<div class="math-display">\[
+\frac{d\hat{\mathbf T}}{du}
+=
+\frac{d\hat{\mathbf T}}{ds}\frac{ds}{du}
+=
+\kappa\hat{\mathbf N}c,
+\]</div>
+<p>we obtain</p>
+<div class="math-display">\[
+\boxed{
+\mathbf a
+=
+\frac{dc}{du}\hat{\mathbf T}
++
+c^2\kappa\hat{\mathbf N}.
+}
+\]</div>
+<p>Thus, acceleration has a tangential component and a normal component.</p>
+<h3 id="binormal-and-torsion">Binormal and Torsion</h3>
+<p>The binormal vector is defined as</p>
+<div class="math-display">\[
+\hat{\mathbf B}
+=
+\hat{\mathbf T}\times \hat{\mathbf N}.
+\]</div>
+<p>The three mutually perpendicular unit vectors</p>
+<div class="math-display">\[
+\hat{\mathbf T},\quad \hat{\mathbf N},\quad \hat{\mathbf B}
+\]</div>
+<p>form the Frenet frame of the curve.</p>
+<p>Using</p>
+<div class="math-display">\[
+\mathbf v=c\hat{\mathbf T},
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\mathbf a=
+\frac{dc}{du}\hat{\mathbf T}
++
+c^2\kappa\hat{\mathbf N},
+\]</div>
+<p>we get</p>
+<div class="math-display">\[
+\mathbf v\times\mathbf a
+=
+c\hat{\mathbf T}
+\times
+\left(
+\frac{dc}{du}\hat{\mathbf T}
++
+c^2\kappa\hat{\mathbf N}
+\right).
+\]</div>
+<p>Since</p>
+<div class="math-display">\[
+\hat{\mathbf T}\times\hat{\mathbf T}=\mathbf 0,
+\]</div>
+<p>we obtain</p>
+<div class="math-display">\[
+\mathbf v\times\mathbf a
+=
+c^3\kappa(\hat{\mathbf T}\times\hat{\mathbf N}).
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+\boxed{
+\mathbf v\times\mathbf a
+=
+c^3\kappa\hat{\mathbf B}.
+}
+\]</div>
+<p>Taking magnitudes,</p>
+<div class="math-display">\[
+\boxed{
+c^3\kappa=\|\mathbf v\times\mathbf a\|.
+}
+\]</div>
+<p>Torsion measures how rapidly the binormal vector changes along the curve. It is defined by</p>
+<div class="math-display">\[
+\boxed{
+\frac{d\hat{\mathbf B}}{ds}
+=
+-\tau\hat{\mathbf N}.
+}
+\]</div>
+<p>Here \(\tau\) is the torsion of the curve.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Curvature measures bending of the curve. Torsion measures twisting of the curve out of the osculating plane.</p></div></aside>
+<h3 id="frenetserret-formulae">Frenet–Serret Formulae</h3>
+<p>The Frenet–Serret formulae describe how the moving frame</p>
+<div class="math-display">\[
+\{\hat{\mathbf T},\hat{\mathbf N},\hat{\mathbf B}\}
+\]</div>
+<p>changes along the curve:</p>
+<div class="math-display">\[
+\boxed{
+\frac{d\hat{\mathbf T}}{ds}
+=
+\kappa\hat{\mathbf N}
+}
+\]</div>
+<div class="math-display">\[
+\boxed{
+\frac{d\hat{\mathbf B}}{ds}
+=
+-\tau\hat{\mathbf N}
+}
+\]</div>
+<div class="math-display">\[
+\boxed{
+\frac{d\hat{\mathbf N}}{ds}
+=
+\tau\hat{\mathbf B}
+-
+\kappa\hat{\mathbf T}.
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The Frenet–Serret formulae give a complete local description of the shape of a space curve in terms of curvature \(\kappa\) and torsion \(\tau\).</p></div></aside>
+<p>A useful identity involving velocity, acceleration and jerk is</p>
+<div class="math-display">\[
+\boxed{
+\mathbf v\cdot(\mathbf a\times\mathbf b)
+=
+c^6\kappa^2\tau.
+}
+\]</div>
+<p>For arc-length parametrization, where \(c=1\), this reduces to</p>
+<div class="math-display">\[
+\mathbf r'(s)\cdot
+\left(
+\mathbf r''(s)\times\mathbf r'''(s)
+\right)
+=
+\kappa^2\tau.
+\]</div>
+<h2 id="bezier-curves">Bezier Curves</h2>
+<p>A Bezier curve of degree $n$ is defined using $n+1$ control points</p>
+<div class="math-display">\[
+\mathbf P_0,\mathbf P_1,\ldots,\mathbf P_n.
+\]</div>
+<p>The curve is</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{i=0}^{n} B_{i,n}(u)\mathbf P_i,
+\qquad 0\le u\le 1,
+\]</div>
+<p>where $B_{i,n}(u)$ are Bernstein basis polynomials:</p>
+<div class="math-display">\[
+B_{i,n}(u)=
+\binom{n}{i}u^i(1-u)^{n-i}.
+\]</div>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>A quadratic Bezier curve has three control points $\mathbf P_0,\mathbf P_1,\mathbf P_2$ and is given by</p>
+<div class="math-display">\[
+\mathbf r(u)=(1-u)^2\mathbf P_0+2u(1-u)\mathbf P_1+u^2\mathbf P_2.
+\]</div></div></aside>
+<h2 id="properties">Properties</h2>
+<p>Bezier curves have the following important properties.</p>
+<ol class="roman-list"><li><p><strong>Endpoint interpolation:</strong></p>
+<div class="math-display">\[
+\mathbf r(0)=\mathbf P_0,
+\qquad
+\mathbf r(1)=\mathbf P_n.
+\]</div></li><li><p><strong>Convex hull property:</strong> The curve lies inside the convex hull of its control points.</p></li><li><p><strong>Affine invariance:</strong> Applying an affine transformation to the control points gives the same result as applying it to the curve.</p></li><li><p><strong>Variation diminishing property:</strong> A line intersects the curve no more times than it intersects the control polygon.</p></li><li><p><strong>Endpoint tangent property:</strong></p>
+<div class="math-display">\[
+\mathbf r'(0)=n(\mathbf P_1-\mathbf P_0),
+\qquad
+\mathbf r'(1)=n(\mathbf P_n-\mathbf P_{n-1}).
+\]</div></li></ol>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The control polygon gives a visual handle for shaping the curve. Moving a control point changes the shape of the curve.</p></div></aside>
+<h2 id="derivative-of-a-bezier-curve">Derivative of a Bezier Curve</h2>
+<p>The derivative of a Bezier curve of degree $n$ is another Bezier curve of degree $n-1$:</p>
+<div class="math-display">\[
+\mathbf r'(u)=
+n\sum_{i=0}^{n-1}B_{i,n-1}(u)(\mathbf P_{i+1}-\mathbf P_i).
+\]</div>
+<p>Thus, the derivative control points are</p>
+<div class="math-display">\[
+\mathbf Q_i = n(\mathbf P_{i+1}-\mathbf P_i),
+\qquad i=0,1,\ldots,n-1.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The derivative of a Bezier curve is controlled by the differences between consecutive control points.</p></div></aside>
+<h2 id="curve-subdivision">Curve Subdivision</h2>
+<p>Bezier curve subdivision splits a curve into two Bezier curves at a parameter value $u=t$. The de Casteljau algorithm is used for this purpose.</p>
+<p>Starting from control points</p>
+<div class="math-display">\[
+\mathbf P_i^{(0)}=\mathbf P_i,
+\]</div>
+<p>define recursively</p>
+<div class="math-display">\[
+\mathbf P_i^{(r)}=(1-t)\mathbf P_i^{(r-1)}
++t\mathbf P_{i+1}^{(r-1)}.
+\]</div>
+<p>The final point</p>
+<div class="math-display">\[
+\mathbf P_0^{(n)}
+\]</div>
+<p>is the point on the Bezier curve at parameter $t$.</p>
+<p>The left and right sets of generated points form the control points of the two subdivided curves.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Subdivision is useful in rendering, intersection calculations, adaptive refinement and geometric modeling.</p></div></aside>
+<h2 id="degree-elevation">Degree Elevation</h2>
+<p>Degree elevation converts a Bezier curve of degree $n$ into an equivalent curve of degree $n+1$.</p>
+<p>Let the old control points be</p>
+<div class="math-display">\[
+\mathbf P_0,\mathbf P_1,\ldots,\mathbf P_n.
+\]</div>
+<p>The new control points are</p>
+<div class="math-display">\[
+\mathbf Q_0=\mathbf P_0,
+\qquad
+\mathbf Q_{n+1}=\mathbf P_n,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\mathbf Q_i=
+\frac{i}{n+1}\mathbf P_{i-1}
++
+\left(1-\frac{i}{n+1}\right)\mathbf P_i,
+\qquad i=1,2,\ldots,n.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Degree elevation changes the control polygon but not the geometric curve.</p></div></aside>
+<h2 id="rational-bezier-curves">Rational Bezier Curves</h2>
+<p>A rational Bezier curve uses weights $w_i$ associated with control points:</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\frac{
+\sum_{i=0}^{n} w_i B_{i,n}(u)\mathbf P_i
+}{
+\sum_{i=0}^{n} w_i B_{i,n}(u)
+}.
+\]</div>
+<p>When all weights are equal, the rational Bezier curve reduces to the ordinary polynomial Bezier curve.</p>
+<p>Weights provide additional shape control. Increasing a weight pulls the curve closer to the corresponding control point.</p>
+<h2 id="homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</h2>
+<p>Rational curves can be understood as projections of polynomial curves in homogeneous coordinates.</p>
+<p>For a point</p>
+<div class="math-display">\[
+\mathbf P_i=(x_i,y_i,z_i)
+\]</div>
+<p>with weight $w_i$, define the homogeneous point</p>
+<div class="math-display">\[
+\mathbf P_i^h=(w_ix_i,w_iy_i,w_iz_i,w_i).
+\]</div>
+<p>Construct the polynomial Bezier curve in homogeneous space:</p>
+<div class="math-display">\[
+\mathbf R^h(u)=\sum_{i=0}^{n}B_{i,n}(u)\mathbf P_i^h.
+\]</div>
+<p>If</p>
+<div class="math-display">\[
+\mathbf R^h(u)=(X(u),Y(u),Z(u),W(u)),
+\]</div>
+<p>then the rational curve in ordinary space is</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\left(
+\frac{X(u)}{W(u)},
+\frac{Y(u)}{W(u)},
+\frac{Z(u)}{W(u)}
+\right).
+\]</div>
+<h2 id="rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</h2>
+<p>Polynomial Bezier curves cannot exactly represent a circle. Rational Bezier curves can.</p>
+<p>A quarter circle of radius $R$ from $(R,0)$ to $(0,R)$ can be represented using a quadratic rational Bezier curve with</p>
+<div class="math-display">\[
+\mathbf P_0=(R,0),
+\qquad
+\mathbf P_1=(R,R),
+\qquad
+\mathbf P_2=(0,R),
+\]</div>
+<p>and weights</p>
+<div class="math-display">\[
+w_0=1,
+\qquad
+w_1=\frac{1}{\sqrt{2}},
+\qquad
+w_2=1.
+\]</div>
+<p>The corresponding curve is</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\frac{
+(1-u)^2w_0\mathbf P_0
++2u(1-u)w_1\mathbf P_1
++u^2w_2\mathbf P_2
+}{
+(1-u)^2w_0+2u(1-u)w_1+u^2w_2
+}.
+\]</div>
+<p>An ellipse can be obtained by applying non-uniform scaling to a circle.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Conic sections such as circles, ellipses, parabolas and hyperbolas require rational representations for exact CAD modeling.</p></div></aside>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../geometric-transformations/index.html"><span>Previous module</span><strong>Geometric Transformations</strong></a><a class="notes-nav-link next" href="../b-splines/index.html"><span>Next module</span><strong>B-Splines</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

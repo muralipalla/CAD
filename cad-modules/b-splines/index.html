@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="B-splines are among the most important curve representations in CAD.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · B-Splines</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">B-Splines</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>B-Splines</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol><li class="toc-section"><a href="#continuity-of-functions">Continuity of Functions</a></li>
+<li class="toc-section"><a href="#definition-of-a-spline">Definition of a Spline</a></li>
+<li class="toc-section"><a href="#b-spline-curve">B-Spline Curve</a></li>
+<li class="toc-section"><a href="#polynomial-splines-with-one-knot">Polynomial Splines with One Knot</a></li>
+<li class="toc-section"><a href="#methods-for-constructing-b-spline-basis-functions">Methods for Constructing B-Spline Basis Functions</a></li>
+<li class="toc-section"><a href="#coxde-boor-recursion">Cox–de Boor Recursion</a></li>
+<li class="toc-section"><a href="#divided-difference-method">Divided Difference Method</a></li>
+<li class="toc-section"><a href="#example-divided-differences-of-u-3">Example: Divided Differences of \(u^3\)</a></li>
+<li class="toc-section"><a href="#explicit-formula-for-divided-differences">Explicit Formula for Divided Differences</a></li>
+<li class="toc-section"><a href="#b-spline-basis-function-from-divided-differences">B-Spline Basis Function from Divided Differences</a></li>
+<li class="toc-section"><a href="#properties-from-the-divided-difference-definition">Properties from the Divided Difference Definition</a></li>
+<li class="toc-subsection"><a href="#continuity">Continuity</a></li>
+<li class="toc-subsection"><a href="#compact-support">Compact Support</a></li>
+<li class="toc-subsection"><a href="#integral-of-the-basis-function">Integral of the Basis Function</a></li>
+<li class="toc-section"><a href="#derivation-of-the-coxde-boor-formula-from-divided-differences">Derivation of the Cox–de Boor Formula from Divided Differences</a></li>
+<li class="toc-section"><a href="#summary">Summary</a></li>
+<li class="toc-section"><a href="#b-spline-curves-and-knot-vectors">B-Spline Curves and Knot Vectors</a></li></ol>
+    </nav>
+    <article class="notes-article">
+      <p>B-splines are among the most important curve representations in CAD. They provide a powerful way of constructing smooth curves using local polynomial pieces. Unlike a single high-degree polynomial curve, a B-spline curve is built from several low-degree polynomial segments joined together with prescribed continuity at the knots.</p>
+<p>Throughout this section, we use the following notation:</p>
+<div class="math-display">\[
+n=\text{degree of the B-spline basis function},
+\]</div>
+<div class="math-display">\[
+m=\text{order of the B-spline basis function}=n+1,
+\]</div>
+<div class="math-display">\[
+k=\text{number of knots},
+\]</div>
+<div class="math-display">\[
+c=\text{number of control points}.
+\]</div>
+<p>The knot vector is written as</p>
+<div class="math-display">\[
+U=\{u_0,u_1,\ldots,u_{k-1}\}.
+\]</div>
+<p>The B-spline basis function is denoted by</p>
+<div class="math-display">\[
+N_{m,i}(u),
+\]</div>
+<p>where the first suffix denotes the order and the second suffix denotes the basis-function index. The support of \(N_{m,i}\) is</p>
+<div class="math-display">\[
+[u_i,u_{i+m}).
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>In these notes, the curve parameter is denoted by \(u\). The knot vector is also written using the symbols \(u_0,u_1,\ldots,u_{k-1}\). The parameter \(u\) is the variable at which the curve or basis function is evaluated.</p></div></aside>
+<h2 id="continuity-of-functions">Continuity of Functions</h2>
+<p>Let \(\phi(u)\) be a scalar function defined on an interval \([a,b]\). We say</p>
+<div class="math-display">\[
+\phi(u)\in C^n[a,b]
+\]</div>
+<p>if the derivatives</p>
+<div class="math-display">\[
+\phi'(u),\phi''(u),\ldots,\phi^{(n)}(u)
+\]</div>
+<p>exist and are continuous for all</p>
+<div class="math-display">\[
+u\in[a,b].
+\]</div>
+<p>Thus, \(C^0\) continuity means that the function itself is continuous. \(C^1\) continuity means that the function and its first derivative are continuous. Similarly, \(C^2\) continuity means that the function, first derivative and second derivative are continuous.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The notation \(C^n\) means continuity up to the \(n^{\text{th}}\) derivative.</p></div></aside>
+<h2 id="definition-of-a-spline">Definition of a Spline</h2>
+<p>A spline is a composite curve made by joining several polynomial pieces together in such a way that a desired level of continuity is maintained at the joining points.</p>
+<p>Suppose the interval \([a,b]\) is divided into subintervals by knots:</p>
+<div class="math-display">\[
+a=u_0&lt;u_1&lt;u_2&lt;\cdots&lt;u_{k-1}=b.
+\]</div>
+<p>On each subinterval, a polynomial segment is defined. For example,</p>
+<div class="math-display">\[
+\pi_j(u)
+\]</div>
+<p>may be defined on</p>
+<div class="math-display">\[
+[u_j,u_{j+1}).
+\]</div>
+<p>The complete spline is obtained by joining these polynomial pieces:</p>
+<div class="math-display">\[
+\phi(u)=
+\begin{cases}
+\pi_0(u), &amp; u\in [u_0,u_1),\\
+\pi_1(u), &amp; u\in [u_1,u_2),\\
+\vdots\\
+\pi_{k-2}(u), &amp; u\in [u_{k-2},u_{k-1}).
+\end{cases}
+\]</div>
+<p>The joining conditions at the knots determine the smoothness of the spline.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Splines are useful in interpolation and approximation because they avoid the oscillations that may occur when a single high-degree polynomial is used over a large interval.</p></div></aside>
+<p>When we refer to a function \(\phi(u)\) as a compactly supported spline, we usually mean that it satisfies the following properties:</p>
+<ol class="roman-list"><li><p>\(\phi(u)\) has a prescribed level of continuity.</p></li><li><p>\(\phi(u)\neq 0\) only inside a finite interval.</p></li><li><p>\(\phi(u)=0\) outside that interval.</p></li></ol>
+<p>The interval where \(\phi(u)\neq 0\) is called the support of the spline.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The support of a function is the region over which the function is nonzero. Compact support is one of the main reasons B-splines have local control.</p></div></aside>
+<h2 id="b-spline-curve">B-Spline Curve</h2>
+<p>A B-spline curve is written as</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{i=0}^{c-1} N_{m,i}(u)\mathbf P_i,
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+\mathbf P_0,\mathbf P_1,\ldots,\mathbf P_{c-1}
+\]</div>
+<p>are the control points and \(N_{m,i}(u)\) are the B-spline basis functions of order \(m\).</p>
+<p>Each basis function \(N_{m,i}(u)\) is made of polynomial pieces. If the degree is \(n\), then</p>
+<div class="math-display">\[
+m=n+1.
+\]</div>
+<p>The basis function \(N_{m,i}\) has support</p>
+<div class="math-display">\[
+[u_i,u_{i+m}).
+\]</div>
+<p>Therefore, \(N_{m,i}(u)\) influences the curve only in this interval.</p>
+<figure class="notes-figure" id="fig:bspline-polynomial-pieces" style="--figure-width: 65%"><img src="../../assets/images/caad-notes/BSplines.png" alt="A B-spline basis function is formed by joining polynomial pieces over successive knot intervals." loading="lazy" decoding="async"><figcaption>A B-spline basis function is formed by joining polynomial pieces over successive knot intervals.</figcaption></figure>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The B-spline curve is a weighted combination of control points. The weights are the B-spline basis functions:</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{i=0}^{c-1} N_{m,i}(u)\mathbf P_i.
+\]</div>
+<p>At a given parameter value \(u\), only a small number of basis functions are nonzero.</p></div></aside>
+<h2 id="polynomial-splines-with-one-knot">Polynomial Splines with One Knot</h2>
+<p>To understand B-spline basis functions, it is useful to begin with a simple polynomial that is cut at a knot.</p>
+<p>Let</p>
+<div class="math-display">\[
+\Pi_n(u)=a_0+a_1u+a_2u^2+\cdots+a_nu^n,
+\qquad a_n\neq 0,
+\]</div>
+<p>be a polynomial of degree \(n\).</p>
+<p>Let \(u_0\) be a knot. Define a new function</p>
+<div class="math-display">\[
+\psi(u)=
+\begin{cases}
+\Pi_n(u), &amp; u\ge u_0,\\
+0, &amp; u&lt;u_0.
+\end{cases}
+\]</div>
+<p>For \(\psi(u)\) to be continuous at \(u=u_0\), we require</p>
+<div class="math-display">\[
+\psi(u_0^+)=\psi(u_0^-)=0.
+\]</div>
+<p>Since \(\psi(u_0^-)=0\), we need</p>
+<div class="math-display">\[
+\Pi_n(u_0)=0.
+\]</div>
+<p>Therefore, \(\Pi_n(u)\) may be written as</p>
+<div class="math-display">\[
+\Pi_n(u)
+=
+b_1(u-u_0)+b_2(u-u_0)^2+\cdots+b_n(u-u_0)^n.
+\]</div>
+<p>If</p>
+<div class="math-display">\[
+\psi(u)\in C^p(\mathbb R),
+\]</div>
+<p>then</p>
+<div class="math-display">\[
+\psi(u_0)=\psi'(u_0)=\cdots=\psi^{(p)}(u_0)=0.
+\]</div>
+<p>This implies</p>
+<div class="math-display">\[
+b_1=b_2=\cdots=b_p=0.
+\]</div>
+<p>If \(p=n\), then all coefficients would vanish, which contradicts the requirement that the polynomial has degree \(n\). Hence the maximum possible continuity is</p>
+<div class="math-display">\[
+p_{\max}=n-1.
+\]</div>
+<p>Therefore, the simplest nonzero function of this kind is</p>
+<div class="math-display">\[
+\psi(u)=b_n(u-u_0)^n
+\quad \text{for } u\ge u_0,
+\]</div>
+<p>and zero otherwise.</p>
+<p>This motivates the definition of the truncated power function:</p>
+<div class="math-display">\[
+(u-u_0)^n_+
+=
+\begin{cases}
+(u-u_0)^n, &amp; u-u_0\ge 0,\\
+0, &amp; u-u_0&lt;0.
+\end{cases}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The truncated power function</p>
+<div class="math-display">\[
+(u-u_0)^n_+
+\]</div>
+<p>is a polynomial on one side of the knot and zero on the other side. It belongs to</p>
+<div class="math-display">\[
+C^{n-1}(\mathbb R).
+\]</div></div></aside>
+<h2 id="methods-for-constructing-b-spline-basis-functions">Methods for Constructing B-Spline Basis Functions</h2>
+<p>The construction of B-spline basis functions may be approached in several ways.</p>
+<ol class="roman-list"><li><p>Direct method by solving linear equations.</p></li><li><p>Recursive or iterative method.</p></li><li><p>Divided difference method.</p></li><li><p>Blossoming technique.</p></li></ol>
+<p>In the direct method, one assumes polynomial pieces in each interval and then imposes continuity conditions at the knots. This leads to a system of linear equations for the polynomial coefficients.</p>
+<p>However, the direct method is not the most efficient method for computation. The Cox–de Boor recursive formula is more useful in practice and is widely used in CAD.</p>
+<h2 id="coxde-boor-recursion">Cox–de Boor Recursion</h2>
+<p>The B-spline curve is written as</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{i=0}^{c-1}N_{m,i}(u)\mathbf P_i.
+\]</div>
+<p>The order-one basis function is</p>
+<div class="math-display">\[
+N_{1,i}(u)=
+\begin{cases}
+1, &amp; u_i\le u&lt;u_{i+1},\\
+0, &amp; \text{otherwise}.
+\end{cases}
+\]</div>
+<p>For \(m&gt;1\), the basis functions are defined recursively by</p>
+<div class="math-display">\[
+\boxed{
+N_{m,i}(u)
+=
+\frac{u-u_i}{u_{i+m-1}-u_i}N_{m-1,i}(u)
++
+\frac{u_{i+m}-u}{u_{i+m}-u_{i+1}}N_{m-1,i+1}(u).
+}
+\]</div>
+<p>If a denominator is zero, the corresponding term is taken as zero.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The Cox–de Boor recursion constructs higher-order B-spline basis functions from lower-order basis functions.</p>
+<div class="math-display">\[
+N_{m,i}
+\quad\text{is built from}\quad
+N_{m-1,i}
+\quad\text{and}\quad
+N_{m-1,i+1}.
+\]</div></div></aside>
+<p>The recursive construction is numerically stable and is the standard method used in CAD and geometric modeling.</p>
+<h2 id="divided-difference-method">Divided Difference Method</h2>
+<p>The Cox–de Boor recursion has a deep connection with divided differences. To understand the mathematical properties of B-spline basis functions, it is useful to study divided differences.</p>
+<p>Divided differences are discrete analogues of derivatives. They measure how function values change over a set of knots.</p>
+<p>Let</p>
+<div class="math-display">\[
+u_i,u_{i+1},\ldots,u_{i+p}
+\]</div>
+<p>be a set of knots. The zeroth divided difference is</p>
+<div class="math-display">\[
+f[u_i]=f(u_i).
+\]</div>
+<p>The first divided difference is</p>
+<div class="math-display">\[
+f[u_i,u_{i+1}]
+=
+\frac{f[u_{i+1}]-f[u_i]}{u_{i+1}-u_i}.
+\]</div>
+<p>The second divided difference is</p>
+<div class="math-display">\[
+f[u_i,u_{i+1},u_{i+2}]
+=
+\frac{
+f[u_{i+1},u_{i+2}]
+-
+f[u_i,u_{i+1}]
+}{
+u_{i+2}-u_i
+}.
+\]</div>
+<p>In general, the \(p^{\text{th}}\) divided difference is</p>
+<div class="math-display">\[
+\boxed{
+f[u_i,u_{i+1},\ldots,u_{i+p}]
+=
+\frac{
+f[u_{i+1},\ldots,u_{i+p}]
+-
+f[u_i,\ldots,u_{i+p-1}]
+}{
+u_{i+p}-u_i
+}.
+}
+\]</div>
+<p>For compact notation, define</p>
+<div class="math-display">\[
+\Delta_i^p f
+=
+f[u_i,u_{i+1},\ldots,u_{i+p}].
+\]</div>
+<p>Then</p>
+<div class="math-display">\[
+\boxed{
+\Delta_i^p f
+=
+\frac{
+\Delta_{i+1}^{p-1}f-\Delta_i^{p-1}f
+}{
+u_{i+p}-u_i
+}.
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Divided differences generalize slopes. A first divided difference is the slope of a secant line, while higher divided differences measure higher-order variation.</p></div></aside>
+<h2 id="example-divided-differences-of-u-3">Example: Divided Differences of \(u^3\)</h2>
+<p>Let</p>
+<div class="math-display">\[
+U=\{0,1,2,3,4,5,6,7,8,9\},
+\]</div>
+<p>and let</p>
+<div class="math-display">\[
+f(u)=u^3.
+\]</div>
+<p>The function values are</p>
+<div class="math-display">\[
+\Delta^0 f=
+[0,1,8,27,64,125,216,343,512,729].
+\]</div>
+<p>The first divided differences are</p>
+<div class="math-display">\[
+\Delta^1 f=
+[1,7,19,37,61,91,127,169,217].
+\]</div>
+<p>The second divided differences are</p>
+<div class="math-display">\[
+\Delta^2 f=
+[3,6,9,12,15,18,21,24].
+\]</div>
+<p>The third divided differences are</p>
+<div class="math-display">\[
+\Delta^3 f=
+[1,1,1,1,1,1,1].
+\]</div>
+<p>The fourth divided differences are</p>
+<div class="math-display">\[
+\Delta^4 f=
+[0,0,0,0,0,0].
+\]</div>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>For equally spaced knots,</p>
+<div class="math-display">\[
+\Delta^3 u^3=1,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\Delta^4 u^3=0.
+\]</div>
+<p>This is analogous to the fact that the third derivative of \(u^3\) is constant and the fourth derivative is zero.</p></div></aside>
+<p>Some useful general results are:</p>
+<div class="math-display">\[
+\Delta^n u^n=1,
+\]</div>
+<div class="math-display">\[
+\Delta^{n+1}u^n=0,
+\]</div>
+<div class="math-display">\[
+\Delta^r(f+g)=\Delta^r f+\Delta^r g,
+\]</div>
+<div class="math-display">\[
+\Delta^r(cf)=c\Delta^r f,
+\]</div>
+<p>where \(c\) is a constant. If \(\pi_{n-1}\) is a polynomial of degree \(n-1\), then</p>
+<div class="math-display">\[
+\Delta^n\pi_{n-1}=0.
+\]</div>
+<h2 id="explicit-formula-for-divided-differences">Explicit Formula for Divided Differences</h2>
+<p>The divided difference can also be written in explicit form. Let</p>
+<div class="math-display">\[
+w(s)=
+(s-u_i)(s-u_{i+1})\cdots(s-u_{i+p})
+=
+\prod_{r=i}^{i+p}(s-u_r).
+\]</div>
+<p>Then</p>
+<div class="math-display">\[
+\boxed{
+\Delta_i^p f
+=
+\sum_{r=i}^{i+p}
+\frac{f(u_r)}{w'(u_r)}.
+}
+\]</div>
+<p>Here \(w'(u_r)\) means the derivative of \(w(s)\) evaluated at \(s=u_r\).</p>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>For \(p=1\), let the two knots be \(u_0,u_1\), and let the corresponding function values be \(y_0,y_1\).</p>
+<p>By the recursive definition,</p>
+<div class="math-display">\[
+\Delta_0^1 y
+=
+\frac{y_1-y_0}{u_1-u_0}.
+\]</div>
+<p>By the explicit formula,</p>
+<div class="math-display">\[
+\Delta_0^1 y
+=
+\frac{y_0}{u_0-u_1}
++
+\frac{y_1}{u_1-u_0}.
+\]</div>
+<p>These two expressions are identical.</p></div></aside>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>Let</p>
+<div class="math-display">\[
+U=\{u_0,u_1,u_2,u_3\}.
+\]</div>
+<p>The third divided difference of \(f(u)=\sin u\) is</p>
+<div class="math-display">\[
+\Delta_0^3(\sin u)
+=
+\frac{\sin u_0}{(u_0-u_1)(u_0-u_2)(u_0-u_3)}
++
+\frac{\sin u_1}{(u_1-u_0)(u_1-u_2)(u_1-u_3)}
+\]</div>
+<div class="math-display">\[
++
+\frac{\sin u_2}{(u_2-u_0)(u_2-u_1)(u_2-u_3)}
++
+\frac{\sin u_3}{(u_3-u_0)(u_3-u_1)(u_3-u_2)}.
+\]</div></div></aside>
+<h2 id="b-spline-basis-function-from-divided-differences">B-Spline Basis Function from Divided Differences</h2>
+<p>A B-spline basis function can be expressed using divided differences of a truncated power function.</p>
+<p>Define</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+\Delta_i^m
+(u_\nu-u)_+^{m-1},
+\]</div>
+<p>where \(u_\nu\) denotes the knot values</p>
+<div class="math-display">\[
+u_i,u_{i+1},\ldots,u_{i+m}.
+\]</div>
+<p>Then a normalized B-spline basis function is</p>
+<div class="math-display">\[
+\boxed{
+N_{m,i}(u)
+=
+(u_{i+m}-u_i)M_{m,i}(u).
+}
+\]</div>
+<p>Equivalently,</p>
+<div class="math-display">\[
+\boxed{
+N_{m,i}(u)
+=
+(u_{i+m}-u_i)
+\Delta_i^m
+(u_\nu-u)_+^{m-1}.
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The divided-difference representation shows that B-spline basis functions are constructed from truncated powers. This gives a theoretical foundation for their compact support and smoothness.</p></div></aside>
+<h2 id="properties-from-the-divided-difference-definition">Properties from the Divided Difference Definition</h2>
+<p>We now show why</p>
+<div class="math-display">\[
+M_{m,i}(u)=\Delta_i^m(u_\nu-u)_+^{m-1}
+\]</div>
+<p>has the essential properties of a B-spline basis function.</p>
+<p>Using the explicit formula for divided differences,</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+\sum_{r=i}^{i+m}
+\frac{(u_r-u)_+^{m-1}}{w'(u_r)},
+\]</div>
+<p>where</p>
+<div class="math-display">\[
+w(s)=\prod_{r=i}^{i+m}(s-u_r).
+\]</div>
+<h3 id="continuity">Continuity</h3>
+<p>Each term</p>
+<div class="math-display">\[
+(u_r-u)_+^{m-1}
+\]</div>
+<p>is a truncated power function of degree \(m-1\). Hence it is</p>
+<div class="math-display">\[
+C^{m-2}
+\]</div>
+<p>continuous.</p>
+<p>Since \(M_{m,i}(u)\) is a linear combination of such terms, it is also</p>
+<div class="math-display">\[
+C^{m-2}.
+\]</div>
+<p>Therefore, the corresponding B-spline basis function \(N_{m,i}(u)\) is</p>
+<div class="math-display">\[
+C^{m-2}
+\]</div>
+<p>continuous when all knots are distinct.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A B-spline basis function of order \(m\) and degree \(n=m-1\) is generally \(C^{m-2}=C^{n-1}\) continuous at simple knots.</p></div></aside>
+<h3 id="compact-support">Compact Support</h3>
+<p>For</p>
+<div class="math-display">\[
+u\ge u_{i+m},
+\]</div>
+<p>we have</p>
+<div class="math-display">\[
+u_r-u\le 0
+\qquad
+\text{for all}
+\qquad
+r=i,i+1,\ldots,i+m.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+(u_r-u)_+^{m-1}=0
+\]</div>
+<p>for every term. Hence,</p>
+<div class="math-display">\[
+M_{m,i}(u)=0
+\qquad
+\text{for}
+\qquad
+u\ge u_{i+m}.
+\]</div>
+<p>For</p>
+<div class="math-display">\[
+u\le u_i,
+\]</div>
+<p>all truncated powers become ordinary polynomials:</p>
+<div class="math-display">\[
+(u_r-u)_+^{m-1}=(u_r-u)^{m-1}.
+\]</div>
+<p>Thus,</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+\Delta_i^m (u_\nu-u)^{m-1}.
+\]</div>
+<p>Since \((u_\nu-u)^{m-1}\) is a polynomial of degree \(m-1\), its \(m^{\text{th}}\) divided difference is zero:</p>
+<div class="math-display">\[
+\Delta_i^m (u_\nu-u)^{m-1}=0.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+M_{m,i}(u)=0
+\qquad
+\text{for}
+\qquad
+u\le u_i.
+\]</div>
+<p>Hence,</p>
+<div class="math-display">\[
+\boxed{
+N_{m,i}(u)=0
+\quad
+\text{outside}
+\quad
+[u_i,u_{i+m}).
+}
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The support of \(N_{m,i}\) is</p>
+<div class="math-display">\[
+[u_i,u_{i+m}).
+\]</div>
+<p>This compact support gives B-spline curves their local control property.</p></div></aside>
+<h3 id="integral-of-the-basis-function">Integral of the Basis Function</h3>
+<p>A useful result is</p>
+<div class="math-display">\[
+\int_{u_i}^{u_{i+m}} M_{m,i}(u)\,du
+=
+\frac{1}{m}.
+\]</div>
+<p>Since</p>
+<div class="math-display">\[
+N_{m,i}(u)=(u_{i+m}-u_i)M_{m,i}(u),
+\]</div>
+<p>we obtain</p>
+<div class="math-display">\[
+\int_{u_i}^{u_{i+m}} N_{m,i}(u)\,du
+=
+\frac{u_{i+m}-u_i}{m}.
+\]</div>
+<p>For uniform knots with spacing \(h\), this becomes</p>
+<div class="math-display">\[
+\int_{u_i}^{u_{i+m}} N_{m,i}(u)\,du
+=
+h.
+\]</div>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>This integral result is useful in approximation theory and in the analysis of B-spline basis functions.</p></div></aside>
+<h2 id="derivation-of-the-coxde-boor-formula-from-divided-differences">Derivation of the Cox–de Boor Formula from Divided Differences</h2>
+<p>The Cox–de Boor recursion can be obtained from the divided-difference representation of B-splines.</p>
+<p>Let</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+\Delta_i^m(u_\nu-u)_+^{m-1}.
+\]</div>
+<p>Using a product decomposition of the truncated power function and applying the Leibniz rule for divided differences, one can show that</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+M_{m-1,i}(u)
++
+(u_{i+m}-u)
+\Delta_i^m(u_\nu-u)_+^{m-2}.
+\]</div>
+<p>Using the recursive definition of divided differences,</p>
+<div class="math-display">\[
+\Delta_i^m(u_\nu-u)_+^{m-2}
+=
+\frac{
+M_{m-1,i+1}(u)-M_{m-1,i}(u)
+}{
+u_{i+m}-u_i
+}.
+\]</div>
+<p>Therefore,</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+M_{m-1,i}(u)
++
+(u_{i+m}-u)
+\frac{
+M_{m-1,i+1}(u)-M_{m-1,i}(u)
+}{
+u_{i+m}-u_i
+}.
+\]</div>
+<p>Rearranging,</p>
+<div class="math-display">\[
+M_{m,i}(u)
+=
+M_{m-1,i}(u)
+\left[
+\frac{u-u_i}{u_{i+m}-u_i}
+\right]
++
+M_{m-1,i+1}(u)
+\left[
+\frac{u_{i+m}-u}{u_{i+m}-u_i}
+\right].
+\]</div>
+<p>Now use the normalization</p>
+<div class="math-display">\[
+N_{m,i}(u)=(u_{i+m}-u_i)M_{m,i}(u),
+\]</div>
+<div class="math-display">\[
+N_{m-1,i}(u)=(u_{i+m-1}-u_i)M_{m-1,i}(u),
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+N_{m-1,i+1}(u)=(u_{i+m}-u_{i+1})M_{m-1,i+1}(u).
+\]</div>
+<p>Substituting these into the previous expression gives</p>
+<div class="math-display">\[
+\boxed{
+N_{m,i}(u)
+=
+\frac{u-u_i}{u_{i+m-1}-u_i}N_{m-1,i}(u)
++
+\frac{u_{i+m}-u}{u_{i+m}-u_{i+1}}N_{m-1,i+1}(u).
+}
+\]</div>
+<p>This is precisely the Cox–de Boor recursive formula.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The divided-difference definition gives the theoretical origin of the Cox–de Boor recursion. The recursion is the practical algorithm used to evaluate B-spline basis functions.</p></div></aside>
+<h2 id="summary">Summary</h2>
+<p>A B-spline basis function may be understood in two complementary ways.</p>
+<p>First, it can be defined recursively using the Cox–de Boor formula:</p>
+<div class="math-display">\[
+N_{m,i}(u)
+=
+\frac{u-u_i}{u_{i+m-1}-u_i}N_{m-1,i}(u)
++
+\frac{u_{i+m}-u}{u_{i+m}-u_{i+1}}N_{m-1,i+1}(u).
+\]</div>
+<p>Second, it can be defined using divided differences of truncated power functions:</p>
+<div class="math-display">\[
+N_{m,i}(u)
+=
+(u_{i+m}-u_i)
+\Delta_i^m
+(u_\nu-u)_+^{m-1}.
+\]</div>
+<p>The divided-difference form is useful for understanding the mathematical properties of B-splines, while the Cox–de Boor formula is useful for numerical evaluation.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>B-splines combine three important advantages:</p>
+<ol class="roman-list"><li><p>smooth piecewise-polynomial representation,</p></li><li><p>compact support and local control,</p></li><li><p>stable recursive evaluation.</p></li></ol></div></aside>
+<h2 id="b-spline-curves-and-knot-vectors">B-Spline Curves and Knot Vectors</h2>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../curves/index.html"><span>Previous module</span><strong>Curves</strong></a><a class="notes-nav-link next" href="../surfaces/index.html"><span>Next module</span><strong>Surfaces</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

@@ -7,7 +7,10 @@
   <meta name="theme-color" content="#fdf6ec">
   <title>CAD</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/home.css">
   <script src="assets/js/main.js" defer></script>
+  <script src="assets/vendor/three.min.js" defer></script>
+  <script src="assets/js/hero-bspline.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -19,110 +22,70 @@
         <span class="brand-copy"><strong>CAD</strong></span>
       </a>
       <div class="nav-links">
-        <a href="cad-modules/">CAD Modules</a>
-        <a href="programming-modules/">Programming Modules</a>
-        <a href="self-assessment-quizzes/">Self Assessment Quizzes</a>
+        <a href="cad-modules/index.html">Theory</a>
+        <a href="programming-modules/index.html">Programming Modules</a>
+        <a href="self-assessment-quizzes/index.html">Self Assessment Quizzes</a>
       </div>
     </nav>
 
     <div class="hero">
       <div class="hero-copy">
         <p class="eyebrow">Design · reason · build</p>
-        <h1>Learn the logic behind <em>every line.</em></h1>
+        <h1>CAD <em></em></h1>
         <p class="hero-lead">
-          Build confident CAD habits through focused design lessons, small programming experiments,
-          and quick checks that turn geometric ideas into practical skill.
+          An interactive website for learning, practicing,
+          and visualizing core CAD concepts.
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="cad-modules/sketch-constraints/">Start with sketch constraints</a>
+          <a class="button primary" href="cad-modules/index.html">Open Theory</a>
           <a class="button secondary" href="#learning-sections">Explore all sections</a>
         </div>
       </div>
 
-      <div class="draft-board" role="img" aria-label="Abstract CAD drawing with axes, a rectangular profile, circular feature, and control points">
-        <span class="draft-axis x" aria-hidden="true"></span>
-        <span class="draft-axis y" aria-hidden="true"></span>
-        <span class="draft-node one" aria-hidden="true"></span>
-        <span class="draft-node two" aria-hidden="true"></span>
-        <span class="draft-node three" aria-hidden="true"></span>
-        <span class="draft-node four" aria-hidden="true"></span>
-        <span class="draft-label"><strong>Parametric profile</strong><span>Fully defined</span></span>
+      <div class="draft-board spline-board">
+        <canvas
+          data-bspline-surface
+          aria-label="Interactive tensor-product B-spline surface"
+          aria-describedby="surface-help"
+        ></canvas>
+        <p class="visually-hidden" id="surface-help">Drag to rotate the surface. Use the arrow keys to rotate it from the keyboard, or press Home to reset the view.</p>
+        <p class="surface-fallback" data-surface-fallback>Interactive B-spline surface preview unavailable.</p>
+        <span class="draft-label" data-surface-label hidden><strong>B-spline surface</strong><span>Drag to rotate</span></span>
       </div>
     </div>
   </header>
 
   <main id="main-content">
-    <section class="section compact" id="learning-sections" aria-labelledby="sections-title">
-      <div class="section-heading">
-        <div>
-          <p class="section-kicker">Three connected paths</p>
-          <h2 id="sections-title">Choose where to begin</h2>
-        </div>
-        <p>Start with design fundamentals, uncover the code behind repeated geometry, or check what you already know.</p>
-      </div>
-
-      <div class="section-grid">
-        <a class="section-card" href="cad-modules/">
-          <span class="section-number" aria-hidden="true">01</span>
-          <h3>CAD Modules</h3>
-          <p>Develop modelling judgement through sketches, constraints, projections, dimensions, and feature-based workflows.</p>
-          <span class="card-link">Open CAD Modules</span>
-        </a>
-
-        <a class="section-card" href="programming-modules/">
-          <span class="section-number" aria-hidden="true">02</span>
-          <h3>Programming Modules</h3>
-          <p>Use coordinates, loops, vectors, and parameters to describe geometry clearly and automate repeatable design tasks.</p>
-          <span class="card-link">Open Programming Modules</span>
-        </a>
-
-        <a class="section-card" href="self-assessment-quizzes/">
-          <span class="section-number" aria-hidden="true">03</span>
-          <h3>Self Assessment Quizzes</h3>
-          <p>Test core concepts with immediate explanations, then return to the exact skill that needs another look.</p>
-          <span class="card-link">Open Self Assessment Quizzes</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="dark-band" aria-labelledby="approach-title">
-      <div class="section">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">A practical learning loop</p>
-            <h2 id="approach-title">See it, change it, explain it</h2>
-          </div>
-          <p>Each starter activity is short enough for one sitting and designed to make the reasoning visible—not just the final shape.</p>
-        </div>
-
-        <div class="feature-grid">
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">SEE</span>
-            <h3>Visual first</h3>
-            <p>Diagrams and live previews connect abstract geometric rules to the model on screen.</p>
-          </article>
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">TRY</span>
-            <h3>Small experiments</h3>
-            <p>Adjust a constraint or parameter and observe the result before moving to a larger CAD system.</p>
-          </article>
-          <article class="feature-card">
-            <span class="feature-icon" aria-hidden="true">WHY</span>
-            <h3>Reasoned feedback</h3>
-            <p>Self-checks explain why an answer works so that correct choices become transferable habits.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" aria-labelledby="next-title">
+    <section class="section compact home-path home-path--theory" id="learning-sections" aria-labelledby="theory-title">
       <div class="callout">
         <div>
-          <p class="section-kicker">Recommended first step</p>
-          <h2 id="next-title">Turn a loose sketch into design intent</h2>
-          <p>Apply geometric and dimensional constraints, watch the remaining degrees of freedom change, and learn what “fully constrained” really means.</p>
+          <p class="section-kicker">Section 01</p>
+          <h2 id="theory-title">Theory</h2>
+          <p>Study geometric transformations, curves, B-splines, surfaces, and solid modeling from the course notes.</p>
         </div>
-        <a class="button primary" href="cad-modules/sketch-constraints/">Open the activity</a>
+        <a class="button primary" href="cad-modules/index.html">Open Theory</a>
+      </div>
+    </section>
+
+    <section class="section compact home-path home-path--programming" aria-labelledby="programming-title">
+      <div class="callout">
+        <div>
+          <p class="section-kicker">Section 02</p>
+          <h2 id="programming-title">Programming Module</h2>
+          <p>Compare Python or MATLAB code with draggable JavaScript visualizations of four core curve algorithms.</p>
+        </div>
+        <a class="button primary" href="programming-modules/index.html">Open Programming Module</a>
+      </div>
+    </section>
+
+    <section class="section compact home-path home-path--assessment" aria-labelledby="assessment-title">
+      <div class="callout">
+        <div>
+          <p class="section-kicker">Section 03</p>
+          <h2 id="assessment-title">Self Assessment Quizzes</h2>
+          <p>This section is reserved for self-assessment questions that will be added separately.</p>
+        </div>
+        <a class="button primary" href="self-assessment-quizzes/index.html">Open Self Assessment Quizzes</a>
       </div>
     </section>
   </main>
@@ -130,9 +93,9 @@
   <footer class="site-footer">
     <p><strong>CAD</strong> · Practical design and programming foundations</p>
     <ul class="footer-nav" aria-label="Footer navigation">
-      <li><a href="cad-modules/">CAD Modules</a></li>
-      <li><a href="programming-modules/">Programming Modules</a></li>
-      <li><a href="self-assessment-quizzes/">Self Assessment Quizzes</a></li>
+      <li><a href="cad-modules/index.html">Theory</a></li>
+      <li><a href="programming-modules/index.html">Programming Modules</a></li>
+      <li><a href="self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li>
     </ul>
     <p>Created by Murali Palla · <span data-year>2026</span></p>
   </footer>

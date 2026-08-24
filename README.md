@@ -4,15 +4,16 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **CAD Modules** — design intent, sketch constraints, drawings, dimensions, tolerances, and feature-based modelling.
-- **Programming Modules** — coordinates, vectors, transforms, parametric patterns, and CAD automation.
-- **Self Assessment Quizzes** — short concept checks with immediate explanations.
+- **Theory** — course notes on geometric transformations, curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints.
+- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, and B-splines/NURBS.
+- **Self Assessment Quizzes** — a placeholder for questions that will be added separately.
 
-The first release includes two interactive modules and one scored quiz:
+The site includes:
 
-- Sketch Constraints
-- Parametric Circular Patterns
-- CAD Foundations Quiz
+- five teaching modules converted from the course LaTeX source;
+- four draggable curve laboratories with Python/MATLAB code views;
+- the Sketch Constraints and Parametric Circular Patterns activities; and
+- a self-assessment placeholder ready for future questions.
 
 ## Run locally
 
@@ -48,7 +49,7 @@ self-assessment-quizzes/      Quiz hub and assessments
 
 ## Accessibility and compatibility
 
-The site uses semantic landmarks, keyboard-visible focus states, skip links, labelled controls, live regions for activity feedback, responsive layouts, reduced-motion support, and no external runtime dependencies.
+The site uses semantic landmarks, keyboard-visible focus states, skip links, labelled controls, live regions for activity feedback, responsive layouts, and reduced-motion support. Teaching-module equations are rendered by a pinned MathJax script from jsDelivr; the curve laboratories use Canvas 2D JavaScript, and the home-page B-spline surface uses a locally bundled Three.js runtime.
 
 ## License
 
