@@ -266,7 +266,7 @@
         Lab.drawPolyline(context, hull, currentPlot, { color: Lab.palette[index % Lab.palette.length], width: 1.5, dash: [5, 5], closed: hull.length > 2, fill: hull.length > 2 ? `${Lab.palette[index % Lab.palette.length]}18` : undefined });
       });
     }
-    if (showPolygon.checked) Lab.drawPolyline(context, points, currentPlot, { color: "rgba(255,255,255,0.46)", width: 1.7, dash: [5, 5], closed: mode === "periodic" });
+    if (showPolygon.checked) Lab.drawPolyline(context, points, currentPlot, { color: "#ffd166", width: 2.4, closed: mode === "periodic" });
     segments.forEach(({ samples }, index) => Lab.drawPolyline(context, samples, currentPlot, { color: colorSpans.checked ? Lab.palette[index % Lab.palette.length] : "#8ac7ff", width: 4 }));
     points.forEach((point, index) => Lab.drawPoint(context, point, currentPlot, {
       label: `P${index + 1} · w=${Lab.formatNumber(weights[index], 2)}`,
@@ -591,7 +591,7 @@ for position, (k, segment) in enumerate(zip(spans, segments)):
         plt.plot(local[:,0], local[:,1], "--", color=color, alpha=0.65)
 if show_control_polygon:
     control_polygon = np.vstack([control, control[0]]) if periodic else control
-    plt.plot(control_polygon[:,0], control_polygon[:,1], "o--", color="0.45")
+    plt.plot(control_polygon[:,0], control_polygon[:,1], "o-", color="#ffd166", linewidth=2)
 else:
     plt.plot(control[:,0], control[:,1], "o", color="0.45")
 plt.axis("equal"); plt.grid(True)
@@ -722,7 +722,7 @@ for s = 1:numel(spans)
 end
 if showControlPolygon
     if periodic, controlPolygon = [control; control(1,:)]; else, controlPolygon = control; end
-    plot(controlPolygon(:,1), controlPolygon(:,2), 'o--', 'Color', [0.45 0.45 0.45]);
+    plot(controlPolygon(:,1), controlPolygon(:,2), 'o-', 'Color', [1.00 0.82 0.40], 'LineWidth', 2);
 else
     plot(control(:,1), control(:,2), 'o', 'Color', [0.45 0.45 0.45]);
 end
