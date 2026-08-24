@@ -35,6 +35,7 @@
   let points = defaults.map((point) => ({ ...point }));
   let weights = points.map(() => 1);
   let degree = 3;
+  let preferredDegree = 3;
   let mode = "clamped";
   let knots = [];
   let selected = 0;
@@ -93,10 +94,8 @@
       degreeControl.value = "1";
       return;
     }
-    if (degree > maximum) {
-      degree = maximum;
-      degreeControl.value = String(degree);
-    }
+    degree = Math.min(preferredDegree, maximum);
+    degreeControl.value = String(degree);
   }
 
   function updateKnotHelp() {
@@ -1051,7 +1050,8 @@ end`;
     render();
   });
   degreeControl.addEventListener("change", () => {
-    degree = Number(degreeControl.value);
+    preferredDegree = Number(degreeControl.value);
+    degree = preferredDegree;
     resetKnots();
     render();
   });
@@ -1107,6 +1107,7 @@ end`;
     points = defaults.map((point) => ({ ...point }));
     weights = points.map(() => 1);
     degree = 3;
+    preferredDegree = 3;
     mode = "clamped";
     selected = 0;
     clearCurveDrag();
