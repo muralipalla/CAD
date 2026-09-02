@@ -5,13 +5,13 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 ## Sections
 
 - **Theory** — course notes on geometric transformations, curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints.
-- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, and B-splines/NURBS.
+- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, and B-splines/NURBS.
 - **Self Assessment Quizzes** — a placeholder for questions that will be added separately.
 
 The site includes:
 
 - five teaching modules converted from the course LaTeX source;
-- four draggable curve laboratories with Python/MATLAB code views;
+- five interactive curve laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a self-assessment placeholder ready for future questions.
 

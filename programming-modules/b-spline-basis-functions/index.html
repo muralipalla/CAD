@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Plot clamped, not-clamped, periodic, and custom-knot B-spline basis functions, inspect their sum, and follow the Cox–de Boor iteration.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · B-Spline Basis Functions Lab</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/js/curve-lab.js" defer></script>
+  <script src="basis-math.js" defer></script>
+  <script src="app.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html" aria-current="page">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">B-Spline Basis Functions</li></ol>
+      <p class="eyebrow">Interactive programming module 04</p>
+      <h1>B-Spline <em>Basis Functions</em></h1>
+      <p class="activity-lead">Enter a knot vector, choose the order, and compare clamped, not-clamped, periodic, and fully custom bases. A second graph computes the sum of every possible basis function over the plotted interval.</p>
+      <ul class="meta-list"><li>Cox–de Boor iteration</li><li>Custom and periodic knots</li><li>Partition of unity</li></ul>
+    </header>
+
+    <section class="basis-theory-panel" aria-labelledby="basis-iteration-title">
+      <div class="basis-theory-heading">
+        <div><p class="section-kicker">Section 1 · Formula from the HTML notes</p><h2 id="basis-iteration-title">Cox–de Boor recursion</h2></div>
+        <a class="button secondary" href="../../cad-modules/b-splines/index.html#coxde-boor-recursion">Open B-Spline theory</a>
+      </div>
+
+      <div class="notation-grid">
+        <div><span>Degree</span><strong>\(n\)</strong></div>
+        <div><span>Order</span><strong>\(m=n+1\)</strong></div>
+        <div><span>Knot vector</span><strong>\(U=\{u_0,\ldots,u_{k-1}\}\)</strong></div>
+        <div><span>Basis</span><strong>\(N_{m,i}(u)\)</strong></div>
+      </div>
+
+      <div class="formula-grid">
+        <article class="formula-card">
+          <span class="formula-step">01 · Start</span>
+          <h3>Order-one basis</h3>
+          <div class="math-display">\[
+N_{1,i}(u)=
+\begin{cases}
+1, &amp; u_i\le u&lt;u_{i+1},\\
+0, &amp; \text{otherwise}.
+\end{cases}
+\]</div>
+        </article>
+        <article class="formula-card recurrence-card">
+          <span class="formula-step">02 · Iterate for \(m&gt;1\)</span>
+          <h3>Build order m from order m − 1</h3>
+          <div class="math-display">\[
+\boxed{
+N_{m,i}(u)
+=
+\frac{u-u_i}{u_{i+m-1}-u_i}N_{m-1,i}(u)
++
+\frac{u_{i+m}-u}{u_{i+m}-u_{i+1}}N_{m-1,i+1}(u)
+}
+\]</div>
+          <p>If a denominator is zero, the corresponding term is taken as zero.</p>
+        </article>
+      </div>
+
+      <div class="formula-notes">
+        <article><span>Support</span><div class="math-display">\[N_{m,i}(u)\neq 0\quad\text{only on}\quad [u_i,u_{i+m}).\]</div></article>
+        <article><span>Partition of unity on the active domain</span><div class="math-display">\[\sum_{i=0}^{c-1}N_{m,i}(u)=1,\qquad u\in [u_{m-1},u_{k-m}].\]</div></article>
+      </div>
+
+      <aside class="periodic-explanation">
+        <strong>Periodic mode</strong>
+        <p>The same Cox–de Boor recursion is evaluated on an extended knot vector. The module then combines effective basis terms whose indices differ by <em>c</em>, so each displayed basis wraps across one period and the sum remains one.</p>
+      </aside>
+    </section>
+
+    <section class="basis-interactive-section" aria-labelledby="basis-graphics-title">
+      <article class="lab-window basis-graphics-window">
+        <div class="window-heading"><div><p class="card-kicker">Section 2 · Interactive graphs</p><h2 id="basis-graphics-title">Plot the basis</h2></div></div>
+        <div class="visual-toolbar basis-controls">
+          <label class="lab-field"><span>Boundary condition</span><select data-boundary-mode><option value="clamped">Clamped</option><option value="unclamped">Not clamped</option><option value="periodic">Periodic</option><option value="custom">Custom knot vector</option></select></label>
+          <label class="lab-field"><span>Order m</span><select data-order><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option></select></label>
+          <label class="toggle-control custom-periodic-control" data-custom-periodic-control hidden><input type="checkbox" data-custom-periodic><span>Periodic custom vector</span></label>
+        </div>
+
+        <div class="knot-editor basis-knot-editor">
+          <label class="lab-field grow"><span>Knot vector U</span><input class="knot-input" type="text" data-knot-vector spellcheck="false" aria-describedby="basis-knot-help basis-status"></label>
+          <div class="lab-actions"><button class="mini-button" type="button" data-apply-knots>Apply knots</button><button class="mini-button" type="button" data-reset-knots>Reset for condition</button></div>
+          <p class="interaction-hint" id="basis-knot-help" data-knot-help></p>
+        </div>
+
+        <dl class="basis-facts" aria-label="Applied B-spline configuration">
+          <div><dt>Order</dt><dd>m = <span data-order-fact>4</span></dd></div>
+          <div><dt>Degree</dt><dd>n = <span data-degree-fact>3</span></dd></div>
+          <div><dt>Knots</dt><dd>k = <span data-knot-fact>10</span></dd></div>
+          <div><dt>Possible bases</dt><dd>c = <span data-basis-fact>6</span></dd></div>
+          <div class="domain-fact"><dt>Active domain</dt><dd data-domain-fact>[0, 1]</dd></div>
+          <div class="relationship-fact"><dt>Count rule</dt><dd data-relationship-fact>c = k − m</dd></div>
+        </dl>
+
+        <div class="basis-plot-grid">
+          <section class="basis-plot-panel" aria-labelledby="all-basis-title">
+            <div class="subgraph-heading"><h3 id="all-basis-title">All basis functions</h3><p>N<sub>m,i</sub>(u)</p></div>
+            <div class="canvas-frame basis-canvas-frame">
+              <canvas class="basis-canvas basis-functions-canvas" data-basis-canvas width="900" height="480" role="img" aria-label="B-spline basis-function graph" aria-describedby="basis-status"></canvas>
+            </div>
+            <ul class="basis-function-key" data-basis-legend aria-label="Basis-function color legend"></ul>
+          </section>
+
+          <section class="basis-plot-panel" aria-labelledby="basis-sum-title">
+            <div class="subgraph-heading sum-heading"><h3 id="basis-sum-title">Sum of all basis functions</h3><p>Computed, not assumed</p></div>
+            <div class="canvas-frame basis-canvas-frame">
+              <canvas class="basis-canvas basis-sum-canvas" data-sum-canvas width="900" height="290" role="img" aria-label="Sum of all B-spline basis functions" aria-describedby="basis-sum-summary"></canvas>
+            </div>
+            <p class="spline-panel-summary" id="basis-sum-summary" data-sum-summary></p>
+          </section>
+        </div>
+        <div class="lab-status" id="basis-status" data-status role="status" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <section class="basis-code-section" aria-labelledby="basis-code-title">
+      <article class="lab-window basis-code-window">
+        <div class="window-heading">
+          <div><p class="card-kicker">Section 3 · Reference code</p><h2 id="basis-code-title">Basis-function program</h2></div>
+          <div class="language-toggle" role="group" aria-label="Code language">
+            <button class="language-button" type="button" data-language="python" aria-pressed="true">Python</button>
+            <button class="language-button" type="button" data-language="matlab" aria-pressed="false">MATLAB</button>
+          </div>
+        </div>
+        <p>The generated program uses the applied knot vector, order, and boundary condition. It plots every basis function and computes their sum from the same samples.</p>
+        <div class="curve-code-panel">
+          <div class="code-toolbar"><span data-code-filename>bspline_basis.py</span><button class="copy-button" type="button" data-copy-code>Copy code</button></div>
+          <pre><code data-code-output></code></pre>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · B-Spline Basis Functions Lab</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

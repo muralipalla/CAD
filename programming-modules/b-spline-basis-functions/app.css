@@ -1,0 +1,390 @@
+.basis-code-window .curve-code-panel pre {
+  min-height: 24rem;
+  max-height: 36rem;
+}
+
+.basis-interactive-section,
+.basis-code-section {
+  margin-top: 1rem;
+}
+
+.basis-code-section {
+  margin-bottom: 4rem;
+}
+
+.basis-controls {
+  margin-bottom: 0.75rem;
+}
+
+.basis-controls .lab-field {
+  flex: 1 1 10rem;
+}
+
+.custom-periodic-control {
+  flex: 0 1 auto;
+  align-self: end;
+}
+
+.custom-periodic-control[hidden] {
+  display: none;
+}
+
+.basis-knot-editor {
+  margin-top: 0;
+}
+
+.basis-knot-editor .lab-actions {
+  margin-top: 0;
+}
+
+.basis-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0;
+  margin: 1rem 0 1.25rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.basis-facts > div {
+  min-width: 0;
+  padding: 0.72rem 0.8rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.basis-facts > div:nth-child(4),
+.basis-facts > div:last-child {
+  border-right: 0;
+}
+
+.basis-facts > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.basis-facts .domain-fact,
+.basis-facts .relationship-fact {
+  grid-column: span 2;
+}
+
+.basis-facts dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.basis-facts dd {
+  margin: 0.15rem 0 0;
+  color: var(--ink);
+  font: 850 0.9rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.basis-canvas-frame {
+  margin-top: 0.55rem;
+}
+
+.basis-functions-canvas {
+  aspect-ratio: 15 / 8;
+}
+
+.basis-sum-canvas {
+  aspect-ratio: 4 / 3;
+}
+
+.basis-plot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 0.75fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.basis-plot-panel {
+  min-width: 0;
+}
+
+.basis-plot-panel .subgraph-heading {
+  margin-top: 0.5rem;
+}
+
+.basis-function-key {
+  display: flex;
+  max-height: 8.5rem;
+  flex-wrap: wrap;
+  gap: 0.42rem 0.8rem;
+  padding: 0.75rem 0.2rem 0;
+  margin: 0;
+  overflow: auto;
+  color: var(--muted);
+  font: 760 0.72rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+  list-style: none;
+}
+
+.basis-function-key li {
+  display: inline-flex;
+  gap: 0.36rem;
+  align-items: center;
+}
+
+.basis-key-swatch {
+  width: 1.35rem;
+  flex: 0 0 auto;
+  border-top: 3px solid var(--basis-color);
+}
+
+.basis-key-swatch[data-dash="1"] {
+  border-top-style: dashed;
+}
+
+.basis-key-swatch[data-dash="2"] {
+  border-top-style: dotted;
+}
+
+.basis-key-swatch.sum-swatch {
+  border-color: #d69e19;
+  border-top-width: 4px;
+}
+
+.spline-panel-summary {
+  min-height: 2.4rem;
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 720;
+}
+
+.basis-theory-panel {
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  margin: 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-small);
+}
+
+.basis-theory-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.basis-theory-heading h2 {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  line-height: 1.1;
+}
+
+.basis-theory-heading .button {
+  flex: 0 0 auto;
+}
+
+.notation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.6rem 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--lavender-light);
+}
+
+.notation-grid > div {
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border-right: 1px solid var(--line);
+}
+
+.notation-grid > div:last-child {
+  border-right: 0;
+}
+
+.notation-grid span,
+.formula-notes article > span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.67rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.notation-grid strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.formula-grid {
+  display: grid;
+  grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1.28fr);
+  gap: 1rem;
+}
+
+.formula-card {
+  min-width: 0;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 1.15rem;
+  background: var(--canvas);
+}
+
+.formula-card.recurrence-card {
+  background: var(--blue-light);
+}
+
+.formula-step {
+  color: var(--coral);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.formula-card h3 {
+  margin: 0.35rem 0 0.75rem;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.formula-card p {
+  margin: 0.8rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 720;
+}
+
+.math-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  color: var(--ink);
+  text-align: center;
+}
+
+.math-display mjx-container[display="true"] {
+  margin: 0.65rem 0 !important;
+}
+
+.formula-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.formula-notes article {
+  min-width: 0;
+  padding: 1rem 1.1rem;
+  border-left: 4px solid var(--lavender);
+  border-radius: 0 1rem 1rem 0;
+  background: rgba(238, 234, 248, 0.7);
+}
+
+.periodic-explanation {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.22fr) minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  margin-top: 1rem;
+  border-radius: 1rem;
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.periodic-explanation strong {
+  font-size: 0.83rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.periodic-explanation p {
+  margin: 0;
+  color: #315e55;
+  font-size: 0.83rem;
+}
+
+@media (max-width: 1050px) {
+  .basis-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .basis-facts > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .basis-facts > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .basis-plot-grid,
+  .formula-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .basis-code-window .curve-code-panel pre {
+    min-height: 22rem;
+  }
+
+  .basis-sum-canvas {
+    aspect-ratio: 3 / 1;
+  }
+}
+
+@media (max-width: 680px) {
+  .basis-theory-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .notation-grid,
+  .formula-notes {
+    grid-template-columns: 1fr;
+  }
+
+  .notation-grid > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .notation-grid > div:last-child {
+    border-bottom: 0;
+  }
+
+  .periodic-explanation {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .basis-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .basis-facts > div,
+  .basis-facts > div:nth-child(2n),
+  .basis-facts .domain-fact,
+  .basis-facts .relationship-fact {
+    grid-column: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .basis-facts > div:last-child {
+    border-bottom: 0;
+  }
+
+  .basis-functions-canvas,
+  .basis-sum-canvas {
+    aspect-ratio: 4 / 3;
+  }
+}
