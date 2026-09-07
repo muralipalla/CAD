@@ -5,13 +5,13 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 ## Sections
 
 - **Theory** — course notes on geometric transformations, curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints.
-- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
+- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier and rational Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
 - five teaching modules converted from the course LaTeX source;
-- six interactive curve and surface laboratories with Python/MATLAB code views;
+- seven interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a comprehensive geometry and curves self-assessment quiz.
 
@@ -58,6 +58,15 @@ starts a new flat grid and reduces the order if needed.
 `surface-three.js` owns the independent Three.js view;
 `surface-math.js` evaluates tensor-product B-spline surfaces and manages editable 4×4, 5×5 and 6×6 grids, with orders 2 through the control count per direction.
 Run the numerical and editing tests with `node --test tests/*.test.js`.
+
+The Rational Bézier Curves module at `programming-modules/rational-bezier-curves/`
+shows a quadratic parabola cut from a cone and its central projection onto `w=1`.
+Adjust radius, half-angle, and curve parameter; inspect the 3D construction and
+linked 2D arc, controls, and weights `(1, cos(theta), 1)`. The step-by-step derivation
+uses the notes' general perspective-projection matrix. `rational-three.js` owns
+the independent Three.js view; `rational-math.js` evaluates the construction;
+`rational-code.js` generates matching Python/MATLAB programs. The demo uses
+`0.5 <= r <= 3`, `10 <= theta <= 75` degrees, and `0 <= u <= 1`.
 
 ## Accessibility and compatibility
 
