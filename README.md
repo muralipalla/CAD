@@ -66,7 +66,14 @@ linked 2D arc, controls, and weights `(1, cos(theta), 1)`. The step-by-step deri
 uses the notes' general perspective-projection matrix. `rational-three.js` owns
 the independent Three.js view; `rational-math.js` evaluates the construction;
 `rational-code.js` generates matching Python/MATLAB programs. The demo uses
-`0.5 <= r <= 3`, `10 <= theta <= 75` degrees, and `0 <= u <= 1`.
+`0.5 <= r <= 3`, `0 <= theta <= 180` degrees, and `0 <= u <= 1`.
+The circle framing stays fixed as the angle changes; projected controls may leave
+the view. Both plots use dark backgrounds, with point labels off by default.
+Three.js handles wheel/trackpad/touch zoom inside the 3D canvas. At 90 degrees,
+the middle projected control is at infinity; above 90 its weight is negative.
+At 180 degrees, the section degenerates to a generator and its midpoint cannot
+be projected. The reference circle remains visible without claiming that this
+degenerate single quadratic represents a full circle.
 
 ## Accessibility and compatibility
 

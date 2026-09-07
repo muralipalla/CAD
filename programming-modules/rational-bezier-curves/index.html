@@ -8,13 +8,13 @@
   <title>CAD · Rational Bézier Curves</title>
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/curve-labs.css">
-  <link rel="stylesheet" href="app.css?v=1">
+  <link rel="stylesheet" href="app.css?v=d3d8f3bacdcd">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
-  <script src="rational-math.js?v=1" defer></script>
-  <script src="rational-three.js?v=1" defer></script>
-  <script src="rational-code.js?v=1" defer></script>
-  <script src="app.js?v=1" defer></script>
+  <script src="rational-math.js?v=bed15aee2a3d" defer></script>
+  <script src="rational-three.js?v=bf9eb63c1406" defer></script>
+  <script src="rational-code.js?v=68aff3e908ff" defer></script>
+  <script src="app.js?v=07c25cfd1d5a" defer></script>
   <script>window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };</script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
 </head>
@@ -39,25 +39,28 @@
 
     <section class="lab-window parameters" aria-label="Construction parameters">
       <label class="parameter"><span>Circle radius r <output id="radius-value" for="radius">2.00</output></span><input id="radius" type="range" min="0.5" max="3" step="0.05" value="2" aria-describedby="radius-help"><small id="radius-help">Circle C lies in w = 1.</small></label>
-      <label class="parameter"><span>Half-angle θ <output id="theta-value" for="theta">60°</output></span><input id="theta" type="range" min="10" max="75" step="1" value="60" aria-describedby="theta-help"><small id="theta-help">Arc angle 2θ = <span data-arc-angle>120°</span>.</small></label>
+      <label class="parameter"><span>Half-angle θ <output id="theta-value" for="theta">60°</output></span><input id="theta" type="range" min="0" max="180" step="1" value="60" aria-describedby="theta-help"><small id="theta-help">Arc angle 2θ = <span data-arc-angle>120°</span>.</small></label>
       <label class="parameter"><span>Curve parameter u <output id="u-value" for="parameter-u">0.50</output></span><input id="parameter-u" type="range" min="0" max="1" step="0.005" value="0.5" aria-describedby="u-help"><small id="u-help">Move H(u) and its projection r(u).</small></label>
       <button class="mini-button" type="button" data-reset>Reset example</button>
     </section>
+
+    <div class="display-options"><label><input type="checkbox" data-show-labels> Point labels · both views</label><p>The circle stays framed as θ changes. Projected controls can move outside the view.</p></div>
+    <p class="construction-note" data-construction-note role="status" aria-live="polite">Minor arc: all three weights are positive.</p>
 
     <section class="projection-workspace" aria-label="Linked three-dimensional and projected views">
       <article class="lab-window spatial-panel">
         <div class="window-heading"><div><p class="card-kicker">3D construction · x, y, w</p><h2>From parabola to circle</h2></div></div>
         <div class="view-frame"><canvas data-three-canvas tabindex="0" aria-label="Three-dimensional cone, cutting plane, parabola and circular projection. Drag or use arrow keys to orbit. Plus and minus zoom; Home resets." aria-describedby="view-help"></canvas><p class="view-fallback" data-three-fallback hidden>The 3D view needs WebGL. The projected view, values and derivation remain available.</p></div>
         <div class="legend" aria-label="Curve legend"><span><i class="swatch parabola"></i>Parabola H(u)</span><span><i class="swatch arc"></i>Circular arc r(u)</span><span><i class="swatch control"></i>Lifted control P₁</span></div>
-        <fieldset class="visibility"><legend>Show in 3D</legend><label><input type="checkbox" data-layer="cone" checked> Cone</label><label><input type="checkbox" data-layer="plane" checked> Cutting plane PL</label><label><input type="checkbox" data-layer="controls" checked> Control polygons</label><label><input type="checkbox" data-layer="rays" checked> Projection rays</label><label><input type="checkbox" data-layer="axes" checked> Axes</label></fieldset>
-        <div class="view-actions"><button class="mini-button" type="button" data-view="orbit">Reset 3D view</button><button class="mini-button" type="button" data-view="top">Along w-axis</button><button class="mini-button" type="button" data-zoom="0.85" aria-label="Zoom in">Zoom +</button><button class="mini-button" type="button" data-zoom="1.18" aria-label="Zoom out">Zoom −</button></div>
-        <p class="interaction-hint" id="view-help">Drag to rotate; scroll to zoom. Keyboard: arrow keys rotate, +/− zoom, Home resets. The dashed generator through (−r, 0, 1) is parallel to PL.</p>
+        <fieldset class="visibility"><legend>Show in 3D</legend><label><input type="checkbox" data-layer="cone" checked> Cone</label><label><input type="checkbox" data-layer="plane" checked> Cutting plane PL</label><label><input type="checkbox" data-layer="controls" checked> Control polygons</label><label><input type="checkbox" data-layer="rays"> Projection lines</label><label><input type="checkbox" data-layer="axes" checked> Axes</label></fieldset>
+        <div class="view-actions"><button class="mini-button" type="button" data-view="orbit">Reset 3D view</button><button class="mini-button" type="button" data-view="y">Along y-axis</button><button class="mini-button" type="button" data-zoom="0.85" aria-label="Zoom in">Zoom +</button><button class="mini-button" type="button" data-zoom="1.18" aria-label="Zoom out">Zoom −</button></div>
+        <p class="interaction-hint" id="view-help">Drag to rotate; scroll or pinch inside this panel to zoom the 3D scene. Keyboard: arrow keys rotate, +/− zoom, Home resets. The dashed generator through (−r, 0, 1) is parallel to PL.</p>
       </article>
       <article class="lab-window projection-panel">
         <div class="window-heading"><div><p class="card-kicker">2D projection · w = 1</p><h2>The rational arc</h2></div></div>
         <canvas data-projection-canvas width="650" height="540" aria-label="Circular arc in the x–y plane, projected control triangle and current curve point"></canvas>
         <p class="projection-equation">Weights (w₀, w₁, w₂) = <strong data-weights>(1, 0.5000, 1)</strong></p>
-        <p>The projected middle control <strong>p₁</strong> is the intersection of the endpoint tangents. It lies outside the circle.</p>
+        <p data-control-note>The projected middle control p₁ can leave the fixed frame. Its coordinates remain in the table below.</p>
         <dl class="point-readout"><div><dt>H(u) · before division</dt><dd data-lifted></dd></div><div><dt>r(u) · after division by W(u)</dt><dd data-projected></dd></div><div><dt>W(u) · projection denominator</dt><dd data-denominator></dd></div></dl>
       </article>
     </section>
@@ -71,7 +74,7 @@
 
     <section class="derivation lab-window" id="derivation" aria-labelledby="derivation-title">
       <p class="section-kicker">Geometric construction</p><h2 id="derivation-title">Why the projection is rational</h2>
-      <p>We use the notes’ Bernstein notation \(B_{i,n}(u)\), weights \(w_i\), and rational curve \(\mathbf r(u)\). Here \(\mathbf P_i\) labels the lifted controls requested in the construction, and \(\mathbf p_i\) labels their projections. Let \(c=\cos\theta\), \(s=\sin\theta\), \(r>0\), and \(0<\theta<90^\circ\).</p>
+      <p>We use the notes’ Bernstein notation \(B_{i,n}(u)\), weights \(w_i\), and rational curve \(\mathbf r(u)\). Here \(\mathbf P_i\) labels the lifted controls requested in the construction, and \(\mathbf p_i\) labels their projections. Let \(c=\cos\theta\), \(s=\sin\theta\), \(r>0\), and \(0<\theta<180^\circ\). The finite-control formulas require \(\theta\ne90^\circ\); the homogeneous construction also handles the semicircle. The endpoint cases 0° and 180° are described below.</p>
 
       <h3>1. Draw the circle in w = 1</h3>
       <p>The original z-axis is now called the <strong>w-axis</strong>. Points are written in the order \((x,y,w)\). The circle and chosen endpoints are</p>
@@ -123,12 +126,12 @@
       <div class="equation">\[\begin{bmatrix}X'_h\\Y'_h\\W'_h\\S'\end{bmatrix}=\operatorname{Proj}(\Pi,\mathbf V)\begin{bmatrix}X\\Y\\W\\1\end{bmatrix}=\begin{bmatrix}X\\Y\\W\\W\end{bmatrix}.\]</div>
       <p>The appended fourth coordinate is used only to apply the 3D projection matrix; it is distinct from the vertical w-coordinate. Divide by the last coordinate \(S'=W\):</p>
       <div class="equation">\[\boxed{\pi(X,Y,W)=\left(\frac XW,\frac YW,1\right).}\]</div>
-      <p>In particular, the projection of \(\mathbf P_1=(r,0,c)\) is</p>
+      <p>For \(c\ne0\), the projection of \(\mathbf P_1=(r,0,c)\) is</p>
       <div class="equation">\[\mathbf p_1=\pi(\mathbf P_1)=\left(\frac r c,0,1\right).\]</div>
-      <p>The endpoint tangents to the circle are \(cx-sy=r\) and \(cx+sy=r\); they intersect at this same \(\mathbf p_1\).</p>
+      <p>For \(c\ne0\), the endpoint tangents to the circle are \(cx-sy=r\) and \(cx+sy=r\); they intersect at this same \(\mathbf p_1\). At 90°, these tangents are parallel and the control projects to infinity. Above 90°, \(c<0\): the lifted control is below \(w=0\), and its projection lies on the opposite extension of the line through O.</p>
 
       <h3>8. Obtain the rational circular arc</h3>
-      <p>Write each lifted control as \(\mathbf P_i=w_i\mathbf p_i\), where the projected controls have last coordinate 1. Thus</p>
+      <p>When \(c\ne0\), write each lifted control as \(\mathbf P_i=w_i\mathbf p_i\), where the projected controls have last coordinate 1. Thus</p>
       <div class="equation">\[\begin{aligned}\mathbf p_0&=(rc,-rs,1),& w_0&=1,\\\mathbf p_1&=(r/c,0,1),& w_1&=c,\\\mathbf p_2&=(rc,rs,1),& w_2&=1.\end{aligned}\]</div>
       <p>Dividing the polynomial curve by its w-coordinate produces the rational Bézier form:</p>
       <div class="result-box">
@@ -136,12 +139,15 @@
         <p>The final coordinate equation on \(w=1\) is</p>
         <div class="equation">\[\boxed{\mathbf r(u)=\left(\frac{r[c+2(1-c)u(1-u)]}{1-2(1-c)u(1-u)},\ \frac{rs(2u-1)}{1-2(1-c)u(1-u)},\ 1\right).}\]</div>
       </div>
+      <p>At \(\theta=90^\circ\), \(w_1=0\) and \(\mathbf p_1\) is not finite. Evaluate the lifted polynomial and divide by W directly, using the final coordinate equation; never multiply zero by an infinite control coordinate. For \(90^\circ<\theta<180^\circ\), the negative middle weight produces the major circular arc.</p>
       <p>Since \(X^2+Y^2=r^2W^2\) on the cone, the projected coordinates satisfy \(r_x(u)^2+r_y(u)^2=r^2\) exactly. The curve passes through the endpoints, and \(\mathbf r(\tfrac12)=(r,0,1)\). Its angle is generally <strong>not linear in u</strong>.</p>
 
       <h3>9. Interpret w as the weight coordinate</h3>
       <p>A point \((x_i,y_i)\) in two dimensions is lifted to \((w_ix_i,w_iy_i,w_i)\) in three dimensions. Polynomial Bézier blending happens in this higher-dimensional space. Returning to the plane \(w=1\) requires division by \(W(u)=\sum_iw_iB_{i,n}(u)\); this division creates the rational denominator.</p>
       <p>This is the two-dimensional version of the notes’ <a href="../../cad-modules/curves/index.html#homogeneous-coordinates-and-rational-curves">homogeneous-coordinate construction</a> for a 3D curve lifted into 4D. The projected controls \(\mathbf p_i\) here play the role of \(\mathbf P_i\) in the notes’ rational-curve formula.</p>
-      <p><strong>Try it:</strong> set \(\theta=45^\circ\). The arc subtends \(90^\circ\) and its middle weight is \(1/\sqrt2\). As \(\theta\to90^\circ\), the middle lifted control has \(w_1\to0\), and its projected control moves to infinity. This demo keeps \(\theta<90^\circ\) so all three projected controls remain finite.</p>
+      <p><strong>Try it:</strong> set \(\theta=45^\circ\) for a quarter circle with middle weight \(1/\sqrt2\), 90° for a semicircle, and 120° for a 240° major arc with middle weight \(-1/2\).</p>
+      <p><strong>At 0°:</strong> the selected arc collapses to \((r,0,1)\). <strong>At 180°:</strong> PL becomes the tangent plane \(x+rw=0\), and the quadratic degenerates to \(\mathbf H(u)=(-rt^2,0,t^2)\), where \(t=2u-1\). It reaches O at \(u=1/2\), where projection is undefined. Everywhere else it projects to \((-r,0,1)\). The fixed circle C is the 360° limiting reference, not the projection of this degenerate quadratic. An exact full circle needs multiple rational Bézier spans.</p>
+      <p>For stable evaluation near 180°, set \(a=\cos(\theta/2)\), \(b=\sin(\theta/2)\). Then \(\mathbf H(u)=(r(a^2-b^2t^2),\,2rabt,\,a^2+b^2t^2)\). The visualization uses this equivalent form and samples the polar angle densely enough to resolve the major arc.</p>
       <p class="further-reading">Related reading: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB-conics.html">C.-K. Shene, Rational Bézier Curves: Conic Sections</a>, Michigan Technological University.</p>
     </section>
 

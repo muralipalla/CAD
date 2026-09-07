@@ -13,12 +13,21 @@
 .rational-lab .lab-window { padding: clamp(1rem, 2vw, 1.75rem); }
 .rational-lab .window-heading { min-height: 4.5rem; margin-bottom: 0.75rem; }
 .rational-lab .lab-window h2 { font-size: clamp(1.4rem, 2.3vw, 1.9rem); }
-.view-frame { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: #f8f7fd; }
-[data-three-canvas] { width: 100%; height: clamp(23rem, 41vw, 34rem); touch-action: none; cursor: grab; }
+.view-frame { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 1rem; background: #171541; }
+[data-three-canvas] { width: 100%; height: clamp(23rem, 41vw, 34rem); touch-action: none; overscroll-behavior: contain; cursor: grab; }
 [data-three-canvas]:active { cursor: grabbing; }
 .view-fallback { position: absolute; inset: 35% 1rem auto; padding: 1rem; background: white; border: 1px solid var(--line); border-radius: 0.8rem; }
 [hidden] { display: none !important; }
-[data-projection-canvas] { width: 100%; height: clamp(18rem, 27vw, 23rem); border: 1px solid var(--line); border-radius: 1rem; background: #fff; }
+[data-projection-canvas] { width: 100%; height: clamp(18rem, 27vw, 23rem); border: 1px solid var(--line); border-radius: 1rem; background: #171541; }
+.display-options { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin: 0 0 1rem; font-size: 0.9375rem; }
+.display-options label { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 650; }
+.display-options input { width: 1.1rem; height: 1.1rem; accent-color: var(--ink); }
+.display-options p { margin: 0; color: var(--ink-soft); }
+.construction-note { margin: 0 0 1.2rem; padding: 0.7rem 1rem; background: var(--lavender-light); border-radius: 0.75rem; font-size: 0.9375rem; }
+.legend { background: #171541; color: #eae8ff; border-radius: 0.6rem; margin-top: 0.6rem; padding-inline: 0.75rem !important; }
+.legend .swatch.parabola { background: #ffd166; }
+.legend .swatch.arc { background: #76dcc1; }
+.legend .swatch.control { background: #b8a7f5; }
 .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; padding: 0.8rem 0; font-size: 0.875rem; }
 .legend > span { display: inline-flex; align-items: center; gap: 0.4rem; }
 .swatch { width: 1.3rem; height: 0.22rem; border-radius: 1rem; background: #754ab5; }
