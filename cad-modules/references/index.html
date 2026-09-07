@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sources, chapter guides and further reading for the CAD Theory notes: transformations, curves, B-splines, surfaces and solid modeling.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · References and Further Reading</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <script src="../../assets/js/main.js" defer></script>
+</head>
+<body class="notes-page theory-page references-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">References</li></ol>
+      <p class="eyebrow">Theory · Reading guide</p>
+      <h1>References and Further Reading</h1>
+      <p class="page-lead">Sources behind the course notes, with a topic guide for further study.</p>
+      <p class="notes-author">Compiled by Murali Palla</p>
+    </div>
+  </header>
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this section">
+      <p>In this section</p>
+      <ol>
+        <li><a href="#sources-and-authorship">Sources and authorship</a></li>
+        <li><a href="#main-textbook">Main textbook</a></li>
+        <li><a href="#reading-by-module">Reading by module</a></li>
+        <li><a href="#transformations-reading">Rotations and projections</a></li>
+        <li><a href="#curves-surfaces-reading">Curves and surfaces</a></li>
+        <li><a href="#splines-reading">B-splines</a></li>
+        <li><a href="#solids-reading">Solid modeling</a></li>
+        <li><a href="#using-references">Using these references</a></li>
+      </ol>
+    </nav>
+    <article class="notes-article">
+      <h2 id="sources-and-authorship">Sources and authorship</h2>
+      <p>These teaching notes were written by Murali Palla in his own words, drawing principally on Anupam Saxena and Birendra Sahay’s <cite>Computer Aided Engineering Design</cite> <a href="#ref-1">[1]</a>, together with additional explanations and derivations.</p>
+      <aside class="source-note" aria-label="Attribution of derivations">
+        <p><strong>Projection derivations:</strong> Murali Palla independently worked out the perspective and orthographic projection derivations presented in the notes. References <a href="#ref-1">[1]</a> and <a href="#ref-2">[2]</a> provide related textbook treatments of transformations and viewing; they are not claimed as the source of those particular derivations or as using exactly the same matrix form.</p>
+        <p><strong>Quaternions:</strong> This topic was developed using online learning resources. The original web sources have not been identified; Lynch and Park <a href="#ref-3">[3]</a> is provided here as a verified supporting reference.</p>
+      </aside>
+      <p><strong>Illustrations:</strong> The B-spline polynomial-pieces figure and the Gauss-map figure were drawn by Murali Palla.</p>
+      <p>Reference <a href="#ref-1">[1]</a> is the main textbook studied by the course author. The winged-edge data-structure explanation was developed after learning from C.-K. Shene’s online notes <a href="#ref-7">[7]</a>. These are acknowledgments of the sources of learning; the notes do not reproduce material verbatim from Saxena and Sahay or Shene.</p>
+      <p>The remaining references are supporting literature, original papers and suggested reading matched to the topics. Their inclusion does not imply that every passage, example or figure in the notes was taken from those works.</p>
+      <h2 id="main-textbook">Main textbook</h2>
+<ol class="reference-list" start="1">
+<li id="ref-1">Anupam Saxena and Birendra Sahay. <cite>Computer Aided Engineering Design</cite>. 1st ed. Springer, Dordrecht, 2005. Jointly published with Anamaya, New Delhi.<p><a href="https://doi.org/10.1007/1-4020-3871-2">Publisher record and DOI</a>.</p><p><strong>Main source used for these course notes.</strong> The chapter guide below connects the book to each Theory module.</p></li>
+</ol>
+
+      <h2 id="reading-by-module">Reading by module</h2>
+      <p>Start with the corresponding chapters of Saxena and Sahay, then choose a supporting reference for the topic you want to explore.</p>
+      <div class="notes-table-wrap reference-guide" role="region" aria-label="Chapter guide" tabindex="0">
+        <table>
+          <caption>Chapter guide to the main textbook [1], with supporting references</caption>
+          <thead><tr><th scope="col">Theory module</th><th scope="col">Chapters in [1]</th><th scope="col">Further reading</th></tr></thead>
+          <tbody>
+<tr><th scope="row"><a href="../geometric-transformations/index.html">Geometric Transformations</a></th><td>2: Transformations and Projections, pp. 23–65</td><td><a href="#ref-2">[2]</a>, <a href="#ref-3">[3]</a></td></tr>
+<tr><th scope="row"><a href="../curves/index.html">Curves</a></th><td>3: Differential Geometry of Curves, pp. 66–83; 4: Design of Curves, pp. 84–129</td><td><a href="#ref-4">[4]</a>, <a href="#ref-5">[5]</a>, <a href="#ref-6">[6]</a>, <a href="#ref-7">[7]</a></td></tr>
+<tr><th scope="row"><a href="../b-splines/index.html">B-Splines</a></th><td>5: Splines, pp. 130–164</td><td><a href="#ref-6">[6]</a>, <a href="#ref-9">[9]</a>, <a href="#ref-10">[10]</a>, <a href="#ref-11">[11]</a>, <a href="#ref-12">[12]</a>, <a href="#ref-13">[13]</a></td></tr>
+<tr><th scope="row"><a href="../surfaces/index.html">Surfaces</a></th><td>6: Differential Geometry of Surfaces, pp. 165–200; 7: Design of Surfaces, pp. 201–246</td><td><a href="#ref-4">[4]</a>, <a href="#ref-5">[5]</a>, <a href="#ref-6">[6]</a>, <a href="#ref-7">[7]</a>, <a href="#ref-8">[8]</a></td></tr>
+<tr><th scope="row"><a href="../solid-modeling/index.html">Solid Modeling</a></th><td>8: Solid Modeling, pp. 247–274</td><td><a href="#ref-7">[7]</a>, <a href="#ref-14">[14]</a>, <a href="#ref-15">[15]</a>, <a href="#ref-16">[16]</a>, <a href="#ref-17">[17]</a>, <a href="#ref-18">[18]</a></td></tr>
+</tbody></table></div>
+      <h2 id="transformations-reading">Rotations and projections</h2>
+<ol class="reference-list" start="2">
+<li id="ref-2">Steve Marschner and Peter Shirley. <cite>Fundamentals of Computer Graphics</cite>. 5th ed. A K Peters/CRC Press, 2021.<p><a href="https://www.routledge.com/Fundamentals-of-Computer-Graphics/Shirley-Marschner/p/book/9781003050339">Publisher and contents</a>.</p><p>Chapters 7–8 cover transformation matrices and viewing. Use these for further study of homogeneous transformations, perspective and orthographic viewing.</p></li>
+<li id="ref-3">Kevin M. Lynch and Frank C. Park. <cite>Modern Robotics: Mechanics, Planning, and Control</cite>. 1st ed. Cambridge University Press, 2017.<p><a href="https://doi.org/10.1017/9781316661239">Publisher and DOI</a> · <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics">Authors’ university page and free preprint</a>.</p><p>Sections 3.2.1, 3.2.3 and 3.3.1 cover rotation matrices, exponential coordinates and homogeneous transformations; Appendix B covers Euler angles and unit quaternions. The authors’ updated 2019 preprint is a version of the first edition.</p></li>
+</ol>
+
+      <h2 id="curves-surfaces-reading">Curves and surfaces</h2>
+<ol class="reference-list" start="4">
+<li id="ref-4">Andrew Pressley. <cite>Elementary Differential Geometry</cite>. 2nd ed. Springer, London, 2010.<p><a href="https://doi.org/10.1007/978-1-84882-891-9">Publisher and DOI</a>.</p><p>Read §§1.2, 2.1 and 2.3 for arc length, curvature and space curves; Chapters 6–8 for fundamental forms and surface curvature; §10.2 for Theorema Egregium; and Chapter 13 for Gauss–Bonnet.</p></li>
+<li id="ref-5">Gerald Farin. <cite>Curves and Surfaces for CAGD: A Practical Guide</cite>. 5th ed. Morgan Kaufmann, 2002.<p><a href="https://doi.org/10.1016/B978-1-55860-737-8.X5000-5">Publisher and DOI</a>.</p><p>Chapters 4–5 develop de Casteljau’s algorithm and the Bernstein–Bézier form; Chapter 13 treats rational curves; Chapter 14 tensor-product patches; Chapter 20 surface geometric continuity; and Chapter 22 Coons patches.</p></li>
+<li id="ref-6">Les Piegl and Wayne Tiller. <cite>The NURBS Book</cite>. 2nd ed. Springer-Verlag, Berlin Heidelberg, 1997.<p><a href="https://doi.org/10.1007/978-3-642-59223-2">Publisher and DOI</a>.</p><p>A detailed algorithmic reference for B-splines and NURBS. See pp. 117–139 for rational curves and surfaces, pp. 141–228 for geometric algorithms, and pp. 281–331 for conics and circles.</p></li>
+<li id="ref-7">C.-K. Shene. <cite>CS3621 Introduction to Computing with Geometry Notes</cite>. Michigan Technological University, n.d.<p><a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/">Free university notes</a>. Accessed 8 September 2026.</p><p>Learning source identified by the course author: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/model/winged-e.html">The Winged-Edge Data Structure</a>. The author also identified <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB-conics.html">Rational Bézier Curves: Conic Sections</a> as a useful related page. Further worked explanations: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html">Bézier subdivision</a>, <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-elev.html">degree elevation</a>, <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB.html">rational Bézier curves</a>, <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB-circles.html">circular arcs</a>, and <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/surface/bspline-construct.html">B-spline surfaces</a>.</p></li>
+<li id="ref-8">Steven A. Coons. <cite>Surfaces for Computer-Aided Design of Space Forms</cite>. Technical Report MAC-TR-41. Project MAC, Massachusetts Institute of Technology, June 1967.<p><a href="https://publications.csail.mit.edu/lcs/pubs/pdf/MIT-LCS-TR-041.pdf">Original report, free PDF from MIT</a>.</p><p>An original source for boundary-defined surface patches. See Section III for the surface equation, §3.6 for blending functions, and §5.2 for slope continuity between adjacent patches.</p></li>
+</ol>
+
+      <h2 id="splines-reading">B-splines</h2>
+<ol class="reference-list" start="9">
+<li id="ref-9">Carl de Boor. <cite>A Practical Guide to Splines</cite>. Revised ed. Applied Mathematical Sciences 27. Springer, New York, 2001. ISBN 978-0-387-95366-3.<p><a href="https://link.springer.com/book/9780387953663">Publisher</a> · <a href="https://pages.cs.wisc.edu/~deboor/">Author’s page confirming the revised edition</a>.</p><p>A foundation for spline spaces, B-spline representations and numerical evaluation. Use the revised 2001 edition when following this citation.</p></li>
+<li id="ref-10">M. G. Cox. “The Numerical Evaluation of B-Splines.” <cite>IMA Journal of Applied Mathematics</cite> 10(2), 134–149, 1972.<p><a href="https://doi.org/10.1093/imamat/10.2.134">Original paper: publisher and DOI</a>.</p><p>An original reference for the recurrence-based evaluation of B-splines associated with the Cox–de Boor recursion.</p></li>
+<li id="ref-11">Carl de Boor. “On Calculating with B-Splines.” <cite>Journal of Approximation Theory</cite> 6(1), 50–62, 1972.<p><a href="https://doi.org/10.1016/0021-9045(72)90080-9">Original paper: publisher and DOI</a>.</p><p>An original reference for B-spline computation, complementing Cox’s paper and the divided-difference treatment in these notes.</p></li>
+<li id="ref-12">I. J. Schoenberg. <cite>Cardinal Spline Interpolation</cite>. CBMS-NSF Regional Conference Series in Applied Mathematics 12. SIAM, Philadelphia, 1973.<p><a href="https://doi.org/10.1137/1.9781611970555">Publisher and DOI</a>.</p><p>Further study of uniform/cardinal B-splines: Chapter 2 treats their basis property; Chapter 4, §6 applies cardinal interpolation results to periodic splines.</p></li>
+<li id="ref-13">Carl de Boor. “Divided Differences.” <cite>Surveys in Approximation Theory</cite> 1, 46–69, 2005.<p><a href="https://pages.cs.wisc.edu/~deboor/sat/papers/2/">Journal page and free paper</a>.</p><p>A focused reference for divided differences, including repeated arguments, useful alongside the derivation of B-spline basis functions.</p></li>
+</ol>
+
+      <h2 id="solids-reading">Solid modeling</h2>
+<ol class="reference-list" start="14">
+<li id="ref-14">Martti Mäntylä. <cite>An Introduction to Solid Modeling</cite>. Computer Science Press, College Park, Maryland, 1988. ISBN 0-88175-108-1.<p><a href="https://research.aalto.fi/en/publications/an-introduction-to-solid-modeling/">Author’s institutional publication record</a>.</p><p>Further reading on boundary representations, topology, data structures and Euler operators.</p></li>
+<li id="ref-15">Aristides A. G. Requicha. “Representations for Rigid Solids: Theory, Methods, and Systems.” <cite>ACM Computing Surveys</cite> 12(4), 437–464, December 1980.<p><a href="https://doi.org/10.1145/356827.356833">Publisher and DOI</a>.</p><p>A foundational survey comparing representations of solids, including boundary representation and constructive solid geometry.</p></li>
+<li id="ref-16">Bruce G. Baumgart. <cite>Winged Edge Polyhedron Representation</cite>. Stanford Artificial Intelligence Project Memo AIM-179; Computer Science Department Report CS-320. Stanford University, October 1972.<p><a href="https://infolab.stanford.edu/pub/cstr/reports/cs/tr/72/320/CS-TR-72-320.pdf">Original Stanford report, free PDF</a>.</p><p>Section II introduces the winged-edge data structure; §III.A discusses Euler primitives.</p></li>
+<li id="ref-17">Lutz Kettner. “Halfedge Data Structures.” <cite>CGAL User Manual</cite>. Also: CGAL contributors, “Euler Operations.”<p><a href="https://doc.cgal.org/latest/HalfedgeDS/index.html">Official halfedge manual</a> · <a href="https://doc.cgal.org/latest/BGL/group__PkgBGLEulerOperations.html">Official Euler-operations reference</a>. Accessed 8 September 2026.</p><p>Implementation-oriented reading on incidence links, traversals and mesh operations. CGAL’s conventions can differ from the simplified Python examples in these notes.</p></li>
+<li id="ref-18">OpenSCAD contributors. <cite>OpenSCAD User Manual and Language Reference</cite>. Continuously maintained documentation.<p><a href="https://openscad.org/documentation.html">Official documentation index</a>. Accessed 8 September 2026.</p><p>Use the linked language reference for primitive solids, transformations, union, difference and intersection, and for checking the syntax of the OpenSCAD examples.</p></li>
+</ol>
+
+      <h2 id="using-references">Using these references</h2>
+      <ul>
+        <li><strong>Keep the notes’ conventions:</strong> Rotation order, row versus column vectors, spline order versus degree, and surface-normal orientation can differ across books. Compare definitions before substituting a formula. For example, the Euler-angle extraction in these notes uses an <i>x–y–z</i> matrix product, while the example in Lynch and Park’s Appendix B uses <i>z–y–x</i>.</li>
+        <li><strong>Find the full work:</strong> DOI and publisher links identify the cited edition or paper. Some require library access; free author copies, university notes and official documentation are labelled above.</li>
+        <li><strong>Credit what you use:</strong> Cite the work and section you actually consulted when adapting a derivation, example or illustration. This bibliography does not change the ownership or licensing of third-party works.</li>
+      </ul>
+      <p>For a missing source or an attribution correction, contact <a href="mailto:bitspilanimurali@gmail.com">bitspilanimurali@gmail.com</a>. Bibliographic details and topic links checked on 8 September 2026.</p>
+      <nav class="notes-module-nav" aria-label="Theory navigation"><a class="notes-nav-link previous" href="../index.html"><span>Back to</span><strong>Theory modules</strong></a></nav>
+    </article>
+  </main>
+  <footer class="site-footer"><p><strong>CAD</strong> · Theory references</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p><a href="../../index.html#licensing">Licensing and Attributions</a> · Compiled by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

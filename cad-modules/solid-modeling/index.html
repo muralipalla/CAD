@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -74,9 +75,12 @@
 <li class="toc-subsection"><a href="#illustrative-construction-of-a-face">Illustrative Construction of a Face</a></li>
 <li class="toc-section"><a href="#uses-of-euler-operators">Uses of Euler Operators</a></li>
 <li class="toc-section"><a href="#summary">Summary</a></li>
-<li class="toc-section"><a href="#summary-2">Summary</a></li></ol>
+<li class="toc-section"><a href="#summary-2">Summary</a></li>
+<li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
+      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
+
       <p>Solid modeling is the branch of CAD concerned with the representation, construction, manipulation and analysis of three-dimensional solid objects. A solid model is not merely a visual drawing of an object. It is a mathematically meaningful representation that can answer geometric and topological questions such as volume, surface area, inside–outside classification, intersection, adjacency, mass properties and manufacturability.</p>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A solid model must represent a closed, bounded and physically meaningful three-dimensional object. It should be possible to distinguish the interior, boundary and exterior of the object.</p></div></aside>
 <h2 id="solid-modeling-vs-engineering-graphics">Solid Modeling vs. Engineering Graphics</h2>
@@ -86,6 +90,7 @@
 <div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Aspect</strong></th><th scope="col"><strong>Engineering Graphics</strong></th><th scope="col"><strong>Solid Modeling</strong></th></tr></thead><tbody><tr><td>Main purpose</td><td>Communication through drawings</td><td>Mathematical and computational representation of solids</td></tr><tr><td>Primary output</td><td>2D views, sections, dimensions</td><td>3D solid model</td></tr><tr><td>Emphasis</td><td>Projection, visualization and standards</td><td>Geometry, topology and operations</td></tr><tr><td>Typical question</td><td>How does the object look from a direction?</td><td>What is the object, and how is it connected?</td></tr><tr><td>Examples</td><td>Orthographic drawing, sectional view</td><td>B-Rep model, CSG model, feature model</td></tr></tbody></table></div></div>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Engineering graphics is a language for communicating design intent. Solid modeling is a computational representation of the designed object. Modern CAD systems combine both: the user creates a solid model, and engineering drawings are generated from it.</p></div></aside>
 <h2 id="geometry-vs-topology">Geometry vs. Topology</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8. Further reading: Mäntylä <a href="../references/index.html#ref-14">[14]</a> and Requicha <a href="../references/index.html#ref-15">[15]</a> for solid representations and their topological foundations.</p>
 <p>A solid model contains two different kinds of information: geometry and topology.</p>
 <h3 id="geometry">Geometry</h3>
 <p>Geometry describes the actual shape, size and position of entities. It answers questions such as:</p>
@@ -215,6 +220,7 @@ g=1.
 <h3 id="limitations-of-b-rep">Limitations of B-Rep</h3>
 <ol class="roman-list"><li><p>Boolean operations are algorithmically difficult.</p></li><li><p>Topological consistency must be carefully maintained.</p></li><li><p>Small numerical errors can create gaps, sliver faces or non-manifold edges.</p></li></ol>
 <h2 id="winged-edge-data-structure">Winged-Edge Data Structure</h2>
+<p class="topic-citation"><strong>Learning source:</strong> This explanation was written in Murali Palla’s own words after studying Shene’s “The Winged-Edge Data Structure” <a href="../references/index.html#ref-7">[7]</a>. For the original representation, see Baumgart <a href="../references/index.html#ref-16">[16]</a>, Section II.</p>
 <p>The winged-edge data structure is a classical data structure for representing polyhedral boundary models.</p>
 <p>Each edge stores references to:</p>
 <ol class="roman-list"><li><p>its two endpoint vertices,</p></li><li><p>its two adjacent faces,</p></li><li><p>the previous and next edges around each adjacent face.</p></li></ol>
@@ -230,6 +236,7 @@ g=1.
 <h3 id="limitations">Limitations</h3>
 <ol class="roman-list"><li><p>The data structure is relatively complex.</p></li><li><p>Careful handling is required for boundary edges.</p></li><li><p>Implementation of topological operations can be cumbersome.</p></li></ol>
 <h2 id="half-edge-data-structure">Half-Edge Data Structure</h2>
+<p class="topic-citation">Further reading: Mäntylä <a href="../references/index.html#ref-14">[14]</a> and the official CGAL halfedge documentation <a href="../references/index.html#ref-17">[17]</a>. Implementation conventions may differ from the simplified examples here.</p>
 <p>The half-edge data structure is one of the most widely used data structures for polygon meshes and B-Rep topology.</p>
 <p>The main idea is to split each edge into two oppositely oriented half-edges.</p>
 <p>If an edge connects vertices \(v_i\) and \(v_j\), then the two half-edges are:</p>
@@ -368,6 +375,7 @@ A-B
 <h3 id="limitations-of-csg">Limitations of CSG</h3>
 <ol class="roman-list"><li><p>Rendering and meshing require conversion to boundary representation.</p></li><li><p>Local surface adjacency information is not directly available.</p></li><li><p>Complex freeform surfaces are harder to represent directly.</p></li></ol>
 <h2 id="introduction-to-openscad">Introduction to OpenSCAD</h2>
+<p class="topic-citation">Language reference: the official OpenSCAD documentation index <a href="../references/index.html#ref-18">[18]</a> links to the manual for primitives, transformations and Boolean operations.</p>
 <p>OpenSCAD is a script-based solid modeling tool based largely on the CSG philosophy. Instead of interactively dragging features with a mouse, the user writes code to create solids.</p>
 <p>A simple cube is created as:</p>
 <pre class="notes-code"><code>cube([20, 20, 10]);</code></pre>
@@ -390,6 +398,7 @@ cube([10, 10, 10]);</code></pre>
 <p>This creates a cube, rotates it about the \(z\)-axis and then translates it.</p>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>OpenSCAD is especially useful for parametric modeling. Dimensions can be stored as variables, and changing a variable automatically changes the generated model.</p></div></aside>
 <h2 id="creation-of-half-edge-data-structure-using-euler-operators">Creation of Half-Edge Data Structure using Euler Operators</h2>
+<p class="topic-citation">Further reading on Euler operators: Mäntylä <a href="../references/index.html#ref-14">[14]</a>, Baumgart <a href="../references/index.html#ref-16">[16]</a>, §III.A, and CGAL’s Euler-operations reference <a href="../references/index.html#ref-17">[17]</a>.</p>
 <p>Euler operators are elementary topological operations used to construct and modify boundary representations while preserving topological validity.</p>
 <p>Instead of directly editing lists of vertices, edges and faces, a CAD kernel can use Euler operators to guarantee that the model remains consistent.</p>
 <p>Common Euler operators include:</p>
@@ -434,6 +443,15 @@ h_{30}\leftrightarrow h_{03}.
 <h2 id="summary-2" class="notes-source-section">Summary</h2>
 <p>Geometric transformations provide the mathematical foundation for moving, rotating, scaling and projecting objects in CAD. Parametric curves provide flexible representations for design geometry. Bezier curves are simple and intuitive but lack local control. B-splines overcome this limitation through compactly supported basis functions and knot vectors. Rational curves extend polynomial curves and allow exact representation of conic sections. Surfaces extend these ideas to two parameters and require differential-geometric tools such as tangent vectors, normal vectors and curvature.</p>
 <p>These concepts form the mathematical core of modern CAD and CAAD systems.</p>
+
+<h2 id="references-and-further-reading">References and Further Reading</h2>
+<p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
+<ul class="reference-section-links">
+<li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8. Learning source for winged-edge data structures: Shene <a href="../references/index.html#ref-7">[7]</a>. The explanations are written in the course author’s own words.</li>
+<li>Further reading on solid representations and topology: Mäntylä <a href="../references/index.html#ref-14">[14]</a> and Requicha <a href="../references/index.html#ref-15">[15]</a>. Original winged-edge representation and Euler primitives: Baumgart <a href="../references/index.html#ref-16">[16]</a>.</li>
+<li>Halfedge implementations and mesh operations: CGAL <a href="../references/index.html#ref-17">[17]</a>. OpenSCAD language and modeling examples: official documentation <a href="../references/index.html#ref-18">[18]</a>.</li>
+</ul>
+<p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
       <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../surfaces/index.html"><span>Previous module</span><strong>Surfaces</strong></a><a class="notes-nav-link next" href="../index.html"><span>Module library</span><strong>Theory</strong></a></nav>
     </article>
   </main>

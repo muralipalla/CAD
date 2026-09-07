@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -57,9 +58,12 @@
 <li class="toc-section"><a href="#degree-elevation">Degree Elevation</a></li>
 <li class="toc-section"><a href="#rational-bezier-curves">Rational Bezier Curves</a></li>
 <li class="toc-section"><a href="#homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</a></li>
-<li class="toc-section"><a href="#rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</a></li></ol>
+<li class="toc-section"><a href="#rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</a></li>
+<li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
+      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapters 3–4, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
+
       <p>Curves are fundamental entities in CAD. They are used to describe edges, profiles, trajectories and design features. A curve may be represented explicitly, implicitly or parametrically. Parametric representation is the most common in CAD.</p>
 <h2 id="parametric-representation-of-curves">Parametric Representation of Curves</h2>
 <p>A parametric curve in two or three dimensions is written as</p>
@@ -91,6 +95,7 @@ R\sin u
 \]</div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Parametric curves are natural for CAD because they allow finite curve segments, easy differentiation, and direct construction from control points.</p></div></aside>
 <h2 id="differential-geometry-for-cad">Differential Geometry for CAD</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 3. For further study of arc length, curvature and space curves, see Pressley <a href="../references/index.html#ref-4">[4]</a>, §§1.2, 2.1 and 2.3.</p>
 <p>Differential geometry provides the mathematical language for describing the local shape of curves and surfaces. In CAD, these ideas are useful for understanding tangents, normals, curvature, smoothness, surface fairness, developability and geometric continuity.</p>
 <h3 id="differential-geometry-of-curves">Differential Geometry of Curves</h3>
 <p>A parametric space curve is a vector-valued function</p>
@@ -364,6 +369,7 @@ c^6\kappa^2\tau.
 \kappa^2\tau.
 \]</div>
 <h2 id="bezier-curves">Bezier Curves</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 4. Further reading: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapters 4–5, and Shene’s university notes <a href="../references/index.html#ref-7">[7]</a> for Bézier construction, subdivision and degree elevation.</p>
 <p>A Bezier curve of degree $n$ is defined using $n+1$ control points</p>
 <div class="math-display">\[
 \mathbf P_0,\mathbf P_1,\ldots,\mathbf P_n.
@@ -460,6 +466,7 @@ n\sum_{i=0}^{n-1}B_{i,n-1}(u)(\mathbf P_{i+1}-\mathbf P_i).
 <p>When all weights are equal, the rational Bezier curve reduces to the ordinary polynomial Bezier curve.</p>
 <p>Weights provide additional shape control. Increasing a weight pulls the curve closer to the corresponding control point.</p>
 <h2 id="homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</h2>
+<p class="topic-citation">Further reading on weighted homogeneous control points and rational curves: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapter 13; Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>, pp. 117–139; and Shene <a href="../references/index.html#ref-7">[7]</a>.</p>
 <p>Rational curves can be understood as projections of polynomial curves in homogeneous coordinates.</p>
 <p>For a point</p>
 <div class="math-display">\[
@@ -487,6 +494,7 @@ n\sum_{i=0}^{n-1}B_{i,n-1}(u)(\mathbf P_{i+1}-\mathbf P_i).
 \right).
 \]</div>
 <h2 id="rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</h2>
+<p class="topic-citation">For exact conic and circular-arc representations, see Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>, pp. 281–331, and Shene’s conic-section and circular-arc notes <a href="../references/index.html#ref-7">[7]</a>.</p>
 <p>Polynomial Bezier curves cannot exactly represent a circle. Rational Bezier curves can.</p>
 <p>A quarter circle of radius $R$ from $(R,0)$ to $(0,R)$ can be represented using a quadratic rational Bezier curve with</p>
 <div class="math-display">\[
@@ -517,6 +525,15 @@ w_2=1.
 \]</div>
 <p>An ellipse can be obtained by applying non-uniform scaling to a circle.</p>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Conic sections such as circles, ellipses, parabolas and hyperbolas require rational representations for exact CAD modeling.</p></div></aside>
+
+<h2 id="references-and-further-reading">References and Further Reading</h2>
+<p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
+<ul class="reference-section-links">
+<li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapters 3–4.</li>
+<li>Differential geometry: Pressley <a href="../references/index.html#ref-4">[4]</a>. Bézier algorithms and rational curves: Farin <a href="../references/index.html#ref-5">[5]</a> and Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>.</li>
+<li>Free worked explanations of subdivision, degree elevation and conics: Shene <a href="../references/index.html#ref-7">[7]</a>.</li>
+</ul>
+<p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
       <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../geometric-transformations/index.html"><span>Previous module</span><strong>Geometric Transformations</strong></a><a class="notes-nav-link next" href="../b-splines/index.html"><span>Next module</span><strong>B-Splines</strong></a></nav>
     </article>
   </main>

@@ -1,0 +1,25 @@
+/* Citation styles are limited to Theory pages. */
+.theory-page .source-note {
+  margin-block: 1rem 1.5rem;
+  padding: 1rem 1.15rem;
+  border-left: 4px solid var(--lavender);
+  border-radius: 0 .75rem .75rem 0;
+  background: var(--lavender-light);
+}
+.theory-page .source-note p { margin: 0; }
+.theory-page .source-note p + p { margin-top: .75rem; }
+.theory-page .topic-citation { color: var(--ink-soft); }
+.theory-page .reference-list { padding-left: 2rem; }
+.theory-page .reference-list > li {
+  margin-block: 1.4rem;
+  padding: .35rem .5rem .75rem;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 1.5rem;
+}
+.theory-page .reference-list > li::marker { color: var(--lavender); font-weight: 800; }
+.theory-page .reference-list p { margin: .5rem 0 0; }
+.theory-page .reference-list > li:target { background: var(--lavender-light); border-radius: .5rem; }
+.theory-page .reference-guide th { text-align: left; }
+.theory-page .reference-guide :is(th, td) { vertical-align: top; }
+.theory-page .reference-list a { overflow-wrap: anywhere; }
+.theory-page .reference-section-links li { margin-block: .7rem; }

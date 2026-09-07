@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -69,9 +70,12 @@
 <li class="toc-subsection"><a href="#uniform-basis-any-order">Explicit Formula for Any Order</a></li>
 <li class="toc-subsection"><a href="#periodic-basis-wrapping">Constructing the Periodic Basis</a></li>
 <li class="toc-subsection"><a href="#periodic-cubic-seam">Cubic Curve and Continuity at the Seam</a></li>
-<li class="toc-subsection"><a href="#nonuniform-periodic-basis">Nonuniform Periodic B-Splines</a></li></ol>
+<li class="toc-subsection"><a href="#nonuniform-periodic-basis">Nonuniform Periodic B-Splines</a></li>
+<li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
+      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 5, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
+
       <p>B-splines are among the most important curve representations in CAD. They provide a powerful way of constructing smooth curves using local polynomial pieces. Unlike a single high-degree polynomial curve, a B-spline curve is built from several low-degree polynomial segments joined together with prescribed continuity at the knots.</p>
 <p>Throughout this section, we use the following notation:</p>
 <div class="math-display">\[
@@ -115,6 +119,7 @@ u\in[a,b].
 <p>Thus, \(C^0\) continuity means that the function itself is continuous. \(C^1\) continuity means that the function and its first derivative are continuous. Similarly, \(C^2\) continuity means that the function, first derivative and second derivative are continuous.</p>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The notation \(C^n\) means continuity up to the \(n^{\text{th}}\) derivative.</p></div></aside>
 <h2 id="definition-of-a-spline">Definition of a Spline</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 5. De Boor’s revised textbook <a href="../references/index.html#ref-9">[9]</a> provides a more detailed treatment of spline spaces and B-spline representations.</p>
 <p>A spline is a composite curve made by joining several polynomial pieces together in such a way that a desired level of continuity is maintained at the joining points.</p>
 <p>Suppose the interval \([a,b]\) is divided into subintervals by knots:</p>
 <div class="math-display">\[
@@ -163,7 +168,7 @@ m=n+1.
 [u_i,u_{i+m}).
 \]</div>
 <p>Therefore, \(N_{m,i}(u)\) influences the curve only in this interval.</p>
-<figure class="notes-figure" id="fig:bspline-polynomial-pieces" style="--figure-width: 65%"><img src="../../assets/images/caad-notes/BSplines.png" alt="A B-spline basis function is formed by joining polynomial pieces over successive knot intervals." loading="lazy" decoding="async"><figcaption>A B-spline basis function is formed by joining polynomial pieces over successive knot intervals.</figcaption></figure>
+<figure class="notes-figure" id="fig:bspline-polynomial-pieces" style="--figure-width: 65%"><img src="../../assets/images/caad-notes/BSplines.png" alt="A B-spline basis function is formed by joining polynomial pieces over successive knot intervals." loading="lazy" decoding="async"><figcaption>A B-spline basis function is formed by joining polynomial pieces over successive knot intervals. <span class="figure-credit">Drawing by Murali Palla.</span></figcaption></figure>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The B-spline curve is a weighted combination of control points. The weights are the B-spline basis functions:</p>
 <div class="math-display">\[
 \mathbf r(u)=\sum_{i=0}^{c-1} N_{m,i}(u)\mathbf P_i.
@@ -244,6 +249,7 @@ C^{n-1}(\mathbb R).
 <p>In the direct method, one assumes polynomial pieces in each interval and then imposes continuity conditions at the knots. This leads to a system of linear equations for the polynomial coefficients.</p>
 <p>However, the direct method is not the most efficient method for computation. The Cox–de Boor recursive formula is more useful in practice and is widely used in CAD.</p>
 <h2 id="coxde-boor-recursion">Cox–de Boor Recursion</h2>
+<p class="topic-citation">Original algorithm references: Cox <a href="../references/index.html#ref-10">[10]</a> and de Boor <a href="../references/index.html#ref-11">[11]</a>, both published in 1972. These support the recurrence and its numerical use.</p>
 <p>The B-spline curve is written as</p>
 <div class="math-display">\[
 \mathbf r(u)=\sum_{i=0}^{c-1}N_{m,i}(u)\mathbf P_i.
@@ -277,6 +283,7 @@ N_{m-1,i+1}.
 \]</div></div></aside>
 <p>The recursive construction is numerically stable and is the standard method used in CAD and geometric modeling.</p>
 <h2 id="divided-difference-method">Divided Difference Method</h2>
+<p class="topic-citation">Further reading: de Boor’s survey of divided differences <a href="../references/index.html#ref-13">[13]</a> and B-spline computation paper <a href="../references/index.html#ref-11">[11]</a>.</p>
 <p>The Cox–de Boor recursion has a deep connection with divided differences. To understand the mathematical properties of B-spline basis functions, it is useful to study divided differences.</p>
 <p>Divided differences are discrete analogues of derivatives. They measure how function values change over a set of knots.</p>
 <p>Let</p>
@@ -711,6 +718,7 @@ N_{m,i}(u)
 <p>For the ordinary finite representation with \(c\) control points and order \(m\), the knot count is \(k=c+m\). The basis functions are \(N_{m,0},\ldots,N_{m,c-1}\), and the usual curve domain is \([u_{m-1},u_c)\), with the right endpoint evaluated by its left-hand limit. A periodic curve can instead be described using \(c\) independent control points whose indices repeat cyclically and a knot sequence extended in both directions.</p>
 
 <h2 id="periodic-b-spline-basis-functions">Derivation of Periodic B-Spline Basis Functions</h2>
+<p class="topic-citation">For the theory behind uniform/cardinal splines and periodic constructions, see Schoenberg <a href="../references/index.html#ref-12">[12]</a>, Chapter 2 and Chapter 4, §6, together with de Boor <a href="../references/index.html#ref-9">[9]</a>. These are supporting references for the step-by-step derivation below.</p>
 <p>We first derive the basis functions for uniformly spaced knots, then combine translated copies to make each basis function periodic. Throughout the derivation, \(n\) remains the degree, \(m=n+1\) the order, \(u\) the curve parameter, and \(N_{m,i}(u)\) the basis function with order first and index second. For the periodic construction, \(c\) counts the independent control points in one period.</p>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Uniform and Periodic</p><div class="notes-box-body"><p>Some CAD texts use “periodic” for uniform B-splines because successive basis functions have the same shape. Uniform spacing gives translated copies of a compactly supported function. To obtain \(\mathbf r(u+T)=\mathbf r(u)\), we must also wrap the control-point indices, or equivalently construct periodic basis functions. A uniform knot vector alone does not make a curve closed.</p></div></aside>
 
@@ -950,6 +958,15 @@ N_{m,i+c}(u+T)=N_{m,i}(u).
 \]</div>
 <p>The same wrapping construction \(N^{\mathrm{per}}_{m,i}(u)=\sum_{q\in\mathbb Z}N_{m,i+qc}(u)\) consequently produces a periodic basis. The explicit shapes \(B_m\) and the four cubic polynomials \(b_a\) above apply to uniform spacing; for nonuniform knots, compute the local pieces with the general recurrence. Repeated knots can reduce continuity.</p>
 <p>Derivation adapted from the <a href="https://chatgpt.com/share/6a9e6811-b5b8-83ee-8c85-5d76c81fcba5">shared periodic B-spline discussion</a>. Further reading: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-basis.html">B-spline basis definition</a>, <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-closed.html">closed B-spline curves</a>, and <a href="https://jipolanco.github.io/BSplineKit.jl/stable/bsplines/#Periodic-B-spline-bases">periodic knot sequences</a>.</p>
+
+<h2 id="references-and-further-reading">References and Further Reading</h2>
+<p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
+<ul class="reference-section-links">
+<li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 5; detailed spline theory: de Boor <a href="../references/index.html#ref-9">[9]</a>.</li>
+<li>Original recurrence papers: Cox <a href="../references/index.html#ref-10">[10]</a> and de Boor <a href="../references/index.html#ref-11">[11]</a>. Divided differences: de Boor <a href="../references/index.html#ref-13">[13]</a>.</li>
+<li>Uniform and periodic splines: Schoenberg <a href="../references/index.html#ref-12">[12]</a>. Algorithms for rational curves and surfaces: Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>.</li>
+</ul>
+<p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
       <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../curves/index.html"><span>Previous module</span><strong>Curves</strong></a><a class="notes-nav-link next" href="../surfaces/index.html"><span>Next module</span><strong>Surfaces</strong></a></nav>
     </article>
   </main>

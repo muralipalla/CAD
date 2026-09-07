@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -56,9 +57,12 @@
 <li class="toc-subsection"><a href="#classification-of-surface-points">Classification of Surface Points</a></li>
 <li class="toc-subsection"><a href="#gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</a></li>
 <li class="toc-section"><a href="#coons-surface-patch">Coons Surface Patch</a></li>
-<li class="toc-section"><a href="#surface-continuity">Surface Continuity</a></li></ol>
+<li class="toc-section"><a href="#surface-continuity">Surface Continuity</a></li>
+<li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
+      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapters 6–7, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
+
       <p>Surfaces are two-parameter geometric objects. They are used to represent freeform shapes such as car bodies, aircraft wings, turbine blades, architectural forms and consumer-product surfaces.</p>
 <h2 id="parametric-representation">Parametric Representation</h2>
 <p>A parametric surface is represented as</p>
@@ -99,6 +103,7 @@ N_{m,i}(u)M_{\ell,j}(v)\mathbf P_{ij},
 <p>where $N_{m,i}$ and $M_{\ell,j}$ are B-spline basis functions in the $u$ and $v$ directions respectively.</p>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A surface is a two-parameter extension of a curve. Curves use one parameter, while surfaces use two.</p></div></aside>
 <h2 id="differential-geometry-of-surfaces">Differential Geometry of Surfaces</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 6. Further reading: Pressley <a href="../references/index.html#ref-4">[4]</a>, Chapters 6–8, for fundamental forms and surface curvature.</p>
 <p>A surface may be represented parametrically as</p>
 <div class="math-display">\[
 \mathbf r(u,v)=
@@ -458,7 +463,7 @@ g:S\rightarrow S^2,
 \qquad
 g(P)=\hat{\mathbf n}(P).
 \]</div>
-<figure class="notes-figure" id="fig:gauss-map" style="--figure-width: 50%"><img src="../../assets/images/caad-notes/GaussMap2.png" alt="Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere." loading="lazy" decoding="async"><figcaption>Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere.</figcaption></figure>
+<figure class="notes-figure" id="fig:gauss-map" style="--figure-width: 50%"><img src="../../assets/images/caad-notes/GaussMap2.png" alt="Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere." loading="lazy" decoding="async"><figcaption>Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere. <span class="figure-credit">Drawing by Murali Palla.</span></figcaption></figure>
 <p>Gaussian curvature measures the local area distortion produced by the Gauss map. Informally,</p>
 <div class="math-display">\[
 \boxed{
@@ -484,6 +489,7 @@ K
 <div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Condition</strong></th><th scope="col"><strong>Type of Point</strong></th></tr></thead><tbody><tr><td>\(K&gt;0\)</td><td>Elliptic point. The surface is locally dome-like, as on a sphere.</td></tr><tr><td>\(K=0\)</td><td>Parabolic point. The surface is locally developable in one direction, as on a cylinder.</td></tr><tr><td>\(K&lt;0\)</td><td>Hyperbolic point. The surface is locally saddle-like.</td></tr></tbody></table></div></div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A surface can be developed onto a plane without stretching if its Gaussian curvature is zero everywhere. Cylinders and cones are developable surfaces; spheres are not.</p></div></aside>
 <h3 id="gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</h3>
+<p class="topic-citation">For fuller statements, hypotheses and proofs, see Pressley <a href="../references/index.html#ref-4">[4]</a>, §10.2 and Chapter 13.</p>
 <p>The Gauss–Bonnet theorem relates the total Gaussian curvature of a surface to its topology. In broad terms, it connects geometry with the Euler characteristic of the surface.</p>
 <p>Gauss's Theorema Egregium states that Gaussian curvature is invariant under local isometry. This means that Gaussian curvature can be determined entirely from measurements made on the surface itself, without reference to how the surface is embedded in three-dimensional space.</p>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>A flat sheet can be rolled into a cylinder without stretching. Hence, the plane and cylinder are locally isometric, and both have \(K=0\). A sphere cannot be flattened into a plane without stretching, because a sphere has positive Gaussian curvature.</p></div></aside>
@@ -493,6 +499,7 @@ K=\frac{1}{R^2}.
 \]</div>
 <p>Thus, a smaller sphere has larger curvature.</p></div></aside>
 <h2 id="coons-surface-patch">Coons Surface Patch</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 7. Original source: Coons <a href="../references/index.html#ref-8">[8]</a>, Section III and §3.6; further reading: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapter 22.</p>
 <p>A Coons patch constructs a surface from boundary curves. Suppose four boundary curves are given:</p>
 <div class="math-display">\[
 \mathbf C_0(v),\quad \mathbf C_1(v),
@@ -536,9 +543,19 @@ uv\mathbf P_{11}.
 \]</div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A Coons patch interpolates four boundary curves. It is useful for constructing a surface when the boundary curves are known.</p></div></aside>
 <h2 id="surface-continuity">Surface Continuity</h2>
+<p class="topic-citation">Further reading: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapter 20, and Coons <a href="../references/index.html#ref-8">[8]</a>, §5.2, discuss compatibility and continuity between surface patches.</p>
 <p>When two surface patches meet, continuity conditions are important.</p>
 <ol class="roman-list"><li><p><strong>Position continuity</strong> $C^0$: the patches meet without a gap.</p></li><li><p><strong>Tangent continuity</strong> $C^1$: tangent vectors also match across the boundary.</p></li><li><p><strong>Curvature continuity</strong> $C^2$: curvature information matches across the boundary.</p></li></ol>
 <p>In aesthetic surface design, $C^2$ continuity is often desirable because it gives visually smooth reflection lines.</p>
+
+<h2 id="references-and-further-reading">References and Further Reading</h2>
+<p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
+<ul class="reference-section-links">
+<li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapters 6–7. Differential geometry and Gauss–Bonnet: Pressley <a href="../references/index.html#ref-4">[4]</a>.</li>
+<li>Coons patches and continuity: Coons <a href="../references/index.html#ref-8">[8]</a> and Farin <a href="../references/index.html#ref-5">[5]</a>.</li>
+<li>Further exploration of tensor-product and rational surfaces: Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a> and Shene <a href="../references/index.html#ref-7">[7]</a>.</li>
+</ul>
+<p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
       <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../b-splines/index.html"><span>Previous module</span><strong>B-Splines</strong></a><a class="notes-nav-link next" href="../solid-modeling/index.html"><span>Next module</span><strong>Solid Modeling</strong></a></nav>
     </article>
   </main>

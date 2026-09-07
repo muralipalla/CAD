@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -72,9 +73,12 @@
 <li class="toc-subsection"><a href="#viewpoint-at-infinity">Viewpoint at Infinity</a></li>
 <li class="toc-subsection"><a href="#projection-of-a-point">Projection of a Point</a></li>
 <li class="toc-subsection"><a href="#homogeneous-matrix-form">Homogeneous Matrix Form</a></li>
-<li class="toc-subsection"><a href="#connection-with-the-general-projection-matrix">Connection with the General Projection Matrix</a></li></ol>
+<li class="toc-subsection"><a href="#connection-with-the-general-projection-matrix">Connection with the General Projection Matrix</a></li>
+<li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
+      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
+
       <aside class="notes-preface"><p>These notes give a compact but systematic introduction to important mathematical ideas used in Computer-Aided Design, CAD. The emphasis is on geometric representation, transformation, curves, B-splines and surfaces.</p></aside>
 <p>Geometric transformations are mathematical operations that modify the position, orientation, size or shape of geometric objects. In CAD, transformations are used to move parts, rotate models, scale drawings, assemble components, project three-dimensional objects onto a drawing plane, and convert between coordinate systems.</p>
 <p>A point in two dimensions is denoted by</p>
@@ -96,6 +100,7 @@ x\\y\\z
 \mathbf p' = T(\mathbf p).
 \]</div>
 <h2 id="affine-transformations">Affine Transformations</h2>
+<p class="topic-citation">Textbook background: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2; further reading on transformation matrices: Marschner and Shirley <a href="../references/index.html#ref-2">[2]</a>, Chapter 7.</p>
 <p>An affine transformation preserves straight lines and parallelism. Translation, rotation, scaling and shearing are common affine transformations.</p>
 <p>In two dimensions, an affine transformation can be written as</p>
 <div class="math-display">\[
@@ -272,6 +277,7 @@ R^T R = I,
 \]</div>
 <p>The set of all three-dimensional rotation matrices is denoted by $SO(3)$.</p></div></aside>
 <h3 id="rodrigues-formula">Rodrigues Formula</h3>
+<p class="topic-citation">Further reading: Lynch and Park <a href="../references/index.html#ref-3">[3]</a>, §3.2.3, connects axis–angle rotations with exponential coordinates.</p>
 <p>Rodrigues' formula gives the rotation matrix for a rotation by angle $\theta$ about a unit vector</p>
 <div class="math-display">\[
 \mathbf a =
@@ -628,6 +634,7 @@ R=R_x(\theta)R_y(\phi)R_z(\psi),
 \]</div>
 <p>and the Euler-angle representation becomes singular. This situation is commonly known as gimbal lock.</p></div></aside>
 <h2 id="quaternions">Quaternions</h2>
+<p class="topic-citation">Supporting reference: Lynch and Park <a href="../references/index.html#ref-3">[3]</a>, Appendix B.3, for unit quaternions and rotations. The original online sources used while preparing this part of the notes have not been identified.</p>
 <p>Quaternions provide a compact and elegant way of representing rotations in three dimensions. They may be viewed as an extension of complex numbers. A complex number has one real component and one imaginary component, whereas a quaternion has one real component and three imaginary components.</p>
 <p>A quaternion is written as</p>
 <div class="math-display">\[
@@ -1164,6 +1171,7 @@ q=
 <ol class="roman-list"><li><p>They avoid gimbal lock.</p></li><li><p>They provide a compact representation of rotation using four numbers.</p></li><li><p>They are numerically stable for repeated rotations.</p></li><li><p>They allow smooth interpolation between orientations.</p></li><li><p>They are more efficient than rotation matrices for some computational tasks.</p></li></ol>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler angles are intuitive, rotation matrices are directly applicable to coordinates, and quaternions are compact and robust for representing orientations. In practical CAD and graphics applications, all three representations are useful.</p></div></aside>
 <h2 id="projections">Projections</h2>
+<p class="topic-citation"><strong>Derivation credit:</strong> The perspective and orthographic projection derivations below were independently worked out by Murali Palla. For related textbook treatments of projection and viewing, see Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2, and Marschner and Shirley <a href="../references/index.html#ref-2">[2]</a>, Chapter 8; these are background references, not sources claimed for the exact matrix forms used here.</p>
 <p>Projection converts a three-dimensional object into a two-dimensional representation. It is central to engineering drawing, computer graphics and visualization.</p>
 <p>The two main types are:</p>
 <ol class="roman-list"><li><p>perspective projection,</p></li><li><p>orthographic projection.</p></li></ol>
@@ -1707,6 +1715,14 @@ a^2+b^2+c^2.
 \]</div>
 <p>This encodes the fact that the projection rays are parallel to the normal direction of the plane.</p></div></aside>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Orthographic projection is widely used in engineering drawings because it preserves true dimensions in directions parallel to the projection plane.</p></div></aside>
+
+<h2 id="references-and-further-reading">References and Further Reading</h2>
+<p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
+<ul class="reference-section-links">
+<li>Transformations and viewing: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2; Marschner and Shirley <a href="../references/index.html#ref-2">[2]</a>, Chapters 7–8.</li>
+<li>Rodrigues’ formula, Euler angles and quaternions: Lynch and Park <a href="../references/index.html#ref-3">[3]</a>, Chapter 3 and Appendix B. Compare rotation-order conventions before using its extraction formulas.</li>
+</ul>
+<p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
       <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../index.html"><span>Module library</span><strong>Theory</strong></a><a class="notes-nav-link next" href="../curves/index.html"><span>Next module</span><strong>Curves</strong></a></nav>
     </article>
   </main>
