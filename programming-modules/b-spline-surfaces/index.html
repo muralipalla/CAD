@@ -9,13 +9,13 @@
   <!-- Update each local asset's content-hash version when that file changes. -->
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/curve-labs.css">
-  <link rel="stylesheet" href="app.css?v=10d04e745ac5">
+  <link rel="stylesheet" href="app.css?v=2f4eb09bfe44">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
   <script src="surface-math.js?v=8ffb5e762478" defer></script>
-  <script src="surface-three.js?v=f7ad716df276" defer></script>
+  <script src="surface-three.js?v=6a95a91fbf49" defer></script>
   <script src="surface-code.js?v=a637d6ddd007" defer></script>
-  <script src="app.js?v=90d645f76866" defer></script>
+  <script src="app.js?v=567ee8234bae" defer></script>
   <script>
     window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
   </script>
@@ -45,8 +45,10 @@
       <div class="boundary-details"><p id="grid-help">Changing grid size starts a new flat grid.</p><p id="order-help">Degree n = m − 1. Order ranges from 2 to the number of points per direction; reducing the grid size lowers the order if needed.</p><p id="mode-help" data-mode-help>Clamped: the surface interpolates the four corner points.</p><p class="knot-summary" data-knots>U = V = [0, 0, 0, 0, 1, 1, 1, 1]</p></div>
     </div>
 
-    <section class="surface-workspace" aria-label="Control point input and three-dimensional surface">
-      <article class="lab-window input-window" aria-labelledby="input-title">
+    <div class="workspace-toolbar"><button class="mini-button" data-toggle-controls type="button" aria-controls="control-panel" aria-expanded="true">Hide control panel</button></div>
+    <section class="surface-workspace" data-workspace aria-label="Control point input and three-dimensional surface">
+      <article class="lab-window input-window" id="control-panel" data-control-panel aria-labelledby="input-title">
+        <div class="panel-top">
         <div class="window-heading"><div><p class="card-kicker">Window 1 · x–y grid</p><h2 id="input-title">Edit the control grid</h2></div><button class="mini-button" data-reset-grid type="button">Reset square grid</button></div>
         <p class="selection-prompt" data-prompt role="status" aria-live="polite">Selected P00 · drag to move, or edit its coordinates.</p>
         <div class="coordinate-fields">
@@ -54,9 +56,11 @@
           <label class="lab-field"><span>y</span><input data-y type="number" min="0" max="10" step="0.01" value="2" aria-label="Selected point y coordinate"></label>
           <label class="lab-field"><span>z</span><input data-z-coordinate type="number" min="-5" max="5" step="0.01" value="0" aria-label="Selected point z coordinate"></label>
         </div>
+        </div>
         <div class="xy-frame">
           <canvas data-xy width="600" height="600" tabindex="0" aria-label="Editable square grid of 16 control points, x-y coordinates from 0 to 10" aria-describedby="xy-help">Select and drag points, or use the point selector and coordinate inputs.</canvas>
         </div>
+        <div class="panel-bottom">
         <p class="interaction-hint" id="xy-help">Select and drag a point to change x and y. Arrow keys move the selected point; hold Shift for larger steps. Press [ or ] to select the previous or next point, and Enter to adjust its height.</p>
         <div class="height-editor">
           <div class="height-heading"><label for="point-height" data-height-label>Height z · P00</label><output data-height-output for="point-height">0.00</output></div>
@@ -64,9 +68,11 @@
           <div class="range-labels" aria-hidden="true"><span>−5</span><span>0</span><span>+5</span></div>
           <p id="height-help">Select a point in either view or the point selector, then adjust its height.</p>
         </div>
+        </div>
       </article>
 
       <article class="lab-window view-window" aria-labelledby="view-title">
+        <div class="panel-top">
         <div class="window-heading"><div><p class="card-kicker">Window 2 · Three.js</p><h2 id="view-title">Surface in 3D</h2></div><button class="mini-button" data-reset-view type="button">Reset view</button></div>
         <div class="view-controls">
           <label class="toggle-control"><input data-points type="checkbox" checked><span>Control points</span></label>
@@ -76,21 +82,24 @@
           <label class="toggle-control"><input data-grid type="checkbox" checked><span>x–y grid</span></label>
           <label class="toggle-control"><input data-wireframe type="checkbox"><span>Wireframe</span></label>
         </div>
+        </div>
+        <div class="three-frame">
+          <canvas data-three tabindex="0" aria-label="Three-dimensional B-spline surface with z pointing up" aria-describedby="three-help"></canvas>
+          <p class="three-fallback" data-three-fallback hidden role="status">3D visualization is unavailable because WebGL could not start. You can still enter coordinates and use the generated program.</p>
+        </div>
+        <div class="panel-bottom">
+        <div class="view-footer"><p class="interaction-hint" id="three-help">Click a point to select · drag to orbit · scroll or +/− to zoom · arrow keys rotate · Home resets. z is vertical.</p><div class="lab-actions"><button class="mini-button" data-zoom-in type="button" aria-label="Zoom in">+</button><button class="mini-button" data-zoom-out type="button" aria-label="Zoom out">−</button></div></div>
+        <p class="surface-message" data-surface-message>Clamped · 16 control points · order m = 4, degree n = 3 · u, v ∈ [0, 1].</p>
+        <div class="net-heading"><h3>Select a control point</h3><span>i changes first, then j</span></div>
+        <div class="point-grid" data-point-grid aria-label="Control points in input order"></div>
+        <p class="interaction-hint">Each row holds P0j, P1j, … in increasing i. Select any cell to edit that point. The yellow lines connect neighboring controls in both directions.</p>
         <div class="view-tools">
           <label class="lab-field"><span>Viewing direction</span><select data-view-preset aria-describedby="view-help"><option value="perspective">Free 3D view</option><option value="top">Top · from +z</option><option value="bottom">Bottom · from −z</option></select></label>
           <button class="mini-button" data-download-png type="button">Download PNG</button>
         </div>
         <p class="interaction-hint view-help" id="view-help">Top and bottom views look along the z-axis without perspective. Drag to return to free 3D. PNG saves the current view and visible items.</p>
         <p class="interaction-hint" data-download-status role="status" aria-live="polite"></p>
-        <div class="three-frame">
-          <canvas data-three tabindex="0" aria-label="Three-dimensional B-spline surface with z pointing up" aria-describedby="three-help"></canvas>
-          <p class="three-fallback" data-three-fallback hidden role="status">3D visualization is unavailable because WebGL could not start. You can still enter coordinates and use the generated program.</p>
         </div>
-        <div class="view-footer"><p class="interaction-hint" id="three-help">Click a point to select · drag to orbit · scroll or +/− to zoom · arrow keys rotate · Home resets. z is vertical.</p><div class="lab-actions"><button class="mini-button" data-zoom-in type="button" aria-label="Zoom in">+</button><button class="mini-button" data-zoom-out type="button" aria-label="Zoom out">−</button></div></div>
-        <p class="surface-message" data-surface-message>Clamped · 16 control points · order m = 4, degree n = 3 · u, v ∈ [0, 1].</p>
-        <div class="net-heading"><h3>Select a control point</h3><span>i changes first, then j</span></div>
-        <div class="point-grid" data-point-grid aria-label="Control points in input order"></div>
-        <p class="interaction-hint">Each row holds P0j, P1j, … in increasing i. Select any cell to edit that point. The yellow lines connect neighboring controls in both directions.</p>
       </article>
     </section>
 

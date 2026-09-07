@@ -143,6 +143,20 @@
     });
   }
   $("reset-grid").addEventListener("click", () => { state.reset(); update(); canvas.focus({ preventScroll: true }); });
+  $("toggle-controls").addEventListener("click", () => {
+    const panel = $("control-panel"), button = $("toggle-controls");
+    const hide = !panel.hidden;
+    if (hide && drag) {
+      const id = drag.id; drag = null;
+      if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+    }
+    if (hide && panel.contains(document.activeElement)) button.focus({ preventScroll: true });
+    panel.hidden = hide;
+    $("workspace").classList.toggle("view-only", hide);
+    button.textContent = hide ? "Show control panel" : "Hide control panel";
+    button.setAttribute("aria-expanded", String(!hide));
+    scheduleGraphics();
+  });
   function eventPoint(event) {
     const rect = canvas.getBoundingClientRect();
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };

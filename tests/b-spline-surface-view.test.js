@@ -78,8 +78,10 @@ test("hidden points and axes disappear and hidden points cannot be selected", ()
 
 test("PNG export renders a fresh frame and recovers after graphics context restoration", async () => {
   const h = harness(); h.view.setView("bottom");
+  h.canvas.clientWidth = 1200;
   const before = h.renders, blob = await h.view.pngBlob();
   assert.equal(blob.type, "image/png"); assert.equal(h.canvas.capturedAt, before + 1);
+  assert.equal((h.camera.right - h.camera.left) / (h.camera.top - h.camera.bottom), 2);
   h.fire("webglcontextlost"); assert.equal(h.view.available, false);
   await assert.rejects(h.view.pngBlob(), /unavailable/);
   h.fire("webglcontextrestored"); assert.equal(h.view.available, true);

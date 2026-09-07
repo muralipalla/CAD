@@ -172,7 +172,7 @@
     function pngBlob() {
       if (contextLost) return Promise.reject(new Error("The 3D view is unavailable. Reload the page before exporting."));
       return new Promise((resolve, reject) => {
-        render(); // Capture a fresh frame before WebGL clears the drawing buffer.
+        resize(); // Match the current panel size and capture before WebGL clears the buffer.
         canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The PNG could not be created. Please try again.")), "image/png");
       });
     }
