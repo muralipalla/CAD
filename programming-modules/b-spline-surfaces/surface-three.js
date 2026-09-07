@@ -76,13 +76,14 @@
       });
     }
     function update(points, selected, options) {
+      const size = Math.sqrt(points.length);
       scene.remove(content);
       release(content);
       content = new THREE.Group();
       handles = [];
       scene.add(content);
-      if (points.length === 16) {
-        const sampled = SurfaceMath.sample(points, 40, options.mode);
+      if (SurfaceMath.GRID_SIZES.includes(size)) {
+        const sampled = SurfaceMath.sample(points, 60, options.mode, options.order);
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", new THREE.Float32BufferAttribute(sampled.positions, 3));
         geometry.setIndex(sampled.indices);
@@ -91,10 +92,10 @@
           roughness: .55, metalness: .08, wireframe: options.wireframe, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
         content.add(new THREE.Mesh(geometry, material));
         if (!options.wireframe) {
-          const linePositions = [], divisions = 40, stride = divisions + 1;
+          const linePositions = [], divisions = sampled.divisions, stride = divisions + 1;
           function edge(a, b) { linePositions.push(...sampled.positions.slice(a * 3, a * 3 + 3), ...sampled.positions.slice(b * 3, b * 3 + 3)); }
-          for (let j = 0; j <= divisions; j += 4) for (let i = 0; i < divisions; i += 1) edge(j * stride + i, j * stride + i + 1);
-          for (let i = 0; i <= divisions; i += 4) for (let j = 0; j < divisions; j += 1) edge(j * stride + i, (j + 1) * stride + i);
+          for (let j = 0; j <= divisions; j += 6) for (let i = 0; i < divisions; i += 1) edge(j * stride + i, j * stride + i + 1);
+          for (let i = 0; i <= divisions; i += 6) for (let j = 0; j < divisions; j += 1) edge(j * stride + i, (j + 1) * stride + i);
           const isoGeometry = new THREE.BufferGeometry();
           isoGeometry.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
           content.add(new THREE.LineSegments(isoGeometry, new THREE.LineBasicMaterial({ color: 0x224b70, transparent: true, opacity: .7 })));
@@ -108,15 +109,15 @@
         content.add(new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffd166 })));
       }
       points.forEach((p, index) => {
-        const colors = [0xff9986, 0x76dcc1, 0xb8a7f5, 0xffd166];
+        const colors = [0xff9986, 0x76dcc1, 0xb8a7f5, 0xffd166, 0x8ac7ff, 0xf3a6d1];
         const sphere = new THREE.Mesh(new THREE.SphereGeometry(index === selected ? .17 : .11, 12, 8),
-          new THREE.MeshBasicMaterial({ color: index === selected ? 0xffffff : colors[Math.floor(index / 4)] }));
+          new THREE.MeshBasicMaterial({ color: index === selected ? 0xffffff : colors[Math.floor(index / size)] }));
         sphere.position.set(p.x, p.y, p.z);
         sphere.userData.pointIndex = index;
         handles.push(sphere);
         content.add(sphere);
         if (options.labels) {
-          const sprite = textSprite(SurfaceMath.label(index));
+          const sprite = textSprite(SurfaceMath.label(index, size));
           sprite.position.set(p.x, p.y, p.z + .4);
           content.add(sprite);
         }

@@ -5,17 +5,29 @@
   const $ = (name) => document.querySelector(`[data-${name}]`);
   const canvas = $("xy"), ctx = canvas.getContext("2d");
   const view = new window.SurfaceThree($("three"), $("three-fallback"), (index) => { if (state.select(index)) update(); });
-  const colors = ["#ff9986", "#76dcc1", "#b8a7f5", "#ffd166"];
+  const colors = ["#ff9986", "#76dcc1", "#b8a7f5", "#ffd166", "#8ac7ff", "#f3a6d1"];
   let language = "python", drag = null, frame = 0;
-  const cells = Array.from({ length: 16 }, (_, index) => {
-    const button = document.createElement("button");
-    button.type = "button"; button.className = "point-cell";
-    button.style.setProperty("--point-color", colors[Math.floor(index / 4)]);
-    button.innerHTML = `<strong>${Math3.label(index)}</strong><span></span>`;
-    button.addEventListener("click", () => { if (state.select(index)) update(); });
-    $("point-grid").append(button);
-    return button;
-  });
+  let cells = [];
+  function gridControls() {
+    if (cells.length === state.points.length) return;
+    cells = state.points.map((_, index) => {
+      const button = document.createElement("button");
+      button.type = "button"; button.className = "point-cell";
+      button.style.setProperty("--point-color", colors[Math.floor(index / state.size)]);
+      button.innerHTML = `<strong>${Math3.label(index, state.size)}</strong><span></span>`;
+      button.addEventListener("click", () => { if (state.select(index)) update(); });
+      return button;
+    });
+    $("point-grid").replaceChildren(...cells);
+    $("point-grid").style.setProperty("--grid-size", state.size);
+    const orders = Array.from({ length: state.size - 1 }, (_, index) => {
+      const option = document.createElement("option");
+      option.value = index + 2; option.textContent = `${index + 2} (degree ${index + 1})`;
+      return option;
+    });
+    $("order").replaceChildren(...orders);
+    canvas.setAttribute("aria-label", `Editable square grid of ${state.points.length} control points, x-y coordinates from 0 to 10`);
+  }
   function plot() {
     const width = canvas.clientWidth, height = canvas.clientHeight;
     return { width, height, left: 42, right: width - 22, top: 24, bottom: height - 36 };
@@ -57,50 +69,57 @@
     state.points.forEach((point, index) => {
       const p = screen(point, bounds);
       ctx.beginPath(); ctx.arc(p.x, p.y, index === state.selected ? 8 : 6, 0, Math.PI * 2);
-      ctx.fillStyle = colors[Math.floor(index / 4)]; ctx.fill();
+      ctx.fillStyle = colors[Math.floor(index / state.size)]; ctx.fill();
       ctx.lineWidth = index === state.selected ? 3 : 1.5; ctx.strokeStyle = "#fff"; ctx.stroke();
       ctx.font = "bold 13px sans-serif"; ctx.textAlign = p.x > bounds.right - 45 ? "right" : "left";
       const dx = ctx.textAlign === "right" ? -11 : 11;
       ctx.strokeStyle = "#171541"; ctx.lineWidth = 4;
-      ctx.strokeText(Math3.label(index), p.x + dx, p.y - 10);
-      ctx.fillStyle = "#fff"; ctx.fillText(Math3.label(index), p.x + dx, p.y - 10);
+      ctx.strokeText(Math3.label(index, state.size), p.x + dx, p.y - 10);
+      ctx.fillStyle = "#fff"; ctx.fillText(Math3.label(index, state.size), p.x + dx, p.y - 10);
     });
   }
   function scheduleGraphics() {
     if (frame) return;
     frame = requestAnimationFrame(() => {
       frame = 0; draw();
-      view.update(state.points, state.selected, { mode: state.mode, net: $("net").checked, labels: $("labels").checked, wireframe: $("wireframe").checked });
+      view.update(state.points, state.selected, { mode: state.mode, order: state.order, net: $("net").checked, labels: $("labels").checked, wireframe: $("wireframe").checked });
     });
   }
   function updateCode() {
-    $("code").textContent = window.SurfaceCode[language](state.points, state.mode);
+    $("code").textContent = window.SurfaceCode[language](state.points, state.mode, state.order);
     $("filename").textContent = language === "python" ? "bspline_surface.py" : "bspline_surface.m";
     document.querySelectorAll("[data-language]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.language === language)));
   }
   function update() {
+    gridControls();
     const point = state.points[state.selected];
-    const prompt = `Selected ${Math3.label(state.selected)} · drag to move, or edit its coordinates.`;
+    const selectedLabel = Math3.label(state.selected, state.size);
+    const prompt = `Selected ${selectedLabel} · drag to move, or edit its coordinates.`;
     if ($("prompt").textContent !== prompt) $("prompt").textContent = prompt;
     $("x").value = point.x.toFixed(2); $("y").value = point.y.toFixed(2);
     $("z").value = point.z;
     $("height-output").textContent = point.z.toFixed(2);
-    $("height-label").textContent = `Height z · ${Math3.label(state.selected)}`;
-    $("z").setAttribute("aria-label", `Height z of ${Math3.label(state.selected)}`);
+    $("height-label").textContent = `Height z · ${selectedLabel}`;
+    $("z").setAttribute("aria-label", `Height z of ${selectedLabel}`);
+    $("size").value = state.size;
+    $("order").value = state.order;
     $("mode").value = state.mode;
-    $("mode-help").textContent = state.mode === "clamped" ? "Clamped: the surface interpolates the four corner points." : "Open (unclamped): uniform knots; the surface generally does not interpolate the corner points.";
-    $("knots").textContent = `U = V = [${Math3.KNOTS[state.mode].join(", ")}]`;
-    $("surface-message").textContent = `${state.mode === "clamped" ? "Clamped" : "Open (unclamped)"} bicubic patch · 16 control points · u, v ∈ [0, 1].`;
+    $("mode-help").textContent = state.order === 2 ? "At order 2, both boundary modes give the same piecewise bilinear surface, interpolating every control point." : state.mode === "clamped" ? "Clamped: the surface interpolates the four corner points." : "Open (unclamped): uniform knots; the surface generally does not interpolate the corner points.";
+    const knotText = Math3.knots(state.size, state.order, state.mode).map((t) => Number(t.toFixed(4))).join(", ");
+    $("knots").textContent = `U = V = [${knotText}] (shown to 4 decimal places)`;
+    $("surface-message").textContent = `${state.mode === "clamped" ? "Clamped" : "Open (unclamped)"} · ${state.points.length} control points · order m = ${state.order}, degree n = ${state.order - 1} · ${state.size - state.order + 1} span(s) per direction · u, v ∈ [0, 1].`;
     cells.forEach((button, index) => {
       const p = state.points[index];
       button.setAttribute("aria-pressed", String(index === state.selected));
-      button.setAttribute("aria-label", `${Math3.label(index)}: x ${p.x}, y ${p.y}, z ${p.z}. Select to edit.`);
+      button.setAttribute("aria-label", `${Math3.label(index, state.size)}: x ${p.x}, y ${p.y}, z ${p.z}. Select to edit.`);
       button.querySelector("span").textContent = `${p.x.toFixed(1)}, ${p.y.toFixed(1)}\nz ${p.z.toFixed(2)}`;
     });
     updateCode(); scheduleGraphics();
   }
   $("z").addEventListener("input", () => { state.edit("z", Number($("z").value)); update(); });
   $("mode").addEventListener("change", () => { state.setMode($("mode").value); update(); });
+  $("size").addEventListener("change", () => { drag = null; state.setSize(Number($("size").value)); update(); });
+  $("order").addEventListener("change", () => { state.setOrder(Number($("order").value)); update(); });
   for (const axis of ["x", "y"]) {
     $(axis).addEventListener("change", () => {
       const input = $(axis), value = input.valueAsNumber;
@@ -147,7 +166,7 @@
   canvas.addEventListener("keydown", (event) => {
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Enter", "[", "]"].includes(event.key)) return;
     event.preventDefault();
-    if (["[", "]"].includes(event.key)) { state.select((state.selected + (event.key === "[" ? 15 : 1)) % 16); update(); return; }
+    if (["[", "]"].includes(event.key)) { state.select((state.selected + (event.key === "[" ? state.points.length - 1 : 1)) % state.points.length); update(); return; }
     if (event.key === "Enter") {
       $("z").focus({ preventScroll: true });
       return;

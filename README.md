@@ -50,10 +50,13 @@ self-assessment-quizzes/      Quiz hub and assessments
 The B-spline surface lab at `programming-modules/b-spline-surfaces/` starts with a
 flat 4 × 4 square grid, stored in `P00, P10, P20, P30, P01, ..., P33` order. Select
 a point in either view or the point selector, drag its x–y position, and adjust z
-with the height slider. Clamped mode uses `[0,0,0,0,1,1,1,1]`; Open (unclamped)
-uses `[-3,-2,-1,0,1,2,3,4]`. Both have active domain `[0,1] × [0,1]`, and switching
-preserves the control net. `surface-three.js` owns the independent Three.js view;
-`surface-math.js` evaluates the bicubic patch and manages the editable grid.
+with the height slider below the left grid. With the default grid and order,
+Clamped mode uses `[0,0,0,0,1,1,1,1]`; Open (unclamped) uses
+`[-3,-2,-1,0,1,2,3,4]`. Both have active domain `[0,1] × [0,1]`.
+Changing order or boundary mode preserves the control net; changing grid size
+starts a new flat grid and reduces the order if needed.
+`surface-three.js` owns the independent Three.js view;
+`surface-math.js` evaluates tensor-product B-spline surfaces and manages editable 4×4, 5×5 and 6×6 grids, with orders 2 through the control count per direction.
 Run the numerical and editing tests with `node --test tests/*.test.js`.
 
 ## Accessibility and compatibility

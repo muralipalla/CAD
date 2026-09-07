@@ -10,8 +10,8 @@ const plane = () => Array.from({ length: 16 }, (_, index) => {
 
 test("uniform cubic basis matches Cox-de Boor on its active span including endpoints", () => {
   function cox(i, order, t) {
-    if (order === 1) return Number(M.KNOTS.open[i] <= t && t < M.KNOTS.open[i + 1]);
-    const knots = M.KNOTS.open;
+    const knots = M.knots(4, 4, "open");
+    if (order === 1) return Number(knots[i] <= t && t < knots[i + 1]);
     return (t - knots[i]) / (knots[i + order - 1] - knots[i]) * cox(i, order - 1, t)
       + (knots[i + order] - t) / (knots[i + order] - knots[i + 1]) * cox(i + 1, order - 1, t);
   }
@@ -95,8 +95,9 @@ test("selection, edits and mode switching preserve the complete control net", ()
 test("control net connects neighbors without a spurious edge between successive rows", () => {
   assert.equal(M.netEdges(16).length, 24);
   assert.ok(!M.netEdges(16).some(([a, b]) => a === 3 && b === 4));
-  for (let count = 0; count <= 16; count += 1) {
-    assert.ok(M.netEdges(count).every(([a, b]) => a < count && b < count));
+  for (const size of [4, 5, 6]) {
+    assert.equal(M.netEdges(size * size).length, 2 * size * (size - 1));
+    assert.ok(M.netEdges(size * size).every(([a, b]) => b - a === size || (b - a === 1 && Math.floor(a / size) === Math.floor(b / size))));
   }
 });
 
@@ -109,16 +110,69 @@ test("generated programs retain all coordinates in the same order and reject par
   for (let i = 0; i < 16; i += 1) {
     assert.ok(pyRows[i].endsWith(M.label(i))); assert.ok(matRows[i].endsWith(M.label(i)));
   }
-  assert.match(Code.python([]), /points.shape != \(16, 3\)/);
-  assert.match(Code.matlab([]), /isequal\(size\(points\), \[16 3\]\)/);
+  assert.throws(() => Code.python([]));
+  assert.throws(() => Code.matlab([]));
 });
 
-test("generated knot vectors and basis formulas follow the selected mode", () => {
-  for (const mode of ["clamped", "open"]) {
-    const py = Code.python(M.squareGrid(), mode), mat = Code.matlab(M.squareGrid(), mode);
-    assert.ok(py.includes(`# U = V = [${M.KNOTS[mode].join(", ")}]`));
-    assert.ok(mat.includes(`% U = V = [${M.KNOTS[mode].join(" ")}]`));
-    assert.ok(py.includes(mode === "clamped" ? "3*t*(1-t)**2" : "3*t**3-6*t**2+4"));
-    assert.ok(mat.includes(mode === "clamped" ? "3*t*(1-t)^2" : "3*t^3-6*t^2+4"));
+test("generated programs use the current grid, order and full precision knot construction", () => {
+  for (const size of [4, 5, 6]) for (let order = 2; order <= size; order++) for (const mode of ["clamped", "open"]) {
+    const py = Code.python(M.squareGrid(size), mode, order), mat = Code.matlab(M.squareGrid(size), mode, order);
+    assert.equal(py.match(/\],  # P\d\d/g).length, size * size);
+    assert.equal(mat.match(/; % P\d\d/g).length, size * size);
+    assert.ok(py.includes(`c, m = ${size}, ${order}`));
+    assert.ok(mat.includes(`c = ${size}; m = ${order};`));
+    assert.ok(py.includes(mode === "clamped" ? "[0.0]*m + [i/spans" : "[(i-m+1)/spans"));
+    assert.ok(mat.includes(mode === "clamped" ? "[zeros(1,m), (1:spans-1)/spans" : "((0:c+m-1)-m+1)/spans"));
   }
+});
+
+test("all grid/order/mode combinations partition unity and reproduce Greville coordinate planes", () => {
+  for (const size of [4, 5, 6]) for (let order = 2; order <= size; order++) for (const mode of ["clamped", "open"]) {
+    const knots = M.knots(size, order, mode), spans = size - order + 1;
+    assert.equal(knots.length, size + order);
+    assert.equal(knots[order - 1], 0); assert.equal(knots[size], 1);
+    const greville = Array.from({ length: size }, (_, i) => knots.slice(i + 1, i + order).reduce((a, b) => a + b, 0) / (order - 1));
+    const points = Array.from({ length: size * size }, (_, k) => {
+      const x = greville[k % size], y = greville[Math.floor(k / size)];
+      return { x, y, z: x + 2 * y };
+    });
+    const parameters = [0, 1e-10, .137, .5, .891, 1 - 1e-10, 1, ...Array.from({ length: spans - 1 }, (_, k) => (k + 1) / spans)];
+    for (const t of parameters) {
+      const b = M.basis(t, mode, size, order);
+      assert.equal(b.length, size); assert.ok(b.every((v) => v >= -1e-14));
+      near(b.reduce((a, v) => a + v, 0), 1);
+      for (const v of parameters) {
+        const point = M.evaluate(points, t, v, mode, order);
+        near(point.x, t); near(point.y, v); near(point.z, t + 2 * v);
+      }
+    }
+    if (mode === "clamped") {
+      assert.deepEqual(M.basis(0, mode, size, order), Array.from({ length: size }, (_, i) => Number(i === 0)));
+      assert.deepEqual(M.basis(1, mode, size, order), Array.from({ length: size }, (_, i) => Number(i === size - 1)));
+    }
+    const mesh = M.sample(points, 10, mode, order);
+    assert.equal(mesh.divisions % spans, 0);
+    assert.equal(mesh.positions.length, (mesh.divisions + 1) ** 2 * 3);
+    assert.equal(mesh.indices.length, mesh.divisions ** 2 * 6);
+    assert.ok(mesh.positions.every(Number.isFinite));
+    for (let k = 0; k < mesh.positions.length; k += 3) near(mesh.positions[k + 2], mesh.positions[k] + 2 * mesh.positions[k + 1]);
+  }
+});
+
+test("grid size changes reset the net and constrain order while order changes retain edits", () => {
+  const grid = new M.Grid();
+  for (const size of [5, 6, 4]) {
+    grid.setSize(size);
+    assert.equal(grid.points.length, size * size); assert.equal(grid.selected, 0);
+    assert.deepEqual(grid.points, M.squareGrid(size));
+    grid.setOrder(size); grid.select(size * size - 1); grid.edit("z", 3.5);
+    assert.equal(M.label(grid.selected, size), `P${size - 1}${size - 1}`);
+    const snapshot = structuredClone(grid.points);
+    grid.setOrder(2); grid.setMode("open");
+    assert.deepEqual(grid.points, snapshot); assert.equal(grid.selected, size * size - 1);
+    grid.setOrder(size);
+  }
+  assert.equal(grid.order, 4);
+  assert.throws(() => grid.setSize(3)); assert.throws(() => grid.setOrder(5));
+  assert.throws(() => grid.setOrder(1)); assert.throws(() => grid.setOrder(2.5));
 });
