@@ -8,6 +8,7 @@
   <title>CAD · B-Splines</title>
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
+  <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -24,7 +25,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
 </head>
-<body class="notes-page">
+<body class="notes-page theory-page">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="page-header">
     <nav class="top-nav" aria-label="Main navigation">
@@ -794,7 +795,9 @@ B_4(x)&amp;=\frac{x(-2x^2+6x-3)+(4-x)(x-1)^2}{6}\\
 &amp;=\frac{-3x^3+12x^2-12x+4}{6}.
 \end{aligned}
 \]</div>
-<p>On \([2,3)\), the numerator becomes \(x(3-x)^2+(4-x)(-2x^2+10x-11)\), which expands to \(3x^3-24x^2+60x-44\). On \([3,4)\), only the second term remains, giving \((4-x)^3/6\). Hence,</p>
+<p>On \([2,3)\), the numerator becomes</p>
+<div class="math-display">\[x(3-x)^2+(4-x)(-2x^2+10x-11),\]</div>
+<p>which expands to \(3x^3-24x^2+60x-44\). On \([3,4)\), only the second term remains, giving \((4-x)^3/6\). Hence,</p>
 <div class="math-display">\[
 \boxed{B_4(x)=\frac16\begin{cases}
 x^3,&amp;0\le x&lt;1,\\
@@ -844,7 +847,9 @@ N_{4,j}(u)&amp;=b_3(t)=\frac{t^3}{6}.
 \boxed{B_m(x)=\frac{1}{(m-1)!}
 \sum_{\ell=0}^{m}(-1)^\ell\binom{m}{\ell}(x-\ell)_+^{m-1},\qquad m\ge2.}
 \]</div>
-<p>To prove it by induction, start with \(B_2(x)=x_+-2(x-1)_++(x-2)_+\), which reproduces the linear pieces. For \(m\ge3\), assume the formula at order \(m-1\), substitute it into the recurrence, and shift the second sum’s index. This gives</p>
+<p>To prove it by induction, start with</p>
+<div class="math-display">\[B_2(x)=x_+-2(x-1)_++(x-2)_+,\]</div>
+<p>which reproduces the linear pieces. For \(m\ge3\), assume the formula at order \(m-1\), substitute it into the recurrence, and shift the second sum’s index. This gives</p>
 <div class="math-display">\[
 \begin{aligned}
 B_m(x)=\frac{1}{(m-1)!}\sum_{\ell=0}^{m}(-1)^\ell

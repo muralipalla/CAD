@@ -14,6 +14,12 @@ const dofWeights = {
   height: 1,
 };
 
+// Match one rem on screen even when the fixed-coordinate drawing is resized.
+function labelSize() {
+  const displayedWidth = canvas.getBoundingClientRect().width || canvas.width;
+  return parseFloat(getComputedStyle(document.documentElement).fontSize) * canvas.width / displayedWidth;
+}
+
 function roundedRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
   ctx.roundRect(x, y, width, height, radius);
@@ -45,7 +51,8 @@ function dimension(ctx, x1, y1, x2, y2, label, vertical = false) {
   ctx.strokeStyle = "#ffb29e";
   ctx.fillStyle = "#ffcfbf";
   ctx.lineWidth = 2;
-  ctx.font = "700 16px system-ui, sans-serif";
+  const fontSize = labelSize();
+  ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.beginPath();
@@ -54,12 +61,12 @@ function dimension(ctx, x1, y1, x2, y2, label, vertical = false) {
   ctx.stroke();
   if (vertical) {
     ctx.save();
-    ctx.translate(x1 - 18, (y1 + y2) / 2);
+    ctx.translate(x1 - fontSize * .9, (y1 + y2) / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.fillText(label, 0, 0);
     ctx.restore();
   } else {
-    ctx.fillText(label, (x1 + x2) / 2, y1 - 15);
+    ctx.fillText(label, (x1 + x2) / 2, y1 - fontSize * .9);
   }
   ctx.restore();
 }
@@ -89,7 +96,8 @@ function drawSketch() {
   context.stroke();
 
   context.fillStyle = "rgba(255,255,255,0.7)";
-  context.font = "700 13px system-ui, sans-serif";
+  const fontSize = labelSize();
+  context.font = `700 ${fontSize}px system-ui, sans-serif`;
   context.fillText("X", width - 53, height - 74);
   context.fillText("Y", 102, 46);
 
@@ -116,8 +124,11 @@ function drawSketch() {
 
   if (active.origin) {
     context.fillStyle = "#ffb29e";
-    context.font = "800 14px system-ui, sans-serif";
-    context.fillText("origin fixed", x - 80, y + plateHeight + 4);
+    context.font = `800 ${fontSize}px system-ui, sans-serif`;
+    context.save();
+    context.textAlign = "center";
+    context.fillText("origin fixed", x + plateWidth / 2, y + plateHeight + fontSize * 2);
+    context.restore();
     context.beginPath();
     context.arc(x, y + plateHeight, 12, 0, Math.PI * 2);
     context.strokeStyle = "#ffb29e";
@@ -141,8 +152,8 @@ function drawSketch() {
 
   if (active.orientation) {
     context.fillStyle = "#ffcfbf";
-    context.font = "800 15px system-ui, sans-serif";
-    context.fillText("H", x + plateWidth / 2 - 6, y + plateHeight + 30);
+    context.font = `800 ${fontSize}px system-ui, sans-serif`;
+    context.fillText("H", x + plateWidth / 2 - fontSize * .35, y + plateHeight + fontSize);
     context.fillText("V", x + plateWidth + 22, y + plateHeight / 2 + 5);
   } else {
     context.save();
@@ -183,3 +194,8 @@ resetButton?.addEventListener("click", () => {
 });
 
 update();
+if (canvas) {
+  const observer = new ResizeObserver(drawSketch);
+  observer.observe(canvas);
+  window.addEventListener("pagehide", (event) => { if (!event.persisted) observer.disconnect(); });
+}

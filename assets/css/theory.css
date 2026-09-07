@@ -1,0 +1,105 @@
+/* Theory-only reading scale, based on the GOV.UK 19px/16px type scale.
+   Keep rem units so browser font preferences and zoom continue to work. */
+body.theory-page {
+  --muted: #625d82;
+  font-size: 1.1875rem;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+
+.theory-page :is(button, input, select, textarea) {
+  font: inherit;
+}
+
+.theory-page :is(.nav-links a, .breadcrumb, .eyebrow, .section-kicker,
+  .card-kicker, .status-chip, .meta-list li, .site-footer,
+  .notes-toc > p, .notes-toc a, .notes-toc .toc-subsection a,
+  .notes-box-title, .notes-figure figcaption, .notes-nav-link span,
+  .notes-table-wrap table, .check-control small,
+  .check-control .constraint-value, .status-panel span,
+  .canvas-caption, .field span, .code-toolbar, .copy-button) {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.theory-page :is(.page-lead, .activity-lead, .notes-preface p,
+  .notes-author, .concept-list span) {
+  font-size: 1.1875rem;
+}
+
+.theory-page :is(.eyebrow, .section-kicker, .card-kicker,
+  .notes-toc > p, .notes-box-title, .status-chip) {
+  letter-spacing: .08em;
+}
+
+.theory-page :is(.page-hero h1, .activity-intro h1) {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -.035em;
+}
+
+.theory-page :is(.section-heading h2, .notes-article > h2,
+  .notes-box-body h2, .content-panel h2, .activity-card h2, .callout h2) {
+  font-size: clamp(1.6875rem, 3vw, 2.25rem);
+  line-height: 1.25;
+  letter-spacing: -.025em;
+}
+
+.theory-page :is(.module-card h3, .notes-article > h3,
+  .notes-box-body h3, .content-panel h3, .activity-card h3) {
+  font-size: clamp(1.3125rem, 2vw, 1.5rem);
+  line-height: 1.35;
+}
+
+.theory-page .notes-article :is(p:not(.notes-box-title), ul, ol) {
+  max-width: 70ch;
+}
+
+.theory-page .notes-article code:not(pre code) {
+  font-size: max(1rem, .9em);
+  line-height: 1.65;
+}
+
+/* Preserve screen-reader MathML without letting its hidden box widen the page. */
+.theory-page mjx-assistive-mml {
+  width: 1px !important;
+  height: 1px !important;
+}
+
+.theory-page :is(.notes-code, .code-panel pre) {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.theory-page .notes-nav-link strong {
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+.theory-page .notes-toc a {
+  padding-block: .5rem;
+}
+
+.theory-page .canvas-caption {
+  position: static;
+  margin: .75rem;
+}
+
+.theory-page .status-badge {
+  display: grid;
+}
+
+.theory-page :is(.module-card, .notes-toc, .notes-box-body, .check-control > span) {
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .theory-page .notes-figure {
+    width: 100%;
+  }
+
+  .theory-page .notes-article {
+    padding: 1rem;
+  }
+}
