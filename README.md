@@ -6,14 +6,14 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 - **Theory** — course notes on geometric transformations, curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
-- **Self Assessment Quizzes** — a placeholder for questions that will be added separately.
+- **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
 - five teaching modules converted from the course LaTeX source;
 - six interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
-- a self-assessment placeholder ready for future questions.
+- a comprehensive geometry and curves self-assessment quiz.
 
 ## Run locally
 

@@ -1,0 +1,74 @@
+/* Scoped to the new quiz; existing theory and laboratory typography is unchanged. */
+body.geometry-quiz { font-size: 1.125rem; line-height: 1.65; overflow-wrap: break-word; }
+.geometry-quiz :is(button, select) { font: inherit; }
+.geometry-quiz .quiz-shell { width: min(calc(100% - 2rem), 74rem); margin: 2rem auto 4rem; }
+.quiz-intro { max-width: 58rem; padding: 1rem 0 1.5rem; }
+.quiz-intro h1 { margin: .4rem 0 1rem; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.12; letter-spacing: -.035em; }
+.quiz-intro > p { max-width: 66ch; color: var(--ink-soft); }
+.quiz-meta { display: flex; gap: .5rem; flex-wrap: wrap; }
+.quiz-meta span { padding: .25rem .75rem; background: var(--lavender-light); border-radius: 2rem; font-size: 1rem; }
+.quiz-conventions { padding: 1.25rem 1.5rem; background: var(--blue-light); border: 1px solid var(--line); border-radius: 1rem; margin-bottom: 1rem; }
+.quiz-conventions h2 { margin: 0; font-size: 1.25rem; }
+.quiz-conventions ul { margin-bottom: 0; padding-left: 1.4rem; }
+.quiz-conventions li + li { margin-top: .4rem; }
+.quiz-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1.25rem 0 .4rem; }
+.quiz-actions[hidden] { display: none; }
+.quiz-actions .button { padding: .65rem 1rem; font-size: 1rem; cursor: pointer; }
+.quiz-status { color: var(--ink-soft); font-size: 1rem; min-height: 1.5em; }
+.quiz-columns { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 2rem; align-items: start; }
+.quiz-topics { position: sticky; top: 1rem; border-left: 2px solid var(--line-strong); padding-left: 1rem; }
+.quiz-topics p { margin-top: 0; font-weight: 700; }
+.quiz-topics ol { list-style: none; padding: 0; margin: 0; }
+.quiz-topics li + li { margin-top: .45rem; }
+.quiz-topics a { display: block; padding: .35rem 0; font-size: 1rem; text-decoration-thickness: 1px; text-underline-offset: .2em; }
+.quiz-content, .question-body, .solution-body { min-width: 0; }
+.topic-heading { margin: 2.5rem 0 1.25rem; scroll-margin-top: 1rem; }
+.topic-heading:first-child { margin-top: 0; }
+.topic-heading h2 { margin: .3rem 0; font-size: clamp(1.65rem, 3vw, 2.15rem); line-height: 1.2; }
+.topic-heading p { margin: .35rem 0; color: var(--ink-soft); }
+.problem { margin-bottom: 1.25rem; border: 1px solid var(--line); border-radius: 1.25rem; padding: clamp(1rem, 2.5vw, 1.8rem); background: var(--paper); box-shadow: var(--shadow-small); scroll-margin-top: 1rem; }
+.problem-heading { display: flex; align-items: baseline; gap: .75rem; }
+.question-number { color: var(--coral); font-size: 1rem; font-weight: 800; }
+.problem h3 { margin: 0; font-size: 1.3rem; line-height: 1.4; }
+.question-body > p, .solution-body > p { max-width: 68ch; }
+.geometry-quiz .math-display { overflow-x: auto; padding: .25rem 0; max-width: 100%; }
+.geometry-quiz mjx-container[display="true"] { margin: .65rem 0 !important; }
+.geometry-quiz mjx-assistive-mml { width: 1px !important; height: 1px !important; }
+.solution { border-top: 1px solid var(--line); margin-top: 1.25rem; padding-top: .25rem; }
+.solution summary { padding: .8rem 0 .4rem; color: var(--green); font-weight: 700; cursor: pointer; }
+.solution summary:focus-visible, .table-scroll:focus-visible { outline: 3px solid var(--coral); outline-offset: 4px; }
+.solution-body { padding-top: .2rem; }
+.solution-body > :last-child { margin-bottom: .25rem; }
+.table-scroll { max-width: 100%; overflow-x: auto; }
+.table-scroll table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+.table-scroll caption { text-align: left; font-weight: 700; padding: .6rem 0; }
+.table-scroll :is(th,td) { padding: .7rem; text-align: left; border: 1px solid var(--line); white-space: nowrap; }
+.table-scroll thead { background: var(--lavender-light); }
+.quiz-reading { margin: 2rem 0; font-size: 1rem; }
+.quiz-reading h2 { font-size: 1.25rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 900px) { .quiz-columns { grid-template-columns: minmax(0,1fr); gap: 1.5rem; } .quiz-topics { position: static; } .quiz-topics ol { display: flex; flex-wrap: wrap; gap: .2rem 1rem; } .quiz-topics li + li { margin: 0; } }
+@media (max-width: 500px) { .geometry-quiz .quiz-shell { width: calc(100% - 1rem); } .quiz-conventions { padding: 1rem; } .problem-heading { gap: .5rem; } .geometry-quiz .nav-links a { font-size: .95rem; } }
+@media print {
+  @page { margin: 16mm; }
+  body.geometry-quiz { background: white; color: black; font-size: 11pt; line-height: 1.45; }
+  body::before, .page-header, .site-footer, .skip-link, .breadcrumb, .quiz-actions, .quiz-status, .quiz-topics, .quiz-reading, .quiz-meta { display: none !important; }
+  .geometry-quiz .quiz-shell { width: 100%; margin: 0; }
+  .quiz-intro { padding: 0; }
+  .quiz-intro h1 { font-size: 24pt; }
+  .quiz-conventions { background: white; padding: .6rem; }
+  .quiz-columns { display: block; }
+  .topic-heading { margin: 1.5rem 0 .7rem; break-after: avoid; }
+  .topic-heading h2 { font-size: 17pt; }
+  .problem { box-shadow: none; border-radius: 0; padding: .7rem; margin-bottom: .8rem; }
+  .problem-heading { break-after: avoid; }
+  .problem h3 { font-size: 13pt; }
+  .question-number, .topic-heading p, .quiz-intro > p { color: black; }
+  .solution { display: none; }
+  body.print-solutions .solution { display: block; }
+  .solution summary { color: black; font-size: 11pt; break-after: avoid; }
+  .math-display { break-inside: avoid; }
+  .table-scroll table { font-size: 9pt; }
+  .table-scroll :is(th,td) { padding: .3rem; }
+  a { text-decoration: none; }
+}
