@@ -31,26 +31,17 @@
     <nav class="notes-toc" aria-label="In this section">
       <p>In this section</p>
       <ol>
-        <li><a href="#sources-and-authorship">Sources and authorship</a></li>
         <li><a href="#main-textbook">Main textbook</a></li>
         <li><a href="#reading-by-module">Reading by module</a></li>
         <li><a href="#transformations-reading">Rotations and projections</a></li>
         <li><a href="#curves-surfaces-reading">Curves and surfaces</a></li>
         <li><a href="#splines-reading">B-splines</a></li>
         <li><a href="#solids-reading">Solid modeling</a></li>
+        <li><a href="#sources-and-authorship">Sources and acknowledgments</a></li>
         <li><a href="#using-references">Using these references</a></li>
       </ol>
     </nav>
     <article class="notes-article">
-      <h2 id="sources-and-authorship">Sources and authorship</h2>
-      <p>These teaching notes were written by Murali Palla in his own words, drawing principally on Anupam Saxena and Birendra Sahay’s <cite>Computer Aided Engineering Design</cite> <a href="#ref-1">[1]</a>, together with additional explanations and derivations.</p>
-      <aside class="source-note" aria-label="Attribution of derivations">
-        <p><strong>Projection derivations:</strong> Murali Palla independently worked out the perspective and orthographic projection derivations presented in the notes. References <a href="#ref-1">[1]</a> and <a href="#ref-2">[2]</a> provide related textbook treatments of transformations and viewing; they are not claimed as the source of those particular derivations or as using exactly the same matrix form.</p>
-        <p><strong>Quaternions:</strong> This topic was developed using online learning resources. The original web sources have not been identified; Lynch and Park <a href="#ref-3">[3]</a> is provided here as a verified supporting reference.</p>
-      </aside>
-      <p><strong>Illustrations:</strong> The B-spline polynomial-pieces figure and the Gauss-map figure were drawn by Murali Palla.</p>
-      <p>Reference <a href="#ref-1">[1]</a> is the main textbook studied by the course author. The winged-edge data-structure explanation was developed after learning from C.-K. Shene’s online notes <a href="#ref-7">[7]</a>. These are acknowledgments of the sources of learning; the notes do not reproduce material verbatim from Saxena and Sahay or Shene.</p>
-      <p>The remaining references are supporting literature, original papers and suggested reading matched to the topics. Their inclusion does not imply that every passage, example or figure in the notes was taken from those works.</p>
       <h2 id="main-textbook">Main textbook</h2>
 <ol class="reference-list" start="1">
 <li id="ref-1">Anupam Saxena and Birendra Sahay. <cite>Computer Aided Engineering Design</cite>. 1st ed. Springer, Dordrecht, 2005. Jointly published with Anamaya, New Delhi.<p><a href="https://doi.org/10.1007/1-4020-3871-2">Publisher record and DOI</a>.</p><p><strong>Main source used for these course notes.</strong> The chapter guide below connects the book to each Theory module.</p></li>
@@ -102,6 +93,16 @@
 <li id="ref-18">OpenSCAD contributors. <cite>OpenSCAD User Manual and Language Reference</cite>. Continuously maintained documentation.<p><a href="https://openscad.org/documentation.html">Official documentation index</a>. Accessed 8 September 2026.</p><p>Use the linked language reference for primitive solids, transformations, union, difference and intersection, and for checking the syntax of the OpenSCAD examples.</p></li>
 </ol>
 
+      <h2 id="sources-and-authorship">Sources and acknowledgments</h2>
+      <p>These teaching notes were written by Murali Palla in his own words, drawing principally on Anupam Saxena and Birendra Sahay’s <cite>Computer Aided Engineering Design</cite> <a href="#ref-1">[1]</a>, together with additional explanations and derivations.</p>
+      <aside class="source-note" aria-label="Attribution of derivations">
+        <p><strong>Projection derivations:</strong> Murali Palla independently worked out the perspective and orthographic projection derivations presented in the notes. References <a href="#ref-1">[1]</a> and <a href="#ref-2">[2]</a> provide related textbook treatments of transformations and viewing; they are not claimed as the source of those particular derivations or as using exactly the same matrix form.</p>
+        <p><strong>Quaternions:</strong> This topic was developed using online learning resources. The original web sources have not been identified; Lynch and Park <a href="#ref-3">[3]</a> is provided here as a verified supporting reference.</p>
+      </aside>
+      <p><strong>Illustrations:</strong> The B-spline polynomial-pieces figure and the Gauss-map figure were drawn by Murali Palla.</p>
+      <p>Reference <a href="#ref-1">[1]</a> is the main textbook studied by the course author. The winged-edge data-structure explanation was developed after learning from C.-K. Shene’s online notes <a href="#ref-7">[7]</a>. These are acknowledgments of the sources of learning; the notes do not reproduce material verbatim from Saxena and Sahay or Shene.</p>
+      <p>The remaining references are supporting literature, original papers and suggested reading matched to the topics. Their inclusion does not imply that every passage, example or figure in the notes was taken from those works.</p>
+      <p><strong>Website preparation:</strong> <a href="https://chatgpt.com/">ChatGPT</a> (OpenAI) and <a href="https://gemini.google.com/">Google Gemini</a> were used to assist with converting LaTeX notes to HTML, translating MATLAB code into JavaScript, and creating CSS stylesheets.</p>
       <h2 id="using-references">Using these references</h2>
       <ul>
         <li><strong>Keep the notes’ conventions:</strong> Rotation order, row versus column vectors, spline order versus degree, and surface-normal orientation can differ across books. Compare definitions before substituting a formula. For example, the Euler-angle extraction in these notes uses an <i>x–y–z</i> matrix product, while the example in Lynch and Park’s Appendix B uses <i>z–y–x</i>.</li>

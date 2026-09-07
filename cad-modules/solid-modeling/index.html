@@ -79,7 +79,6 @@
 <li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
-      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
 
       <p>Solid modeling is the branch of CAD concerned with the representation, construction, manipulation and analysis of three-dimensional solid objects. A solid model is not merely a visual drawing of an object. It is a mathematically meaningful representation that can answer geometric and topological questions such as volume, surface area, inside–outside classification, intersection, adjacency, mass properties and manufacturability.</p>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A solid model must represent a closed, bounded and physically meaningful three-dimensional object. It should be possible to distinguish the interior, boundary and exterior of the object.</p></div></aside>
@@ -220,7 +219,7 @@ g=1.
 <h3 id="limitations-of-b-rep">Limitations of B-Rep</h3>
 <ol class="roman-list"><li><p>Boolean operations are algorithmically difficult.</p></li><li><p>Topological consistency must be carefully maintained.</p></li><li><p>Small numerical errors can create gaps, sliver faces or non-manifold edges.</p></li></ol>
 <h2 id="winged-edge-data-structure">Winged-Edge Data Structure</h2>
-<p class="topic-citation"><strong>Learning source:</strong> This explanation was written in Murali Palla’s own words after studying Shene’s “The Winged-Edge Data Structure” <a href="../references/index.html#ref-7">[7]</a>. For the original representation, see Baumgart <a href="../references/index.html#ref-16">[16]</a>, Section II.</p>
+<p class="topic-citation"><strong>Learning source:</strong> Shene’s “The Winged-Edge Data Structure” <a href="../references/index.html#ref-7">[7]</a>. For the original representation, see Baumgart <a href="../references/index.html#ref-16">[16]</a>, Section II.</p>
 <p>The winged-edge data structure is a classical data structure for representing polyhedral boundary models.</p>
 <p>Each edge stores references to:</p>
 <ol class="roman-list"><li><p>its two endpoint vertices,</p></li><li><p>its two adjacent faces,</p></li><li><p>the previous and next edges around each adjacent face.</p></li></ol>
@@ -447,7 +446,7 @@ h_{30}\leftrightarrow h_{03}.
 <h2 id="references-and-further-reading">References and Further Reading</h2>
 <p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
 <ul class="reference-section-links">
-<li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8. Learning source for winged-edge data structures: Shene <a href="../references/index.html#ref-7">[7]</a>. The explanations are written in the course author’s own words.</li>
+<li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8. Learning source for winged-edge data structures: Shene <a href="../references/index.html#ref-7">[7]</a>.</li>
 <li>Further reading on solid representations and topology: Mäntylä <a href="../references/index.html#ref-14">[14]</a> and Requicha <a href="../references/index.html#ref-15">[15]</a>. Original winged-edge representation and Euler primitives: Baumgart <a href="../references/index.html#ref-16">[16]</a>.</li>
 <li>Halfedge implementations and mesh operations: CGAL <a href="../references/index.html#ref-17">[17]</a>. OpenSCAD language and modeling examples: official documentation <a href="../references/index.html#ref-18">[18]</a>.</li>
 </ul>

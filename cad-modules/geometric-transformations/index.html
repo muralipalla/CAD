@@ -77,7 +77,6 @@
 <li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
-      <aside class="source-note" aria-label="Sources for this module"><p>Written in Murali Palla’s own words, these course notes draw principally on Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2, with additional explanations and derivations. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> and <a href="#references-and-further-reading">module reading guide</a>.</p></aside>
 
       <aside class="notes-preface"><p>These notes give a compact but systematic introduction to important mathematical ideas used in Computer-Aided Design, CAD. The emphasis is on geometric representation, transformation, curves, B-splines and surfaces.</p></aside>
 <p>Geometric transformations are mathematical operations that modify the position, orientation, size or shape of geometric objects. In CAD, transformations are used to move parts, rotate models, scale drawings, assemble components, project three-dimensional objects onto a drawing plane, and convert between coordinate systems.</p>
@@ -634,7 +633,7 @@ R=R_x(\theta)R_y(\phi)R_z(\psi),
 \]</div>
 <p>and the Euler-angle representation becomes singular. This situation is commonly known as gimbal lock.</p></div></aside>
 <h2 id="quaternions">Quaternions</h2>
-<p class="topic-citation">Supporting reference: Lynch and Park <a href="../references/index.html#ref-3">[3]</a>, Appendix B.3, for unit quaternions and rotations. The original online sources used while preparing this part of the notes have not been identified.</p>
+<p class="topic-citation">Supporting reference: Lynch and Park <a href="../references/index.html#ref-3">[3]</a>, Appendix B.3, for unit quaternions and rotations.</p>
 <p>Quaternions provide a compact and elegant way of representing rotations in three dimensions. They may be viewed as an extension of complex numbers. A complex number has one real component and one imaginary component, whereas a quaternion has one real component and three imaginary components.</p>
 <p>A quaternion is written as</p>
 <div class="math-display">\[
@@ -1171,7 +1170,7 @@ q=
 <ol class="roman-list"><li><p>They avoid gimbal lock.</p></li><li><p>They provide a compact representation of rotation using four numbers.</p></li><li><p>They are numerically stable for repeated rotations.</p></li><li><p>They allow smooth interpolation between orientations.</p></li><li><p>They are more efficient than rotation matrices for some computational tasks.</p></li></ol>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler angles are intuitive, rotation matrices are directly applicable to coordinates, and quaternions are compact and robust for representing orientations. In practical CAD and graphics applications, all three representations are useful.</p></div></aside>
 <h2 id="projections">Projections</h2>
-<p class="topic-citation"><strong>Derivation credit:</strong> The perspective and orthographic projection derivations below were independently worked out by Murali Palla. For related textbook treatments of projection and viewing, see Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2, and Marschner and Shirley <a href="../references/index.html#ref-2">[2]</a>, Chapter 8; these are background references, not sources claimed for the exact matrix forms used here.</p>
+<p class="topic-citation">For related textbook treatments of projection and viewing, see Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 2, and Marschner and Shirley <a href="../references/index.html#ref-2">[2]</a>, Chapter 8. See the <a href="../references/index.html#sources-and-authorship">source acknowledgments</a> for the derivation credit.</p>
 <p>Projection converts a three-dimensional object into a two-dimensional representation. It is central to engineering drawing, computer graphics and visualization.</p>
 <p>The two main types are:</p>
 <ol class="roman-list"><li><p>perspective projection,</p></li><li><p>orthographic projection.</p></li></ol>
