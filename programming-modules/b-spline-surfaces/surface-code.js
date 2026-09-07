@@ -5,11 +5,13 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
   const number = (x) => Number(x.toFixed(2)).toString();
-  function python(points) {
+  function python(points, mode = "clamped") {
+    const clamped = mode === "clamped";
+    const title = clamped ? "Clamped" : "Open (unclamped)";
     const rows = points.map((p, index) => `    [${[p.x, p.y, p.z].map(number).join(", ")}],  # P${index % 4}${Math.floor(index / 4)}`).join("\n");
-    return `# Bicubic uniform B-spline surface. Requires numpy and matplotlib.
+    return `# ${title} bicubic B-spline surface. Requires numpy and matplotlib.
 # Input order: P00, P10, P20, P30, P01, ..., P33.
-# U = V = [-3, -2, -1, 0, 1, 2, 3, 4]; degree 3, order 4.
+# U = V = ${clamped ? "[0, 0, 0, 0, 1, 1, 1, 1]" : "[-3, -2, -1, 0, 1, 2, 3, 4]"}; degree 3, order 4.
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,12 +19,11 @@ points = np.array([
 ${rows}
 ], dtype=float)
 if points.shape != (16, 3):
-    raise ValueError("Place all 16 control points before running this program.")
+    raise ValueError("The control net must contain 16 three-dimensional points.")
 P = points.reshape(4, 4, 3)  # P[j, i] stores the point labelled P_ij.
 
 def basis(t):
-    return np.array([(1-t)**3, 3*t**3-6*t**2+4,
-                     -3*t**3+3*t**2+3*t+1, t**3]) / 6
+    return np.array(${clamped ? "[(1-t)**3, 3*t*(1-t)**2, 3*t**2*(1-t), t**3]" : "[(1-t)**3, 3*t**3-6*t**2+4,\n                     -3*t**3+3*t**2+3*t+1, t**3]"})${clamped ? "" : " / 6"}
 
 parameters = np.linspace(0, 1, 41)
 S = np.zeros((41, 41, 3))
@@ -44,25 +45,26 @@ ax.scatter(points[:, 0], points[:, 1], points[:, 2], color="tomato")
 for j in range(4):
     for i in range(4):
         ax.text(*P[j, i], f"P{i}{j}")
-ax.set(xlabel="x", ylabel="y", zlabel="z", title="Uniform bicubic B-spline surface")
+ax.set(xlabel="x", ylabel="y", zlabel="z", title="${title} bicubic B-spline surface")
 ax.set_xlim(0, 10); ax.set_ylim(0, 10); ax.set_zlim(-5, 5)
 ax.set_box_aspect((1, 1, 1))
 plt.show()
 `;
   }
-  function matlab(points) {
+  function matlab(points, mode = "clamped") {
+    const clamped = mode === "clamped";
+    const title = clamped ? "Clamped" : "Open (unclamped)";
     const rows = points.map((p, index) => `    ${[p.x, p.y, p.z].map(number).join(" ")}; % P${index % 4}${Math.floor(index / 4)}`).join("\n");
-    return `% Bicubic uniform B-spline surface; no spline toolbox required.
+    return `% ${title} bicubic B-spline surface; no spline toolbox required.
 % Input order: P00, P10, P20, P30, P01, ..., P33.
-% U = V = [-3 -2 -1 0 1 2 3 4]; degree 3, order 4.
+% U = V = ${clamped ? "[0 0 0 0 1 1 1 1]" : "[-3 -2 -1 0 1 2 3 4]"}; degree 3, order 4.
 points = [
 ${rows}
 ];
-assert(isequal(size(points), [16 3]), 'Place all 16 control points first.');
+assert(isequal(size(points), [16 3]), 'The control net must contain 16 points.');
 % P(i+1,j+1,:) stores the point labelled P_ij.
 P = reshape(points, [4 4 3]);
-basis = @(t) [(1-t)^3, 3*t^3-6*t^2+4, ...
-               -3*t^3+3*t^2+3*t+1, t^3] / 6;
+basis = @(t) ${clamped ? "[(1-t)^3, 3*t*(1-t)^2, 3*t^2*(1-t), t^3]" : "[(1-t)^3, 3*t^3-6*t^2+4, ...\n               -3*t^3+3*t^2+3*t+1, t^3] / 6"};
 parameters = linspace(0,1,41);
 S = zeros(41,41,3);
 for q = 1:41
@@ -94,7 +96,7 @@ for j = 0:3
     end
 end
 xlabel('x'); ylabel('y'); zlabel('z');
-title('Uniform bicubic B-spline surface');
+title('${title} bicubic B-spline surface');
 axis equal; xlim([0 10]); ylim([0 10]); zlim([-5 5]);
 grid on; view(3); rotate3d on;
 `;

@@ -10,28 +10,42 @@ const plane = () => Array.from({ length: 16 }, (_, index) => {
 
 test("uniform cubic basis matches Cox-de Boor on its active span including endpoints", () => {
   function cox(i, order, t) {
-    if (order === 1) return Number(M.KNOTS[i] <= t && t < M.KNOTS[i + 1]);
-    const knots = M.KNOTS;
+    if (order === 1) return Number(M.KNOTS.open[i] <= t && t < M.KNOTS.open[i + 1]);
+    const knots = M.KNOTS.open;
     return (t - knots[i]) / (knots[i + order - 1] - knots[i]) * cox(i, order - 1, t)
       + (knots[i + order] - t) / (knots[i + order] - knots[i + 1]) * cox(i + 1, order - 1, t);
   }
   for (let s = 0; s <= 20; s += 1) {
-    const t = s / 20, b = M.basis(t);
+    const t = s / 20, b = M.basis(t, "open");
     near(b.reduce((a, v) => a + v, 0), 1);
     for (let i = 0; i < 4; i += 1) { assert.ok(b[i] >= 0); near(b[i], cox(i, 4, t)); }
   }
-  assert.deepEqual(M.basis(0), [1 / 6, 4 / 6, 1 / 6, 0]);
-  assert.deepEqual(M.basis(1), [0, 1 / 6, 4 / 6, 1 / 6]);
+  assert.deepEqual(M.basis(0, "open"), [1 / 6, 4 / 6, 1 / 6, 0]);
+  assert.deepEqual(M.basis(1, "open"), [0, 1 / 6, 4 / 6, 1 / 6]);
 });
 
-test("tensor product preserves the requested i-first order and reproduces affine planes", () => {
-  for (const u of [0, .13, .5, 1]) for (const v of [0, .28, .75, 1]) {
-    const p = M.evaluate(plane(), u, v);
-    near(p.x, 1 + u); near(p.y, 1 + v); near(p.z, 3 + u + 2 * v);
+test("clamped basis partitions unity and interpolates the four corner controls", () => {
+  assert.deepEqual(M.basis(0), [1, 0, 0, 0]);
+  assert.deepEqual(M.basis(1), [0, 0, 0, 1]);
+  for (let s = 0; s <= 20; s += 1) {
+    const b = M.basis(s / 20);
+    assert.ok(b.every((v) => v >= 0)); near(b.reduce((a, v) => a + v), 1);
   }
-  const points = plane(), before = M.evaluate(points, .37, .62);
-  points[4 * 2 + 1].z += 3; // P12
-  near(M.evaluate(points, .37, .62).z - before.z, 3 * M.basis(.37)[1] * M.basis(.62)[2]);
+  const points = plane();
+  for (const [u, v, index] of [[0, 0, 0], [1, 0, 3], [0, 1, 12], [1, 1, 15]]) assert.deepEqual(M.evaluate(points, u, v), points[index]);
+});
+
+test("both tensor products preserve i-first order and reproduce affine planes", () => {
+  for (const mode of ["open", "clamped"]) {
+    for (const u of [0, .13, .5, 1]) for (const v of [0, .28, .75, 1]) {
+      const p = M.evaluate(plane(), u, v, mode);
+      if (mode === "open") { near(p.x, 1 + u); near(p.y, 1 + v); near(p.z, 3 + u + 2 * v); }
+      else { near(p.x, 3 * u); near(p.y, 3 * v); near(p.z, 3 * u + 6 * v); }
+    }
+    const points = plane(), before = M.evaluate(points, .37, .62, mode);
+    points[4 * 2 + 1].z += 3; // P12
+    near(M.evaluate(points, .37, .62, mode).z - before.z, 3 * M.basis(.37, mode)[1] * M.basis(.62, mode)[2]);
+  }
 });
 
 test("mesh winding is upward on a planar net and remains finite for coincident controls", () => {
@@ -47,37 +61,35 @@ test("mesh winding is upward on a planar net and remains finite for coincident c
   assert.ok(degenerate.positions.every(Number.isFinite));
 });
 
-test("capture requires height confirmation for each of the 16 specified point labels", () => {
-  const capture = new M.Capture();
+test("editor starts with all 16 points in a flat square grid in the specified order", () => {
+  const grid = new M.Grid();
+  assert.equal(grid.points.length, 16); assert.equal(grid.mode, "clamped");
   const expected = ["P00", "P10", "P20", "P30", "P01", "P11", "P21", "P31", "P02", "P12", "P22", "P32", "P03", "P13", "P23", "P33"];
   for (let index = 0; index < 16; index += 1) {
     assert.equal(M.label(index), expected[index]);
-    assert.equal(capture.place(index % 4, Math.floor(index / 4)), true);
-    assert.equal(capture.confirmed, index);
-    assert.equal(capture.place(9, 9), false);
-    capture.edit("z", index / 4 - 2);
-    assert.equal(capture.points[index].z, index / 4 - 2);
-    assert.equal(capture.confirm(), true);
-    assert.equal(capture.confirmed, index + 1);
+    assert.deepEqual(grid.points[index], { x: 2 + 2 * (index % 4), y: 2 + 2 * Math.floor(index / 4), z: 0 });
+    assert.ok(grid.select(index));
   }
-  assert.equal(capture.place(5, 5), false);
-  assert.equal(capture.confirm(), false);
+  assert.equal(M.evaluate(grid.points, 0, 0, "clamped").x, 2);
+  near(M.evaluate(grid.points, 0, 0, "open").x, 4);
+  assert.equal(M.evaluate(grid.points, 1, 1, "clamped").x, 8);
+  near(M.evaluate(grid.points, 1, 1, "open").x, 6);
 });
 
-test("revisiting, undoing, and resetting do not relabel or corrupt control points", () => {
-  const capture = new M.Capture();
-  for (let i = 0; i < 16; i += 1) { capture.place(1, 2); capture.confirm(); }
-  assert.ok(capture.select(9)); capture.edit("z", 4);
-  assert.equal(capture.points[9].z, 4); assert.equal(capture.points[8].z, 0);
-  capture.undo(); assert.equal(capture.points.length, 15);
-  capture.place(3, 4); capture.edit("z", -2);
-  assert.equal(capture.select(0), false);
-  capture.undo(); assert.equal(capture.points.length, 15);
-  capture.place(2, 4); capture.confirm(); assert.equal(capture.points.length, 16);
-  capture.clear(); assert.equal(capture.confirmed, 0); assert.equal(capture.selected, -1);
-  capture.place(-1, 11); capture.edit("z", 30);
-  assert.deepEqual(capture.points[0], { x: 0, y: 10, z: 5 });
-  assert.throws(() => capture.edit("z", NaN));
+test("selection, edits and mode switching preserve the complete control net", () => {
+  const grid = new M.Grid();
+  grid.select(9); grid.edit("z", 4); grid.edit("x", 3.7);
+  assert.equal(grid.points[9].z, 4); assert.equal(grid.points[8].z, 0);
+  const edited = structuredClone(grid.points);
+  grid.setMode("open"); assert.deepEqual(grid.points, edited); assert.equal(grid.selected, 9);
+  grid.setMode("clamped"); assert.deepEqual(grid.points, edited); assert.equal(grid.selected, 9);
+  assert.throws(() => grid.setMode("invalid")); assert.throws(() => M.basis(.5, "invalid"));
+  grid.setMode("open"); grid.reset();
+  assert.equal(grid.mode, "open"); assert.equal(grid.selected, 0);
+  assert.deepEqual(grid.points, M.squareGrid());
+  grid.edit("x", -1); grid.edit("y", 11); grid.edit("z", 30);
+  assert.deepEqual(grid.points[0], { x: 0, y: 10, z: 5 });
+  assert.throws(() => grid.edit("z", NaN)); assert.equal(grid.select(16), false);
 });
 
 test("control net connects neighbors without a spurious edge between successive rows", () => {
@@ -99,4 +111,14 @@ test("generated programs retain all coordinates in the same order and reject par
   }
   assert.match(Code.python([]), /points.shape != \(16, 3\)/);
   assert.match(Code.matlab([]), /isequal\(size\(points\), \[16 3\]\)/);
+});
+
+test("generated knot vectors and basis formulas follow the selected mode", () => {
+  for (const mode of ["clamped", "open"]) {
+    const py = Code.python(M.squareGrid(), mode), mat = Code.matlab(M.squareGrid(), mode);
+    assert.ok(py.includes(`# U = V = [${M.KNOTS[mode].join(", ")}]`));
+    assert.ok(mat.includes(`% U = V = [${M.KNOTS[mode].join(" ")}]`));
+    assert.ok(py.includes(mode === "clamped" ? "3*t*(1-t)**2" : "3*t**3-6*t**2+4"));
+    assert.ok(mat.includes(mode === "clamped" ? "3*t*(1-t)^2" : "3*t^3-6*t^2+4"));
+  }
 });

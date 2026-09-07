@@ -47,12 +47,14 @@ self-assessment-quizzes/      Quiz hub and assessments
 .github/workflows/pages.yml   GitHub Pages deployment
 ```
 
-The B-spline surface lab at `programming-modules/b-spline-surfaces/` captures 16 points
-in `P00, P10, P20, P30, P01, ..., P33` order. After each x–y placement, set z and
-confirm the point. `surface-three.js` owns its independent Three.js visualization;
-`surface-math.js` evaluates the uniform bicubic patch and manages point capture.
-The knot vectors are `[-3,-2,-1,0,1,2,3,4]` in both directions, with active domain
-`[0,1] × [0,1]`. Run the numerical and capture tests with `node --test tests/*.test.js`.
+The B-spline surface lab at `programming-modules/b-spline-surfaces/` starts with a
+flat 4 × 4 square grid, stored in `P00, P10, P20, P30, P01, ..., P33` order. Select
+a point in either view or the point selector, drag its x–y position, and adjust z
+with the height slider. Clamped mode uses `[0,0,0,0,1,1,1,1]`; Open (unclamped)
+uses `[-3,-2,-1,0,1,2,3,4]`. Both have active domain `[0,1] × [0,1]`, and switching
+preserves the control net. `surface-three.js` owns the independent Three.js view;
+`surface-math.js` evaluates the bicubic patch and manages the editable grid.
+Run the numerical and editing tests with `node --test tests/*.test.js`.
 
 ## Accessibility and compatibility
 

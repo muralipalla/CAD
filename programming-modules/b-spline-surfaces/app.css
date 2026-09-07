@@ -6,25 +6,26 @@
 .surface-lab .mini-button, .surface-lab .language-button, .surface-lab .lab-field > span,
 .surface-lab .toggle-control span, .surface-lab .interaction-hint { font-size: .875rem; }
 .surface-lab button:disabled { opacity: .45; cursor: not-allowed; }
-.point-count { padding: .5rem .8rem; border-radius: 2rem; color: var(--navy); background: var(--lavender-light); font-weight: 800; white-space: nowrap; }
-.capture-prompt { margin: .6rem 0 1rem; padding: .75rem 1rem; border-left: 4px solid var(--coral); background: #fff3e9; color: var(--ink); font-weight: 700; min-height: 4.5rem; }
+.boundary-toolbar { display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: center; padding: 1rem 1.25rem; margin-bottom: 1rem; border: 1px solid var(--line); border-radius: 1rem; background: white; }
+.boundary-toolbar p { margin: .25rem 0; }
+.knot-summary { color: var(--ink-soft); font: .875rem/1.5 ui-monospace, monospace; overflow-wrap: anywhere; }
+.selection-prompt { margin: .6rem 0; color: var(--ink); font-size: .95rem; font-weight: 700; }
 .xy-frame { width: 100%; aspect-ratio: 1; border-radius: 1rem; overflow: hidden; background: #171541; }
-.xy-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
-.coordinate-fields { display: grid; grid-template-columns: 1fr 1fr auto; gap: .65rem; align-items: end; margin: 1rem 0; }
+.xy-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.xy-frame canvas:active { cursor: grabbing; }
+.coordinate-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; align-items: end; margin: .75rem 0; }
 .coordinate-fields .lab-field { min-width: 0; }
-.coordinate-fields button { margin-bottom: .2rem; }
 .height-editor { border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; margin: 1rem 0; background: var(--lavender-light); }
 .height-heading { display: flex; justify-content: space-between; gap: .6rem; align-items: center; font-size: .95rem; font-weight: 800; }
 .height-heading output { font-family: ui-monospace, monospace; color: var(--navy); font-size: 1.2rem; }
 .height-editor input { width: 100%; min-height: 2.5rem; margin: .5rem 0 0; accent-color: #ba4836; }
 .range-labels { display: flex; justify-content: space-between; color: var(--ink-soft); font: .875rem ui-monospace, monospace; }
 .height-editor p { font-size: .875rem; color: var(--ink-soft); }
-.height-editor .button { width: 100%; }
 .view-controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
 .three-frame { position: relative; height: clamp(22rem, 40vw, 37rem); border-radius: 1rem; overflow: hidden; background: #171541; }
 .three-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 .three-frame canvas:active { cursor: grabbing; }
-.three-empty, .three-fallback { position: absolute; inset: auto 1rem 1rem; margin: 0; padding: .8rem; border-radius: .65rem; background: #171541e8; color: #f5f3ff; font-size: .9rem; text-align: center; pointer-events: none; }
+.three-fallback { position: absolute; inset: auto 1rem 1rem; margin: 0; padding: .8rem; border-radius: .65rem; background: #171541e8; color: #f5f3ff; font-size: .9rem; text-align: center; pointer-events: none; }
 .three-fallback { inset: 30% 1rem auto; }
 .view-footer { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
 .view-footer .lab-actions { flex-wrap: nowrap; }
@@ -32,16 +33,14 @@
 .net-heading { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1.3rem 0 .65rem; }
 .net-heading span { color: var(--muted); font-size: .875rem; }
 .point-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .45rem; }
-.point-cell { display: grid; gap: .25rem; min-width: 0; min-height: 4.5rem; padding: .6rem .3rem; border: 1px dashed var(--line-strong); border-top: 3px solid var(--point-color); border-radius: .65rem; background: white; color: var(--ink); font: inherit; cursor: pointer; }
+.point-cell { display: grid; gap: .25rem; min-width: 0; min-height: 4.5rem; padding: .6rem .3rem; border: 1px solid var(--line-strong); border-top: 3px solid var(--point-color); border-radius: .65rem; background: white; color: var(--ink); font: inherit; cursor: pointer; }
 .point-cell strong { font: 800 .95rem ui-monospace, monospace; }
 .point-cell span { font: .78rem/1.4 ui-monospace, monospace; white-space: pre-line; }
-.point-cell[data-placed="true"] { border-style: solid; }
 .point-cell[aria-pressed="true"] { outline: 3px solid var(--navy); outline-offset: 1px; background: #f0edff; }
-.point-cell[data-next="true"] { background: #fff3e9; opacity: 1 !important; }
 .surface-code-window { margin-top: 1.5rem; }
 .surface-code-window pre { min-height: 15rem; max-height: 35rem; }
 .surface-explanation { margin-top: 1.5rem; }
 .math-display { overflow-x: auto; padding: .5rem 0; }
 .surface-lab canvas:focus-visible { outline: 3px solid #ffbe69; outline-offset: -5px; }
 @media (max-width: 1000px) { .surface-workspace { grid-template-columns: 1fr; } .xy-frame { max-width: 38rem; margin-inline: auto; } .three-frame { height: 30rem; } }
-@media (max-width: 560px) { .coordinate-fields { grid-template-columns: 1fr 1fr; } .coordinate-fields button { grid-column: 1 / -1; } .three-frame { height: 24rem; } .point-cell span { font-size: .73rem; } .surface-lab .activity-shell { width: calc(100% - 1rem); } }
+@media (max-width: 560px) { .boundary-toolbar .lab-field { width: 100%; } .three-frame { height: 24rem; } .point-cell span { font-size: .73rem; } .surface-lab .activity-shell { width: calc(100% - 1rem); } }

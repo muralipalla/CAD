@@ -5,7 +5,10 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
   const COUNT = 16;
-  const KNOTS = Object.freeze([-3, -2, -1, 0, 1, 2, 3, 4]);
+  const KNOTS = Object.freeze({
+    open: Object.freeze([-3, -2, -1, 0, 1, 2, 3, 4]),
+    clamped: Object.freeze([0, 0, 0, 0, 1, 1, 1, 1])
+  });
   const LIMITS = Object.freeze({ x: [0, 10], y: [0, 10], z: [-5, 5] });
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const label = (index) => `P${index % 4}${Math.floor(index / 4)}`;
@@ -13,14 +16,16 @@
     if (!Number.isFinite(value)) throw new RangeError("Coordinates must be finite numbers.");
     return Math.round(clamp(value, ...LIMITS[axis]) * 100) / 100;
   }
-  function basis(t) {
+  function basis(t, mode = "clamped") {
     if (!Number.isFinite(t) || t < 0 || t > 1) throw new RangeError("Parameters must lie in [0, 1].");
+    if (!Object.hasOwn(KNOTS, mode)) throw new RangeError("Unknown boundary mode.");
+    if (mode === "clamped") return [(1 - t) ** 3, 3 * t * (1 - t) ** 2, 3 * t * t * (1 - t), t ** 3];
     return [(1 - t) ** 3 / 6, (3 * t ** 3 - 6 * t * t + 4) / 6,
       (-3 * t ** 3 + 3 * t * t + 3 * t + 1) / 6, t ** 3 / 6];
   }
-  function evaluate(points, u, v) {
+  function evaluate(points, u, v, mode = "clamped") {
     if (points.length !== COUNT) throw new RangeError("A bicubic patch needs 16 control points.");
-    const bu = basis(u), bv = basis(v);
+    const bu = basis(u, mode), bv = basis(v, mode);
     const result = { x: 0, y: 0, z: 0 };
     for (let j = 0; j < 4; j += 1) {
       for (let i = 0; i < 4; i += 1) {
@@ -33,12 +38,12 @@
     }
     return result;
   }
-  function sample(points, divisions = 40) {
+  function sample(points, divisions = 40, mode = "clamped") {
     if (!Number.isInteger(divisions) || divisions < 1 || divisions > 120) throw new RangeError("Invalid mesh resolution.");
     const positions = [], indices = [];
     for (let j = 0; j <= divisions; j += 1) {
       for (let i = 0; i <= divisions; i += 1) {
-        const p = evaluate(points, i / divisions, j / divisions);
+        const p = evaluate(points, i / divisions, j / divisions, mode);
         positions.push(p.x, p.y, p.z);
         if (j < divisions && i < divisions) {
           const a = j * (divisions + 1) + i, b = a + 1, c = a + divisions + 1;
@@ -56,41 +61,26 @@
     }
     return edges;
   }
-  class Capture {
-    constructor() { this.clear(); }
-    clear() { this.points = []; this.selected = -1; this.pending = false; }
-    place(x, y) {
-      if (this.pending || this.points.length === COUNT) return false;
-      this.points.push({ x: coordinate("x", x), y: coordinate("y", y), z: 0 });
-      this.selected = this.points.length - 1;
-      this.pending = true;
-      return true;
-    }
-    confirm() {
-      if (!this.pending) return false;
-      this.pending = false;
-      this.selected = this.points.length === COUNT ? COUNT - 1 : -1;
-      return true;
+  function squareGrid() {
+    return Array.from({ length: COUNT }, (_, index) => ({ x: 2 + 2 * (index % 4), y: 2 + 2 * Math.floor(index / 4), z: 0 }));
+  }
+  class Grid {
+    constructor() { this.mode = "clamped"; this.reset(); }
+    reset() { this.points = squareGrid(); this.selected = 0; }
+    setMode(mode) {
+      if (!Object.hasOwn(KNOTS, mode)) throw new RangeError("Unknown boundary mode.");
+      this.mode = mode;
     }
     select(index) {
       if (!Number.isInteger(index) || index < 0 || index >= this.points.length) return false;
-      if (this.pending && index !== this.points.length - 1) return false;
       this.selected = index;
       return true;
     }
     edit(axis, value) {
-      if (!(axis in LIMITS) || this.selected < 0) return false;
+      if (!Object.hasOwn(LIMITS, axis) || this.selected < 0) return false;
       this.points[this.selected][axis] = coordinate(axis, value);
       return true;
     }
-    undo() {
-      if (!this.points.length) return false;
-      this.points.pop();
-      this.pending = false;
-      this.selected = -1;
-      return true;
-    }
-    get confirmed() { return this.points.length - Number(this.pending); }
   }
-  return { COUNT, KNOTS, LIMITS, clamp, label, basis, evaluate, sample, netEdges, Capture };
+  return { COUNT, KNOTS, LIMITS, clamp, label, basis, evaluate, sample, netEdges, squareGrid, Grid };
 });

@@ -1,17 +1,17 @@
 (function () {
   "use strict";
   const Math3 = window.SurfaceMath;
-  const state = new Math3.Capture();
+  const state = new Math3.Grid();
   const $ = (name) => document.querySelector(`[data-${name}]`);
   const canvas = $("xy"), ctx = canvas.getContext("2d");
-  const view = new window.SurfaceThree($("three"), $("three-fallback"));
+  const view = new window.SurfaceThree($("three"), $("three-fallback"), (index) => { if (state.select(index)) update(); });
   const colors = ["#ff9986", "#76dcc1", "#b8a7f5", "#ffd166"];
-  let language = "python", cursor = { x: 2, y: 2 }, drag = null, frame = 0;
+  let language = "python", drag = null, frame = 0;
   const cells = Array.from({ length: 16 }, (_, index) => {
     const button = document.createElement("button");
     button.type = "button"; button.className = "point-cell";
     button.style.setProperty("--point-color", colors[Math.floor(index / 4)]);
-    button.innerHTML = `<strong>${Math3.label(index)}</strong><span>Not placed</span>`;
+    button.innerHTML = `<strong>${Math3.label(index)}</strong><span></span>`;
     button.addEventListener("click", () => { if (state.select(index)) update(); });
     $("point-grid").append(button);
     return button;
@@ -65,79 +65,52 @@
       ctx.strokeText(Math3.label(index), p.x + dx, p.y - 10);
       ctx.fillStyle = "#fff"; ctx.fillText(Math3.label(index), p.x + dx, p.y - 10);
     });
-    if (!state.pending && state.selected < 0 && state.points.length < 16) {
-      const p = screen(cursor, bounds);
-      ctx.strokeStyle = "#e2ddfa"; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
-      ctx.beginPath(); ctx.moveTo(p.x - 10, p.y); ctx.lineTo(p.x + 10, p.y);
-      ctx.moveTo(p.x, p.y - 10); ctx.lineTo(p.x, p.y + 10); ctx.stroke(); ctx.setLineDash([]);
-    }
   }
   function scheduleGraphics() {
     if (frame) return;
     frame = requestAnimationFrame(() => {
       frame = 0; draw();
-      view.update(state.points, state.selected, { net: $("net").checked, labels: $("labels").checked, wireframe: $("wireframe").checked });
+      view.update(state.points, state.selected, { mode: state.mode, net: $("net").checked, labels: $("labels").checked, wireframe: $("wireframe").checked });
     });
   }
   function updateCode() {
-    $("code").textContent = window.SurfaceCode[language](state.points);
+    $("code").textContent = window.SurfaceCode[language](state.points, state.mode);
     $("filename").textContent = language === "python" ? "bspline_surface.py" : "bspline_surface.m";
     document.querySelectorAll("[data-language]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.language === language)));
   }
   function update() {
     const point = state.points[state.selected];
-    $("count").textContent = `${state.confirmed} / 16`;
-    const prompt = state.pending ? `Set z for ${Math3.label(state.selected)}, then confirm ${state.points.length === 16 ? "to finish" : `and place ${Math3.label(state.points.length)}`}.`
-      : state.points.length === 16 ? "All 16 points confirmed. Select a point to edit its coordinates."
-        : point ? `Editing ${Math3.label(state.selected)}. Click empty space to place ${Math3.label(state.points.length)} next.`
-          : `Click ${Math3.label(state.points.length)} on the x–y plane.`;
+    const prompt = `Selected ${Math3.label(state.selected)} · drag to move, or edit its coordinates.`;
     if ($("prompt").textContent !== prompt) $("prompt").textContent = prompt;
-    $("x").value = (point || cursor).x.toFixed(2); $("y").value = (point || cursor).y.toFixed(2);
-    $("z").disabled = !point; $("z").value = point?.z ?? 0;
-    $("height-output").textContent = (point?.z ?? 0).toFixed(2);
-    $("height-label").textContent = point ? `Height z · ${Math3.label(state.selected)}` : "Height z · select or place a point";
-    $("confirm").disabled = !state.pending;
-    $("confirm").textContent = state.points.length === 16 ? "Confirm P33 · finish surface" : state.pending ? `Confirm ${Math3.label(state.selected)} · next point` : "Confirm point";
-    $("place").disabled = state.pending || state.points.length === 16;
-    $("undo").disabled = $("clear").disabled = !state.points.length;
-    $("three-empty").hidden = state.points.length === 16 || !$("three-fallback").hidden;
-    $("surface-message").textContent = state.points.length === 16 ? (state.pending ? "Surface preview ready. Adjust P33’s height and confirm to finish." : "Uniform bicubic patch · 16 control points · u, v ∈ [0, 1].")
-      : `${state.points.length} of 16 points placed. The 3D view shows the available control net.`;
+    $("x").value = point.x.toFixed(2); $("y").value = point.y.toFixed(2);
+    $("z").value = point.z;
+    $("height-output").textContent = point.z.toFixed(2);
+    $("height-label").textContent = `Height z · ${Math3.label(state.selected)}`;
+    $("z").setAttribute("aria-label", `Height z of ${Math3.label(state.selected)}`);
+    $("mode").value = state.mode;
+    $("mode-help").textContent = state.mode === "clamped" ? "Clamped: the surface interpolates the four corner points." : "Open (unclamped): uniform knots; the surface generally does not interpolate the corner points.";
+    $("knots").textContent = `U = V = [${Math3.KNOTS[state.mode].join(", ")}]`;
+    $("surface-message").textContent = `${state.mode === "clamped" ? "Clamped" : "Open (unclamped)"} bicubic patch · 16 control points · u, v ∈ [0, 1].`;
     cells.forEach((button, index) => {
       const p = state.points[index];
-      button.disabled = !p || (state.pending && index !== state.selected);
-      button.dataset.placed = String(Boolean(p));
-      button.dataset.next = String(index === state.points.length && !state.pending);
       button.setAttribute("aria-pressed", String(index === state.selected));
-      button.setAttribute("aria-label", p ? `${Math3.label(index)}: x ${p.x}, y ${p.y}, z ${p.z}. Select to edit.` : `${Math3.label(index)}: not placed`);
-      button.querySelector("span").textContent = p ? `${p.x.toFixed(1)}, ${p.y.toFixed(1)}\nz ${p.z.toFixed(2)}` : index === state.points.length ? "Next point" : "Not placed";
+      button.setAttribute("aria-label", `${Math3.label(index)}: x ${p.x}, y ${p.y}, z ${p.z}. Select to edit.`);
+      button.querySelector("span").textContent = `${p.x.toFixed(1)}, ${p.y.toFixed(1)}\nz ${p.z.toFixed(2)}`;
     });
     updateCode(); scheduleGraphics();
   }
-  function nextCursor() {
-    cursor = { x: 2 + (state.points.length % 4) * 2, y: 2 + Math.floor(state.points.length / 4) * 2 };
-  }
-  function confirm() {
-    if (state.confirm()) { nextCursor(); update(); canvas.focus({ preventScroll: true }); }
-  }
-  $("confirm").addEventListener("click", confirm);
   $("z").addEventListener("input", () => { state.edit("z", Number($("z").value)); update(); });
-  $("z").addEventListener("keydown", (event) => { if (event.key === "Enter" && state.pending) { event.preventDefault(); confirm(); } });
+  $("mode").addEventListener("change", () => { state.setMode($("mode").value); update(); });
   for (const axis of ["x", "y"]) {
     $(axis).addEventListener("change", () => {
       const input = $(axis), value = input.valueAsNumber;
       if (Number.isFinite(value)) {
-        if (state.selected >= 0) state.edit(axis, value);
-        else cursor[axis] = Math.round(Math3.clamp(value, 0, 10) * 100) / 100;
+        state.edit(axis, value);
       }
       update();
     });
   }
-  $("place").addEventListener("click", () => {
-    if (state.place(Number($("x").value), Number($("y").value))) { update(); $("z").focus({ preventScroll: true }); }
-  });
-  $("undo").addEventListener("click", () => { state.undo(); nextCursor(); update(); });
-  $("clear").addEventListener("click", () => { state.clear(); nextCursor(); update(); canvas.focus({ preventScroll: true }); });
+  $("reset-grid").addEventListener("click", () => { state.reset(); update(); canvas.focus({ preventScroll: true }); });
   function eventPoint(event) {
     const rect = canvas.getBoundingClientRect();
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
@@ -152,45 +125,36 @@
       const q = screen(point, bounds), d = Math.hypot(q.x - p.x, q.y - p.y);
       if (d < distance) { hit = index; distance = d; }
     });
-    let added = false;
-    if (hit >= 0) {
-      if (!state.select(hit)) return;
-    } else {
-      const q = world(p, bounds);
-      if (!state.place(q.x, q.y)) return;
-      added = true;
-    }
-    drag = { id: event.pointerId, added };
+    if (hit < 0 || !state.select(hit)) return;
+    const center = screen(state.points[hit], bounds);
+    drag = { id: event.pointerId, offsetX: p.x - center.x, offsetY: p.y - center.y };
     canvas.setPointerCapture(event.pointerId);
     update();
   });
   canvas.addEventListener("pointermove", (event) => {
     if (!drag || drag.id !== event.pointerId) return;
-    const p = world(eventPoint(event), plot());
+    const pointer = eventPoint(event);
+    const p = world({ x: pointer.x - drag.offsetX, y: pointer.y - drag.offsetY }, plot());
     state.edit("x", p.x); state.edit("y", p.y); update();
   });
   function stop(event) {
     if (!drag || drag.id !== event.pointerId) return;
-    const added = drag.added; drag = null;
+    drag = null;
     if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-    if (added) $("z").focus({ preventScroll: true });
   }
   canvas.addEventListener("pointerup", stop); canvas.addEventListener("pointercancel", stop);
   canvas.addEventListener("lostpointercapture", () => { drag = null; });
   canvas.addEventListener("keydown", (event) => {
-    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Enter", "Escape"].includes(event.key)) return;
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Enter", "[", "]"].includes(event.key)) return;
     event.preventDefault();
-    if (event.key === "Escape") { if (!state.pending && state.points.length < 16) { state.selected = -1; update(); } return; }
+    if (["[", "]"].includes(event.key)) { state.select((state.selected + (event.key === "[" ? 15 : 1)) % 16); update(); return; }
     if (event.key === "Enter") {
-      if (state.pending) confirm();
-      else if (state.selected >= 0) $("z").focus({ preventScroll: true });
-      else if (state.place(cursor.x, cursor.y)) { update(); $("z").focus({ preventScroll: true }); }
+      $("z").focus({ preventScroll: true });
       return;
     }
     const axis = ["ArrowLeft", "ArrowRight"].includes(event.key) ? "x" : "y";
     const change = (["ArrowLeft", "ArrowDown"].includes(event.key) ? -1 : 1) * (event.shiftKey ? .5 : .1);
-    if (state.selected >= 0) state.edit(axis, state.points[state.selected][axis] + change);
-    else cursor[axis] = Math.round(Math3.clamp(cursor[axis] + change, 0, 10) * 100) / 100;
+    state.edit(axis, state.points[state.selected][axis] + change);
     update();
   });
   for (const name of ["net", "labels", "wireframe"]) $(name).addEventListener("change", scheduleGraphics);

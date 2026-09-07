@@ -1,7 +1,7 @@
 (function () {
   "use strict";
-  // The 3D scene is independent of point capture and surface mathematics.
-  window.SurfaceThree = function (canvas, fallback) {
+  // The 3D scene is independent of control-grid editing and surface mathematics.
+  window.SurfaceThree = function (canvas, fallback, onSelect = () => {}) {
     const THREE = window.THREE;
     let renderer;
     try {
@@ -18,7 +18,8 @@
     camera.up.set(0, 0, 1);
     const target = new THREE.Vector3(5, 5, 0);
     let azimuth = -0.9, elevation = 0.65, radius = 23;
-    let content = new THREE.Group();
+    let content = new THREE.Group(), handles = [];
+    const raycaster = new THREE.Raycaster();
     scene.add(content);
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
     const light = new THREE.DirectionalLight(0xffffff, 2.3);
@@ -78,9 +79,10 @@
       scene.remove(content);
       release(content);
       content = new THREE.Group();
+      handles = [];
       scene.add(content);
       if (points.length === 16) {
-        const sampled = SurfaceMath.sample(points);
+        const sampled = SurfaceMath.sample(points, 40, options.mode);
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute("position", new THREE.Float32BufferAttribute(sampled.positions, 3));
         geometry.setIndex(sampled.indices);
@@ -110,6 +112,8 @@
         const sphere = new THREE.Mesh(new THREE.SphereGeometry(index === selected ? .17 : .11, 12, 8),
           new THREE.MeshBasicMaterial({ color: index === selected ? 0xffffff : colors[Math.floor(index / 4)] }));
         sphere.position.set(p.x, p.y, p.z);
+        sphere.userData.pointIndex = index;
+        handles.push(sphere);
         content.add(sphere);
         if (options.labels) {
           const sprite = textSprite(SurfaceMath.label(index));
@@ -134,11 +138,15 @@
     canvas.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
       canvas.focus({ preventScroll: true });
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, moved: false };
       canvas.setPointerCapture(event.pointerId);
     });
     canvas.addEventListener("pointermove", (event) => {
       if (!drag || drag.id !== event.pointerId) return;
+      if (!drag.moved) {
+        if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) <= 5) return;
+        drag.moved = true;
+      }
       azimuth -= (event.clientX - drag.x) * .008;
       elevation = SurfaceMath.clamp(elevation + (event.clientY - drag.y) * .008, -1.35, 1.35);
       drag.x = event.clientX; drag.y = event.clientY;
@@ -146,8 +154,16 @@
     });
     function stop(event) {
       if (drag?.id !== event.pointerId) return;
+      const selectPoint = !drag.moved && event.type === "pointerup" && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) <= 5;
       drag = null;
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      if (selectPoint) {
+        const rect = canvas.getBoundingClientRect();
+        raycaster.setFromCamera(new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1,
+          1 - (event.clientY - rect.top) / rect.height * 2), camera);
+        const hit = raycaster.intersectObjects(handles, false)[0];
+        if (hit) onSelect(hit.object.userData.pointIndex);
+      }
     }
     canvas.addEventListener("pointerup", stop);
     canvas.addEventListener("pointercancel", stop);
