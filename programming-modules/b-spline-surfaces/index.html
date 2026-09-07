@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Construct a bicubic B-spline surface from 16 clicked control points, adjust their heights, and explore the result in Three.js with matching Python and MATLAB programs.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · B-Spline Surfaces Lab</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="surface-math.js" defer></script>
+  <script src="surface-three.js" defer></script>
+  <script src="surface-code.js" defer></script>
+  <script src="app.js" defer></script>
+  <script>
+    window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="surface-lab">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html" aria-current="page">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro surface-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">B-Spline Surfaces</li></ol>
+      <p class="eyebrow">Interactive programming module 06</p>
+      <h1>B-Spline <em>Surfaces</em></h1>
+      <p class="activity-lead">Click to set x and y, adjust z with the height slider, then confirm each point. Build the 4 × 4 control net and explore its bicubic surface in 3D.</p>
+    </header>
+    <noscript><p class="lab-status">Enable JavaScript to enter control points and construct the surface.</p></noscript>
+
+    <section class="surface-workspace" aria-label="Control point input and three-dimensional surface">
+      <article class="lab-window input-window" aria-labelledby="input-title">
+        <div class="window-heading"><div><p class="card-kicker">Window 1 · x–y input</p><h2 id="input-title">Place the control points</h2></div><span class="point-count" data-count>0 / 16</span></div>
+        <p class="capture-prompt" data-prompt role="status" aria-live="polite">Click P00 on the x–y plane.</p>
+        <div class="xy-frame">
+          <canvas data-xy width="600" height="600" tabindex="0" aria-label="Control point x-y input plane, coordinates from 0 to 10" aria-describedby="xy-help">Click to place control points, or use the coordinate inputs below.</canvas>
+        </div>
+        <p class="interaction-hint" id="xy-help">Click empty space to place the next point. Drag a point to edit x and y. Arrow keys move the crosshair or selected point; Enter places or confirms it. Escape returns to the next point.</p>
+        <div class="coordinate-fields">
+          <label class="lab-field"><span>x</span><input data-x type="number" min="0" max="10" step="0.1" value="2" aria-label="x coordinate"></label>
+          <label class="lab-field"><span>y</span><input data-y type="number" min="0" max="10" step="0.1" value="2" aria-label="y coordinate"></label>
+          <button class="mini-button" data-place type="button">Place at x, y</button>
+        </div>
+        <div class="height-editor">
+          <div class="height-heading"><label for="point-height" data-height-label>Height z · select or place a point</label><output data-height-output for="point-height">0.00</output></div>
+          <input id="point-height" data-z type="range" min="-5" max="5" step="0.05" value="0" disabled aria-describedby="height-help">
+          <div class="range-labels" aria-hidden="true"><span>−5</span><span>0</span><span>+5</span></div>
+          <p id="height-help">The selected point’s height updates in 3D as you move the slider.</p>
+          <button class="button primary" data-confirm type="button" disabled>Confirm point</button>
+        </div>
+        <div class="lab-actions"><button class="mini-button" data-undo type="button" disabled>Undo last point</button><button class="mini-button" data-clear type="button" disabled>Clear all points</button></div>
+      </article>
+
+      <article class="lab-window view-window" aria-labelledby="view-title">
+        <div class="window-heading"><div><p class="card-kicker">Window 2 · Three.js</p><h2 id="view-title">Surface in 3D</h2></div><button class="mini-button" data-reset-view type="button">Reset view</button></div>
+        <div class="view-controls">
+          <label class="toggle-control"><input data-net type="checkbox" checked><span>Control net</span></label>
+          <label class="toggle-control"><input data-labels type="checkbox" checked><span>Point labels</span></label>
+          <label class="toggle-control"><input data-wireframe type="checkbox"><span>Wireframe</span></label>
+        </div>
+        <div class="three-frame">
+          <canvas data-three tabindex="0" aria-label="Three-dimensional B-spline surface with z pointing up" aria-describedby="three-help"></canvas>
+          <p class="three-empty" data-three-empty>The control net appears as you add points.<br>The surface appears after all 16 are placed.</p>
+          <p class="three-fallback" data-three-fallback hidden role="status">3D visualization is unavailable because WebGL could not start. You can still enter coordinates and use the generated program.</p>
+        </div>
+        <div class="view-footer"><p class="interaction-hint" id="three-help">Drag to orbit · scroll or +/− to zoom · arrow keys rotate · Home resets. z is vertical.</p><div class="lab-actions"><button class="mini-button" data-zoom-in type="button" aria-label="Zoom in">+</button><button class="mini-button" data-zoom-out type="button" aria-label="Zoom out">−</button></div></div>
+        <p class="surface-message" data-surface-message>Waiting for 16 control points.</p>
+        <div class="net-heading"><h3>Control-point order</h3><span>i changes first, then j</span></div>
+        <div class="point-grid" data-point-grid aria-label="Control points in input order"></div>
+        <p class="interaction-hint">Each row holds P0j, P1j, P2j, P3j. After confirming a point, select its cell to edit it again. The yellow lines connect neighboring controls in both directions.</p>
+      </article>
+    </section>
+
+    <section class="lab-window surface-code-window" aria-labelledby="code-title">
+      <div class="window-heading"><div><p class="card-kicker">Window 3 · Code</p><h2 id="code-title">Construct the same surface</h2></div><div class="language-toggle" role="group" aria-label="Code language"><button class="language-button" data-language="python" type="button" aria-pressed="true">Python</button><button class="language-button" data-language="matlab" type="button" aria-pressed="false">MATLAB</button></div></div>
+      <p>The program updates with your coordinates in the same P00 → P30, P01 → P31, P02 → P32, P03 → P33 order. It runs once all 16 points are available.</p>
+      <div class="curve-code-panel"><div class="code-toolbar"><span data-filename>bspline_surface.py</span><button class="copy-button" data-copy type="button">Copy code</button></div><pre><code data-code></code></pre></div>
+      <p class="interaction-hint" data-copy-status role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="content-panel surface-explanation" aria-labelledby="construction-title">
+      <p class="section-kicker">Construction</p><h2 id="construction-title">Two cubic bases, one surface</h2>
+      <div class="math-display">\[\mathbf r(u,v)=\sum_{i=0}^{3}\sum_{j=0}^{3}N_{4,i}(u)M_{4,j}(v)\mathbf P_{ij},\qquad 0\le u,v\le1.\]</div>
+      <p>Following the notes, the first basis index denotes order. Both directions have degree 3 and order 4, with uniform knot vectors \(U=V=\{-3,-2,-1,0,1,2,3,4\}\). Their single active span is [0, 1]. The geometric coordinates x, y, z are separate from the surface parameters u and v.</p>
+      <p>Each direction uses the four <a href="../../cad-modules/b-splines/index.html#cubic-blending-functions">uniform cubic blending functions</a>. Their products give the 16 weights. Increasing i follows the u direction; increasing j follows v.</p>
+      <p>A uniform B-spline patch lies within the convex hull of the control points and generally does not interpolate its corner points. It is not a periodic surface. With this fixed 4 × 4 net, all 16 controls influence the interior of the single patch.</p>
+      <a class="button secondary" href="../../cad-modules/surfaces/index.html">Open surface theory</a>
+    </section>
+  </main>
+  <footer class="site-footer"><p><strong>CAD</strong> · B-Spline Surfaces Lab</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../cad-modules/surfaces/index.html">Surface Theory</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>
