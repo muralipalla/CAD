@@ -74,3 +74,31 @@
   border-left-color: var(--green);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), var(--green-light));
 }
+
+.site-footer .footer-notes {
+  max-width: 72ch;
+  margin: 1.5rem auto 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.65;
+  text-align: left;
+  overflow-wrap: anywhere;
+  scroll-margin-top: 1rem;
+}
+
+.footer-notes h2 {
+  margin: 0 0 .75rem;
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1.35;
+}
+
+.site-footer .footer-notes p + p {
+  margin-top: .75rem;
+}
+
+.footer-notes a {
+  text-underline-offset: .15em;
+}
