@@ -81,10 +81,8 @@ The site uses semantic landmarks, keyboard-visible focus states, skip links, lab
 
 ## License
 
-MIT © 2026 Murali Palla.
+Original educational text, notes, derivations, illustrations, quiz questions and worked explanations are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/), unless otherwise noted. Original website and example source code remains under the MIT License. See [LICENSE](LICENSE) for the scope and software terms; third-party materials retain their own licenses.
 
-## Attributions and feedback
+## References, licensing and attributions
 
-Original CAD notes, examples, interactive explanations, and generated Python/MATLAB snippets are by Murali Palla. The site uses locally bundled Three.js under the MIT License and MathJax 3.2.2 from jsDelivr under the Apache License 2.0. Licensing, attribution notices, and contact details are displayed directly in the [home page footer](https://muralipalla.github.io/CAD/index.html#licensing).
-
-For feedback, corrections, attribution questions, or accessibility issues, contact `bitspilanimurali@gmail.com`.
+The [References, Licensing and Attributions page](https://muralipalla.github.io/CAD/cad-modules/references/index.html) brings together the bibliography, source acknowledgments, AI preparation tools, software credits and feedback contact. The home-page footer provides a short licensing notice and links to that page.

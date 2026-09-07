@@ -1,3 +1,28 @@
+CAD licensing
+Copyright (c) 2026 Murali Palla
+
+Educational materials
+---------------------
+Unless otherwise noted, the original educational text, notes, derivations,
+illustrations, quiz questions and worked explanations are licensed under the
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+(CC BY-NC-SA 4.0):
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+Full terms: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en
+
+Software
+--------
+The MIT License below applies to the original website source code, HTML
+structure, CSS stylesheets, JavaScript, and Python/MATLAB code examples.
+Educational prose and illustrations embedded in those files are covered by
+the educational-materials license above.
+
+Third-party materials and libraries retain their respective licenses.
+This notice does not withdraw permissions already granted for earlier releases.
+
+Attributions and detailed information:
+https://muralipalla.github.io/CAD/cad-modules/references/index.html
+
 MIT License
 
 Copyright (c) 2026 Murali Palla

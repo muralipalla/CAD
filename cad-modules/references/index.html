@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Sources, chapter guides and further reading for the CAD Theory notes: transformations, curves, B-splines, surfaces and solid modeling.">
+  <meta name="description" content="References, further reading, licensing, source acknowledgments and website credits for the CAD teaching materials.">
   <meta name="theme-color" content="#fdf6ec">
-  <title>CAD · References and Further Reading</title>
+  <title>CAD · References, Licensing and Attributions</title>
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
@@ -20,10 +20,10 @@
       <div class="nav-links"><a href="../index.html">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
     </nav>
     <div class="page-hero notes-hero">
-      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">References</li></ol>
-      <p class="eyebrow">Theory · Reading guide</p>
-      <h1>References and Further Reading</h1>
-      <p class="page-lead">Sources behind the course notes, with a topic guide for further study.</p>
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">References and credits</li></ol>
+      <p class="eyebrow">Theory · References and credits</p>
+      <h1>References, Licensing and Attributions</h1>
+      <p class="page-lead">Reading guides, reuse terms, and acknowledgments for the course notes and website.</p>
       <p class="notes-author">Compiled by Murali Palla</p>
     </div>
   </header>
@@ -37,8 +37,10 @@
         <li><a href="#curves-surfaces-reading">Curves and surfaces</a></li>
         <li><a href="#splines-reading">B-splines</a></li>
         <li><a href="#solids-reading">Solid modeling</a></li>
-        <li><a href="#sources-and-authorship">Sources and acknowledgments</a></li>
+        <li><a href="#licensing">Licensing</a></li>
+        <li><a href="#sources-and-authorship">Attributions and acknowledgments</a></li>
         <li><a href="#using-references">Using these references</a></li>
+        <li><a href="#feedback">Feedback</a></li>
       </ol>
     </nav>
     <article class="notes-article">
@@ -93,7 +95,11 @@
 <li id="ref-18">OpenSCAD contributors. <cite>OpenSCAD User Manual and Language Reference</cite>. Continuously maintained documentation.<p><a href="https://openscad.org/documentation.html">Official documentation index</a>. Accessed 8 September 2026.</p><p>Use the linked language reference for primitive solids, transformations, union, difference and intersection, and for checking the syntax of the OpenSCAD examples.</p></li>
 </ol>
 
-      <h2 id="sources-and-authorship">Sources and acknowledgments</h2>
+      <h2 id="licensing">Licensing</h2>
+      <p><strong>Copyright © 2026 Murali Palla.</strong> Unless otherwise noted, the original teaching text, notes, derivations, illustrations, quiz questions and worked explanations on this website are licensed under <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a>.</p>
+      <p>You may share and adapt these materials for noncommercial purposes. Credit Murali Palla, link to the source and license, and identify your changes. If you share adaptations, apply CC BY-NC-SA 4.0 or a compatible license. See the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en">full license terms</a>.</p>
+      <p>The original website source code, HTML structure, CSS stylesheets, JavaScript, and Python/MATLAB code examples remain under the <a href="../../LICENSE">MIT License</a>. Teaching prose and illustrations embedded in code files follow the CC license above. Third-party material and libraries retain their respective licenses. This notice does not withdraw permissions already granted for earlier releases.</p>
+      <h2 id="sources-and-authorship">Attributions and acknowledgments</h2>
       <p>These teaching notes were written by Murali Palla in his own words, drawing principally on Anupam Saxena and Birendra Sahay’s <cite>Computer Aided Engineering Design</cite> <a href="#ref-1">[1]</a>, together with additional explanations and derivations.</p>
       <aside class="source-note" aria-label="Attribution of derivations">
         <p><strong>Projection derivations:</strong> Murali Palla independently worked out the perspective and orthographic projection derivations presented in the notes. References <a href="#ref-1">[1]</a> and <a href="#ref-2">[2]</a> provide related textbook treatments of transformations and viewing; they are not claimed as the source of those particular derivations or as using exactly the same matrix form.</p>
@@ -103,16 +109,19 @@
       <p>Reference <a href="#ref-1">[1]</a> is the main textbook studied by the course author. The winged-edge data-structure explanation was developed after learning from C.-K. Shene’s online notes <a href="#ref-7">[7]</a>. These are acknowledgments of the sources of learning; the notes do not reproduce material verbatim from Saxena and Sahay or Shene.</p>
       <p>The remaining references are supporting literature, original papers and suggested reading matched to the topics. Their inclusion does not imply that every passage, example or figure in the notes was taken from those works.</p>
       <p><strong>Website preparation:</strong> <a href="https://chatgpt.com/">ChatGPT</a> (OpenAI) and <a href="https://gemini.google.com/">Google Gemini</a> were used to assist with converting LaTeX notes to HTML, translating MATLAB code into JavaScript, and creating CSS stylesheets.</p>
+      <p><strong>Software and hosting:</strong> 3D visualizations use <a href="https://threejs.org/">Three.js</a> by the Three.js Authors (<a href="https://github.com/mrdoob/three.js/blob/dev/LICENSE">MIT License</a>). Equations use <a href="https://www.mathjax.org/">MathJax 3.2.2</a>, delivered through jsDelivr (<a href="https://github.com/mathjax/MathJax-src/blob/master/LICENSE">Apache License 2.0</a>). The site is hosted on GitHub Pages; <a href="https://github.com/muralipalla/CAD">view the source repository</a>.</p>
       <h2 id="using-references">Using these references</h2>
       <ul>
         <li><strong>Keep the notes’ conventions:</strong> Rotation order, row versus column vectors, spline order versus degree, and surface-normal orientation can differ across books. Compare definitions before substituting a formula. For example, the Euler-angle extraction in these notes uses an <i>x–y–z</i> matrix product, while the example in Lynch and Park’s Appendix B uses <i>z–y–x</i>.</li>
         <li><strong>Find the full work:</strong> DOI and publisher links identify the cited edition or paper. Some require library access; free author copies, university notes and official documentation are labelled above.</li>
         <li><strong>Credit what you use:</strong> Cite the work and section you actually consulted when adapting a derivation, example or illustration. This bibliography does not change the ownership or licensing of third-party works.</li>
       </ul>
-      <p>For a missing source or an attribution correction, contact <a href="mailto:bitspilanimurali@gmail.com">bitspilanimurali@gmail.com</a>. Bibliographic details and topic links checked on 8 September 2026.</p>
+      <p>Bibliographic details and topic links checked on 8 September 2026.</p>
+      <h2 id="feedback">Feedback</h2>
+      <p><strong>Feedback and corrections:</strong> For feedback, corrections, attribution questions, or accessibility issues, email <a href="mailto:bitspilanimurali@gmail.com">bitspilanimurali@gmail.com</a>.</p>
       <nav class="notes-module-nav" aria-label="Theory navigation"><a class="notes-nav-link previous" href="../index.html"><span>Back to</span><strong>Theory modules</strong></a></nav>
     </article>
   </main>
-  <footer class="site-footer"><p><strong>CAD</strong> · Theory references</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p><a href="../../index.html#licensing">Licensing and Attributions</a> · Compiled by Murali Palla · <span data-year>2026</span></p></footer>
+  <footer class="site-footer"><p><strong>CAD</strong> · References and credits</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p><a href="#licensing">Licensing and Attributions</a> · Compiled by Murali Palla · <span data-year>2026</span></p></footer>
 </body>
 </html>
