@@ -66,3 +66,9 @@ The site uses semantic landmarks, keyboard-visible focus states, skip links, lab
 ## License
 
 MIT © 2026 Murali Palla.
+
+## Attributions and feedback
+
+Original CAD notes, examples, interactive explanations, and generated Python/MATLAB snippets are by Murali Palla. The site uses locally bundled Three.js under the MIT License and MathJax 3.2.2 from jsDelivr under the Apache License 2.0. See the public [Licensing and Attributions page](https://muralipalla.github.io/CAD/licensing.html) for notices and links.
+
+For feedback, corrections, attribution questions, or accessibility issues, contact `bitspilanimurali@gmail.com`.
