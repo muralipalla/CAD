@@ -58,7 +58,17 @@
 <li class="toc-subsection"><a href="#integral-of-the-basis-function">Integral of the Basis Function</a></li>
 <li class="toc-section"><a href="#derivation-of-the-coxde-boor-formula-from-divided-differences">Derivation of the Cox–de Boor Formula from Divided Differences</a></li>
 <li class="toc-section"><a href="#summary">Summary</a></li>
-<li class="toc-section"><a href="#b-spline-curves-and-knot-vectors">B-Spline Curves and Knot Vectors</a></li></ol>
+<li class="toc-section"><a href="#b-spline-curves-and-knot-vectors">B-Spline Curves and Knot Vectors</a></li>
+<li class="toc-section"><a href="#periodic-b-spline-basis-functions">Derivation of Periodic B-Spline Basis Functions</a></li>
+<li class="toc-subsection"><a href="#uniform-basis-recurrence">Uniform Knots and a Single Basis Shape</a></li>
+<li class="toc-subsection"><a href="#linear-uniform-basis">Linear Basis</a></li>
+<li class="toc-subsection"><a href="#quadratic-uniform-basis">Quadratic Basis</a></li>
+<li class="toc-subsection"><a href="#cubic-uniform-basis">Cubic Basis</a></li>
+<li class="toc-subsection"><a href="#cubic-blending-functions">Cubic Blending Functions on One Span</a></li>
+<li class="toc-subsection"><a href="#uniform-basis-any-order">Explicit Formula for Any Order</a></li>
+<li class="toc-subsection"><a href="#periodic-basis-wrapping">Constructing the Periodic Basis</a></li>
+<li class="toc-subsection"><a href="#periodic-cubic-seam">Cubic Curve and Continuity at the Seam</a></li>
+<li class="toc-subsection"><a href="#nonuniform-periodic-basis">Nonuniform Periodic B-Splines</a></li></ol>
     </nav>
     <article class="notes-article">
       <p>B-splines are among the most important curve representations in CAD. They provide a powerful way of constructing smooth curves using local polynomial pieces. Unlike a single high-degree polynomial curve, a B-spline curve is built from several low-degree polynomial segments joined together with prescribed continuity at the knots.</p>
@@ -697,6 +707,244 @@ N_{m,i}(u)
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>B-splines combine three important advantages:</p>
 <ol class="roman-list"><li><p>smooth piecewise-polynomial representation,</p></li><li><p>compact support and local control,</p></li><li><p>stable recursive evaluation.</p></li></ol></div></aside>
 <h2 id="b-spline-curves-and-knot-vectors">B-Spline Curves and Knot Vectors</h2>
+<p>For the ordinary finite representation with \(c\) control points and order \(m\), the knot count is \(k=c+m\). The basis functions are \(N_{m,0},\ldots,N_{m,c-1}\), and the usual curve domain is \([u_{m-1},u_c)\), with the right endpoint evaluated by its left-hand limit. A periodic curve can instead be described using \(c\) independent control points whose indices repeat cyclically and a knot sequence extended in both directions.</p>
+
+<h2 id="periodic-b-spline-basis-functions">Derivation of Periodic B-Spline Basis Functions</h2>
+<p>We first derive the basis functions for uniformly spaced knots, then combine translated copies to make each basis function periodic. Throughout the derivation, \(n\) remains the degree, \(m=n+1\) the order, \(u\) the curve parameter, and \(N_{m,i}(u)\) the basis function with order first and index second. For the periodic construction, \(c\) counts the independent control points in one period.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Uniform and Periodic</p><div class="notes-box-body"><p>Some CAD texts use “periodic” for uniform B-splines because successive basis functions have the same shape. Uniform spacing gives translated copies of a compactly supported function. To obtain \(\mathbf r(u+T)=\mathbf r(u)\), we must also wrap the control-point indices, or equivalently construct periodic basis functions. A uniform knot vector alone does not make a curve closed.</p></div></aside>
+
+<h3 id="uniform-basis-recurrence">Uniform Knots and a Single Basis Shape</h3>
+<p>Extend the uniform knot sequence to every integer index:</p>
+<div class="math-display">\[
+u_i=u_0+ih,\qquad h&gt;0,\qquad i\in\mathbb Z.
+\]</div>
+<p>Here \(h\) is the knot spacing already used above. This extended sequence is not a finite knot vector; \(k\) continues to denote the knot count when a finite vector is used. For \(m&gt;1\), both denominators in the Cox–de Boor recursion equal \((m-1)h\), so</p>
+<div class="math-display">\[
+N_{m,i}(u)=\frac{u-u_i}{(m-1)h}N_{m-1,i}(u)
++\frac{u_i+mh-u}{(m-1)h}N_{m-1,i+1}(u).
+\]</div>
+<p>Define the dimensionless coordinate \(x=(u-u_i)/h\), measured from the start of the support. All uniform basis functions of a given order are described by one shape \(B_m\):</p>
+<div class="math-display">\[
+\boxed{N_{m,i}(u)=B_m\!\left(\frac{u-u_i}{h}\right).}
+\]</div>
+<p>Since \(N_{m-1,i}(u)=B_{m-1}(x)\) and \(N_{m-1,i+1}(u)=B_{m-1}(x-1)\), substitution gives</p>
+<div class="math-display">\[
+\boxed{B_m(x)=\frac{x}{m-1}B_{m-1}(x)
++\frac{m-x}{m-1}B_{m-1}(x-1),\qquad m&gt;1.}
+\]</div>
+<p>The starting function is the order-one basis:</p>
+<div class="math-display">\[
+B_1(x)=\begin{cases}
+1,&amp;0\le x&lt;1,\\
+0,&amp;\text{otherwise}.
+\end{cases}
+\]</div>
+<p>Thus \(B_m\) vanishes outside \([0,m)\), while \(N_{m,i}\) vanishes outside \([u_i,u_{i+m})\). Shifting the index by one shifts the basis by one knot spacing:</p>
+<div class="math-display">\[
+N_{m,i+1}(u)=N_{m,i}(u-h).
+\]</div>
+
+<h3 id="linear-uniform-basis">Linear Basis: \(n=1,\ m=2\)</h3>
+<p>The recurrence gives</p>
+<div class="math-display">\[
+B_2(x)=xB_1(x)+(2-x)B_1(x-1).
+\]</div>
+<p>Only the first term contributes on \([0,1)\), and only the second contributes on \([1,2)\). Therefore,</p>
+<div class="math-display">\[
+\boxed{B_2(x)=\begin{cases}
+x,&amp;0\le x&lt;1,\\
+2-x,&amp;1\le x&lt;2,\\
+0,&amp;\text{otherwise}.
+\end{cases}}
+\]</div>
+<p>This triangular function gives \(N_{2,i}(u)=B_2((u-u_i)/h)\).</p>
+
+<h3 id="quadratic-uniform-basis">Quadratic Basis: \(n=2,\ m=3\)</h3>
+<p>At order three,</p>
+<div class="math-display">\[
+B_3(x)=\frac{x}{2}B_2(x)+\frac{3-x}{2}B_2(x-1).
+\]</div>
+<p>On \([0,1)\), this is \(x^2/2\). On the middle interval \([1,2)\), both terms contribute:</p>
+<div class="math-display">\[
+\begin{aligned}
+B_3(x)&amp;=\frac{x(2-x)+(3-x)(x-1)}{2}\\
+&amp;=\frac{-2x^2+6x-3}{2}.
+\end{aligned}
+\]</div>
+<p>On \([2,3)\), only the second term remains, giving \((3-x)^2/2\). Combining the three pieces,</p>
+<div class="math-display">\[
+\boxed{B_3(x)=\frac12\begin{cases}
+x^2,&amp;0\le x&lt;1,\\
+-2x^2+6x-3,&amp;1\le x&lt;2,\\
+(3-x)^2,&amp;2\le x&lt;3,\\
+0,&amp;\text{otherwise}.
+\end{cases}}
+\]</div>
+<p>The corresponding basis is \(N_{3,i}(u)=B_3((u-u_i)/h)\); it is \(C^1\) at the simple knots.</p>
+
+<h3 id="cubic-uniform-basis">Cubic Basis: \(n=3,\ m=4\)</h3>
+<p>Using the quadratic result,</p>
+<div class="math-display">\[
+B_4(x)=\frac{x}{3}B_3(x)+\frac{4-x}{3}B_3(x-1).
+\]</div>
+<p>On \([0,1)\), we obtain \(B_4(x)=x^3/6\). On \([1,2)\),</p>
+<div class="math-display">\[
+\begin{aligned}
+B_4(x)&amp;=\frac{x(-2x^2+6x-3)+(4-x)(x-1)^2}{6}\\
+&amp;=\frac{-3x^3+12x^2-12x+4}{6}.
+\end{aligned}
+\]</div>
+<p>On \([2,3)\), the numerator becomes \(x(3-x)^2+(4-x)(-2x^2+10x-11)\), which expands to \(3x^3-24x^2+60x-44\). On \([3,4)\), only the second term remains, giving \((4-x)^3/6\). Hence,</p>
+<div class="math-display">\[
+\boxed{B_4(x)=\frac16\begin{cases}
+x^3,&amp;0\le x&lt;1,\\
+-3x^3+12x^2-12x+4,&amp;1\le x&lt;2,\\
+3x^3-24x^2+60x-44,&amp;2\le x&lt;3,\\
+(4-x)^3,&amp;3\le x&lt;4,\\
+0,&amp;\text{otherwise}.
+\end{cases}}
+\]</div>
+<p>Thus \(N_{4,i}(u)=B_4((u-u_i)/h)\). Its four cubic pieces meet with \(C^2\) continuity.</p>
+
+<h3 id="cubic-blending-functions">Cubic Blending Functions on One Span</h3>
+<p>The preceding formula describes one basis function across its support. To evaluate a curve segment, fix a knot span and introduce a local parameter:</p>
+<div class="math-display">\[
+u_j\le u&lt;u_{j+1},\qquad t=\frac{u-u_j}{h},\qquad 0\le t&lt;1.
+\]</div>
+<p>The global parameter remains \(u\); \(t\) is used only within this span. The four potentially nonzero basis functions have indices \(j-3,j-2,j-1,j\). Their arguments in \(B_4\) are \(t+3,t+2,t+1,t\), respectively. Substitution gives</p>
+<div class="math-display">\[
+\boxed{\begin{aligned}
+N_{4,j-3}(u)&amp;=b_0(t)=\frac{(1-t)^3}{6},\\
+N_{4,j-2}(u)&amp;=b_1(t)=\frac{3t^3-6t^2+4}{6},\\
+N_{4,j-1}(u)&amp;=b_2(t)=\frac{-3t^3+3t^2+3t+1}{6},\\
+N_{4,j}(u)&amp;=b_3(t)=\frac{t^3}{6}.
+\end{aligned}}
+\]</div>
+<p>The symbols \(b_0,\ldots,b_3\) denote these four local blending polynomials, not a change in the order-first convention for \(N_{m,i}\). The segment is</p>
+<div class="math-display">\[
+\mathbf r(u_j+ht)=\sum_{a=0}^{3}b_a(t)\mathbf P_{j-3+a}.
+\]</div>
+<p>Collecting powers of \(t\) yields the uniform cubic B-spline matrix:</p>
+<div class="math-display">\[
+\boxed{\mathbf r(u_j+ht)=\frac16
+\begin{bmatrix}t^3&amp;t^2&amp;t&amp;1\end{bmatrix}
+\begin{bmatrix}
+-1&amp;3&amp;-3&amp;1\\
+3&amp;-6&amp;3&amp;0\\
+-3&amp;0&amp;3&amp;0\\
+1&amp;4&amp;1&amp;0
+\end{bmatrix}
+\begin{bmatrix}\mathbf P_{j-3}\\\mathbf P_{j-2}\\\mathbf P_{j-1}\\\mathbf P_j\end{bmatrix}.}
+\]</div>
+<p>Direct addition verifies \(b_0(t)+b_1(t)+b_2(t)+b_3(t)=1\). Adjacent spans share three control points.</p>
+
+<h3 id="uniform-basis-any-order">Explicit Formula for Any Order</h3>
+<p>Using the truncated powers introduced earlier, \(y_+^p=(\max(y,0))^p\) for \(p\ge1\), the uniform basis shape has the formula</p>
+<div class="math-display">\[
+\boxed{B_m(x)=\frac{1}{(m-1)!}
+\sum_{\ell=0}^{m}(-1)^\ell\binom{m}{\ell}(x-\ell)_+^{m-1},\qquad m\ge2.}
+\]</div>
+<p>To prove it by induction, start with \(B_2(x)=x_+-2(x-1)_++(x-2)_+\), which reproduces the linear pieces. For \(m\ge3\), assume the formula at order \(m-1\), substitute it into the recurrence, and shift the second sum’s index. This gives</p>
+<div class="math-display">\[
+\begin{aligned}
+B_m(x)=\frac{1}{(m-1)!}\sum_{\ell=0}^{m}(-1)^\ell
+\left[x\binom{m-1}{\ell}-(m-x)\binom{m-1}{\ell-1}\right]
+(x-\ell)_+^{m-2}.
+\end{aligned}
+\]</div>
+<p>Binomial coefficients outside their index range are zero. The identities</p>
+<div class="math-display">\[
+\binom{m-1}{\ell}+\binom{m-1}{\ell-1}=\binom{m}{\ell},
+\qquad m\binom{m-1}{\ell-1}=\ell\binom{m}{\ell}
+\]</div>
+<p>reduce the square bracket to \(\binom{m}{\ell}(x-\ell)\), completing the induction. Returning to the original parameter,</p>
+<div class="math-display">\[
+\boxed{N_{m,i}(u)=\frac{1}{(m-1)!\,h^{m-1}}
+\sum_{\ell=0}^{m}(-1)^\ell\binom{m}{\ell}(u-u_{i+\ell})_+^{m-1}.}
+\]</div>
+<p>The factor \(h^{m-1}\) follows from \(x-\ell=(u-u_{i+\ell})/h\). For \(m=1\), use the half-open step function defined above. The explicit formula is useful for derivations; Cox–de Boor recursion avoids cancellation between large truncated-power terms during numerical evaluation.</p>
+
+<h3 id="periodic-basis-wrapping">Constructing the Periodic Basis</h3>
+<p>Choose \(c\) independent control points \(\mathbf P_0,\ldots,\mathbf P_{c-1}\), with \(c\ge m\) for the usual construction, and let one period contain \(c\) uniform knot spans:</p>
+<div class="math-display">\[
+T=ch,\qquad u_{i+c}=u_i+T,\qquad \mathbf P_{i+c}=\mathbf P_i.
+\]</div>
+<p>The control points repeat, while knot values increase by \(T\). Begin with the extended basis representation</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{j\in\mathbb Z}N_{m,j}(u)\mathbf P_{j\bmod c},
+\]</div>
+<p>where \(j\bmod c\) is the index in \(\{0,\ldots,c-1\}\). Write each integer uniquely as \(j=i+qc\), where \(0\le i&lt;c\) and \(q\in\mathbb Z\). Grouping the terms for the same control point gives</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{i=0}^{c-1}\left[\sum_{q\in\mathbb Z}N_{m,i+qc}(u)\right]\mathbf P_i.
+\]</div>
+<p>This defines the periodic basis:</p>
+<div class="math-display">\[
+\boxed{N^{\mathrm{per}}_{m,i}(u)=\sum_{q\in\mathbb Z}N_{m,i+qc}(u),
+\qquad i=0,\ldots,c-1.}
+\]</div>
+<p>For uniform knots, \(N_{m,i+qc}(u)=N_{m,i}(u-qT)\), so an equivalent formula in terms of the shape already derived is</p>
+<div class="math-display">\[
+\boxed{N^{\mathrm{per}}_{m,i}(u)=\sum_{q\in\mathbb Z}
+B_m\!\left(\frac{u-u_0}{h}-i-qc\right).}
+\]</div>
+<p>Only finitely many terms are nonzero at any fixed \(u\), because each ordinary basis function has compact support. The wrapped function repeats over the whole real line; its support within one period may cross the seam.</p>
+<p>Replacing \(u\) by \(u+T\) and relabelling the integer index proves periodicity:</p>
+<div class="math-display">\[
+\begin{aligned}
+N^{\mathrm{per}}_{m,i}(u+T)
+&amp;=\sum_{q\in\mathbb Z}N_{m,i}\bigl(u-(q-1)T\bigr)\\
+&amp;=N^{\mathrm{per}}_{m,i}(u).
+\end{aligned}
+\]</div>
+<p>Consequently,</p>
+<div class="math-display">\[
+\boxed{\mathbf r(u)=\sum_{i=0}^{c-1}N^{\mathrm{per}}_{m,i}(u)\mathbf P_i,
+\qquad \mathbf r(u+T)=\mathbf r(u).}
+\]</div>
+<p>Wrapping also preserves nonnegativity and partition of unity:</p>
+<div class="math-display">\[
+N^{\mathrm{per}}_{m,i}(u)\ge0,\qquad
+\sum_{i=0}^{c-1}N^{\mathrm{per}}_{m,i}(u)=\sum_{j\in\mathbb Z}N_{m,j}(u)=1.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The superscript \(\mathrm{per}\) distinguishes a periodic basis function from the ordinary compactly supported \(N_{m,i}\). At simple knots and \(m\ge2\), both have \(C^{m-2}=C^{n-1}\) continuity, including across the seam of the periodic representation.</p></div></aside>
+
+<h3 id="periodic-cubic-seam">Cubic Curve and Continuity at the Seam</h3>
+<p>The cubic blending polynomials remain the same; the control-point indices are now cyclic:</p>
+<div class="math-display">\[
+\boxed{\mathbf r(u_j+ht)=\sum_{a=0}^{3}b_a(t)\mathbf P_{(j-3+a)\bmod c}.}
+\]</div>
+<p>For \(c\ge4\), the first span of \([u_0,u_0+T)\) uses</p>
+<div class="math-display">\[
+\mathbf r(u_0+ht)=b_0(t)\mathbf P_{c-3}+b_1(t)\mathbf P_{c-2}
++b_2(t)\mathbf P_{c-1}+b_3(t)\mathbf P_0.
+\]</div>
+<p>At its start, the weights are \((1,4,1,0)/6\). At the end of the last span, the weights tend to \((0,1,4,1)/6\), applied to \(\mathbf P_{c-4},\mathbf P_{c-3},\mathbf P_{c-2},\mathbf P_{c-1}\). Thus the position matches:</p>
+<div class="math-display">\[
+\mathbf r(u_0)=\mathbf r(u_0+T)
+=\frac{\mathbf P_{c-3}+4\mathbf P_{c-2}+\mathbf P_{c-1}}{6}.
+\]</div>
+<p>Differentiating the blending polynomials, with \(dt/du=1/h\), gives the matching first and second derivatives:</p>
+<div class="math-display">\[
+\mathbf r'(u_0)=\mathbf r'(u_0+T)
+=\frac{\mathbf P_{c-1}-\mathbf P_{c-3}}{2h},
+\]</div>
+<div class="math-display">\[
+\mathbf r''(u_0)=\mathbf r''(u_0+T)
+=\frac{\mathbf P_{c-3}-2\mathbf P_{c-2}+\mathbf P_{c-1}}{h^2}.
+\]</div>
+<p>The cubic curve therefore has \(C^2\) continuity at the seam. Merely making the first and last control points coincide does not enforce these derivative conditions.</p>
+
+<h3 id="nonuniform-periodic-basis">Nonuniform Periodic B-Splines</h3>
+<p>Uniform spacing is sufficient but not necessary. More generally, choose an extended nondecreasing knot sequence such that</p>
+<div class="math-display">\[
+u_{i+c}=u_i+T,\qquad T&gt;0.
+\]</div>
+<p>The interval pattern repeats because \(u_{i+c+1}-u_{i+c}=u_{i+1}-u_i\), even when the spacings are unequal. The order-one basis satisfies \(N_{1,i+c}(u+T)=N_{1,i}(u)\). In the general Cox–de Boor recursion, shifting \(i\) by \(c\) and \(u\) by \(T\) leaves every knot difference and weight unchanged. Induction on the order therefore gives</p>
+<div class="math-display">\[
+N_{m,i+c}(u+T)=N_{m,i}(u).
+\]</div>
+<p>The same wrapping construction \(N^{\mathrm{per}}_{m,i}(u)=\sum_{q\in\mathbb Z}N_{m,i+qc}(u)\) consequently produces a periodic basis. The explicit shapes \(B_m\) and the four cubic polynomials \(b_a\) above apply to uniform spacing; for nonuniform knots, compute the local pieces with the general recurrence. Repeated knots can reduce continuity.</p>
+<p>Derivation adapted from the <a href="https://chatgpt.com/share/6a9e6811-b5b8-83ee-8c85-5d76c81fcba5">shared periodic B-spline discussion</a>. Further reading: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-basis.html">B-spline basis definition</a>, <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-closed.html">closed B-spline curves</a>, and <a href="https://jipolanco.github.io/BSplineKit.jl/stable/bsplines/#Periodic-B-spline-bases">periodic knot sequences</a>.</p>
       <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../curves/index.html"><span>Previous module</span><strong>Curves</strong></a><a class="notes-nav-link next" href="../surfaces/index.html"><span>Next module</span><strong>Surfaces</strong></a></nav>
     </article>
   </main>
