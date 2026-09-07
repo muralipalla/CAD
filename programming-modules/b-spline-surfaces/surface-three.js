@@ -1,7 +1,7 @@
 (function () {
   "use strict";
   // The 3D scene is independent of control-grid editing and surface mathematics.
-  window.SurfaceThree = function (canvas, fallback, onSelect = () => {}) {
+  window.SurfaceThree = function (canvas, fallback, onSelect = () => {}, onViewChange = () => {}) {
     const THREE = window.THREE;
     let renderer;
     try {
@@ -10,15 +10,19 @@
     } catch {
       fallback.hidden = false;
       canvas.hidden = true;
-      return { update() {}, reset() {}, zoom() {}, dispose() {} };
+      return { available: false, update() {}, reset() {}, zoom() {}, setView() {}, dispose() {},
+        pngBlob() { return Promise.reject(new Error("PNG export requires an available 3D view.")); } };
     }
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x171541);
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
-    camera.up.set(0, 0, 1);
+    const perspective = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
+    perspective.up.set(0, 0, 1);
+    const orthographic = new THREE.OrthographicCamera(-8, 8, 8, -8, 0.1, 200);
+    orthographic.up.set(0, 1, 0);
+    let camera = perspective, viewMode = "perspective", aspect = 1, contextLost = false;
     const target = new THREE.Vector3(5, 5, 0);
     let azimuth = -0.9, elevation = 0.65, radius = 23;
-    let content = new THREE.Group(), handles = [];
+    let content = new THREE.Group(), handles = [], pointLabels = [];
     const raycaster = new THREE.Raycaster();
     scene.add(content);
     scene.add(new THREE.AmbientLight(0xffffff, 1.2));
@@ -32,6 +36,8 @@
     grid.rotation.x = Math.PI / 2;
     grid.position.set(5, 5, -0.01);
     scene.add(grid);
+    const axes = new THREE.Group();
+    scene.add(axes);
 
     function textSprite(text, color = "#ffffff", width = 1.1) {
       const bitmap = document.createElement("canvas");
@@ -52,14 +58,28 @@
     for (const [direction, color, label, length] of [
       [[1, 0, 0], 0xff9986, "x", 10.5], [[0, 1, 0], 0x76dcc1, "y", 10.5], [[0, 0, 1], 0x8ac7ff, "z", 5.8]
     ]) {
-      scene.add(new THREE.ArrowHelper(new THREE.Vector3(...direction), new THREE.Vector3(), length, color, .3, .15));
+      axes.add(new THREE.ArrowHelper(new THREE.Vector3(...direction), new THREE.Vector3(), length, color, .3, .15));
       const sprite = textSprite(label, `#${color.toString(16)}`, .8);
       sprite.position.set(...direction.map((v) => v * (length + .4)));
-      scene.add(sprite);
+      axes.add(sprite);
     }
     function cameraPosition() {
-      camera.position.set(target.x + radius * Math.cos(elevation) * Math.cos(azimuth),
-        target.y + radius * Math.cos(elevation) * Math.sin(azimuth), target.z + radius * Math.sin(elevation));
+      camera = viewMode === "perspective" ? perspective : orthographic;
+      if (viewMode === "perspective") {
+        camera.position.set(target.x + radius * Math.cos(elevation) * Math.cos(azimuth),
+          target.y + radius * Math.cos(elevation) * Math.sin(azimuth), target.z + radius * Math.sin(elevation));
+      } else {
+        // Match the free-view scale and fit both axes when the canvas is narrow.
+        const halfHeight = radius * Math.tan(20 * Math.PI / 180) / Math.min(1, aspect);
+        orthographic.left = -halfHeight * aspect; orthographic.right = halfHeight * aspect;
+        orthographic.top = halfHeight; orthographic.bottom = -halfHeight;
+        orthographic.updateProjectionMatrix();
+        camera.position.set(target.x, target.y, target.z + (viewMode === "top" ? radius : -radius));
+      }
+      for (const { sprite, point } of pointLabels) {
+        sprite.position.set(point.x, point.y + (viewMode === "perspective" ? 0 : .45),
+          point.z + (viewMode === "perspective" ? .4 : 0));
+      }
       camera.lookAt(target);
     }
     function render() {
@@ -77,10 +97,13 @@
     }
     function update(points, selected, options) {
       const size = Math.sqrt(points.length);
+      axes.visible = options.axes !== false;
+      grid.visible = options.grid !== false;
       scene.remove(content);
       release(content);
       content = new THREE.Group();
       handles = [];
+      pointLabels = [];
       scene.add(content);
       if (SurfaceMath.GRID_SIZES.includes(size)) {
         const sampled = SurfaceMath.sample(points, 60, options.mode, options.order);
@@ -109,6 +132,7 @@
         content.add(new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffd166 })));
       }
       points.forEach((p, index) => {
+        if (options.points === false) return;
         const colors = [0xff9986, 0x76dcc1, 0xb8a7f5, 0xffd166, 0x8ac7ff, 0xf3a6d1];
         const sphere = new THREE.Mesh(new THREE.SphereGeometry(index === selected ? .17 : .11, 12, 8),
           new THREE.MeshBasicMaterial({ color: index === selected ? 0xffffff : colors[Math.floor(index / size)] }));
@@ -118,7 +142,7 @@
         content.add(sphere);
         if (options.labels) {
           const sprite = textSprite(SurfaceMath.label(index, size));
-          sprite.position.set(p.x, p.y, p.z + .4);
+          pointLabels.push({ sprite, point: p });
           content.add(sprite);
         }
       });
@@ -129,12 +153,29 @@
       if (!width || !height) return;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+      aspect = width / height;
+      perspective.aspect = aspect;
+      perspective.updateProjectionMatrix();
       render();
     }
-    function reset() { azimuth = -.9; elevation = .65; radius = 23; render(); }
+    function setView(mode) {
+      if (!["perspective", "top", "bottom"].includes(mode)) throw new RangeError("Unknown viewing direction.");
+      viewMode = mode; onViewChange(viewMode); render();
+    }
+    function reset() { azimuth = -.9; elevation = .65; radius = 23; setView("perspective"); }
     function zoom(factor) { radius = SurfaceMath.clamp(radius * factor, 7, 65); render(); }
+    function enterOrbit() {
+      if (viewMode === "perspective") return;
+      elevation = viewMode === "top" ? 1.35 : -1.35; azimuth = -Math.PI / 2;
+      viewMode = "perspective"; onViewChange(viewMode);
+    }
+    function pngBlob() {
+      if (contextLost) return Promise.reject(new Error("The 3D view is unavailable. Reload the page before exporting."));
+      return new Promise((resolve, reject) => {
+        render(); // Capture a fresh frame before WebGL clears the drawing buffer.
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The PNG could not be created. Please try again.")), "image/png");
+      });
+    }
     let drag = null;
     canvas.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
@@ -148,6 +189,7 @@
         if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) <= 5) return;
         drag.moved = true;
       }
+      enterOrbit();
       azimuth -= (event.clientX - drag.x) * .008;
       elevation = SurfaceMath.clamp(elevation + (event.clientY - drag.y) * .008, -1.35, 1.35);
       drag.x = event.clientX; drag.y = event.clientY;
@@ -176,6 +218,7 @@
       if (event.key === "Home") return reset();
       if (["+", "="].includes(event.key)) return zoom(.88);
       if (event.key === "-") return zoom(1.14);
+      enterOrbit();
       if (event.key === "ArrowLeft") azimuth -= .12;
       if (event.key === "ArrowRight") azimuth += .12;
       if (event.key === "ArrowUp") elevation += .1;
@@ -183,11 +226,12 @@
       elevation = SurfaceMath.clamp(elevation, -1.35, 1.35);
       render();
     });
-    canvas.addEventListener("webglcontextlost", (event) => { event.preventDefault(); fallback.textContent = "The 3D view lost its graphics connection. Reload this page to restart it; copy your point coordinates first."; fallback.hidden = false; });
-    canvas.addEventListener("webglcontextrestored", () => { fallback.hidden = true; render(); });
+    canvas.addEventListener("webglcontextlost", (event) => { event.preventDefault(); contextLost = true; fallback.textContent = "The 3D view lost its graphics connection. Reload this page to restart it; copy your point coordinates first."; fallback.hidden = false; });
+    canvas.addEventListener("webglcontextrestored", () => { contextLost = false; fallback.hidden = true; render(); });
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
     resize();
-    return { update, reset, zoom, dispose() { observer.disconnect(); release(scene); renderer.dispose(); } };
+    return { get available() { return !contextLost; }, update, reset, zoom, setView, pngBlob,
+      dispose() { observer.disconnect(); release(scene); renderer.dispose(); } };
   };
 })();

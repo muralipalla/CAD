@@ -9,13 +9,13 @@
   <!-- Update each local asset's content-hash version when that file changes. -->
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/curve-labs.css">
-  <link rel="stylesheet" href="app.css?v=d6665f10aba4">
+  <link rel="stylesheet" href="app.css?v=10d04e745ac5">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
   <script src="surface-math.js?v=8ffb5e762478" defer></script>
-  <script src="surface-three.js?v=b7b9d7b82459" defer></script>
+  <script src="surface-three.js?v=f7ad716df276" defer></script>
   <script src="surface-code.js?v=a637d6ddd007" defer></script>
-  <script src="app.js?v=f67c185f2f74" defer></script>
+  <script src="app.js?v=90d645f76866" defer></script>
   <script>
     window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };
   </script>
@@ -50,8 +50,9 @@
         <div class="window-heading"><div><p class="card-kicker">Window 1 · x–y grid</p><h2 id="input-title">Edit the control grid</h2></div><button class="mini-button" data-reset-grid type="button">Reset square grid</button></div>
         <p class="selection-prompt" data-prompt role="status" aria-live="polite">Selected P00 · drag to move, or edit its coordinates.</p>
         <div class="coordinate-fields">
-          <label class="lab-field"><span>x</span><input data-x type="number" min="0" max="10" step="0.1" value="2" aria-label="Selected point x coordinate"></label>
-          <label class="lab-field"><span>y</span><input data-y type="number" min="0" max="10" step="0.1" value="2" aria-label="Selected point y coordinate"></label>
+          <label class="lab-field"><span>x</span><input data-x type="number" min="0" max="10" step="0.01" value="2" aria-label="Selected point x coordinate"></label>
+          <label class="lab-field"><span>y</span><input data-y type="number" min="0" max="10" step="0.01" value="2" aria-label="Selected point y coordinate"></label>
+          <label class="lab-field"><span>z</span><input data-z-coordinate type="number" min="-5" max="5" step="0.01" value="0" aria-label="Selected point z coordinate"></label>
         </div>
         <div class="xy-frame">
           <canvas data-xy width="600" height="600" tabindex="0" aria-label="Editable square grid of 16 control points, x-y coordinates from 0 to 10" aria-describedby="xy-help">Select and drag points, or use the point selector and coordinate inputs.</canvas>
@@ -59,7 +60,7 @@
         <p class="interaction-hint" id="xy-help">Select and drag a point to change x and y. Arrow keys move the selected point; hold Shift for larger steps. Press [ or ] to select the previous or next point, and Enter to adjust its height.</p>
         <div class="height-editor">
           <div class="height-heading"><label for="point-height" data-height-label>Height z · P00</label><output data-height-output for="point-height">0.00</output></div>
-          <input id="point-height" data-z type="range" min="-5" max="5" step="0.05" value="0" aria-describedby="height-help">
+          <input id="point-height" data-z type="range" min="-5" max="5" step="0.01" value="0" aria-describedby="height-help">
           <div class="range-labels" aria-hidden="true"><span>−5</span><span>0</span><span>+5</span></div>
           <p id="height-help">Select a point in either view or the point selector, then adjust its height.</p>
         </div>
@@ -68,10 +69,19 @@
       <article class="lab-window view-window" aria-labelledby="view-title">
         <div class="window-heading"><div><p class="card-kicker">Window 2 · Three.js</p><h2 id="view-title">Surface in 3D</h2></div><button class="mini-button" data-reset-view type="button">Reset view</button></div>
         <div class="view-controls">
+          <label class="toggle-control"><input data-points type="checkbox" checked><span>Control points</span></label>
           <label class="toggle-control"><input data-net type="checkbox" checked><span>Control net</span></label>
           <label class="toggle-control"><input data-labels type="checkbox" checked><span>Point labels</span></label>
+          <label class="toggle-control"><input data-axes type="checkbox" checked><span>x–y–z axes</span></label>
+          <label class="toggle-control"><input data-grid type="checkbox" checked><span>x–y grid</span></label>
           <label class="toggle-control"><input data-wireframe type="checkbox"><span>Wireframe</span></label>
         </div>
+        <div class="view-tools">
+          <label class="lab-field"><span>Viewing direction</span><select data-view-preset aria-describedby="view-help"><option value="perspective">Free 3D view</option><option value="top">Top · from +z</option><option value="bottom">Bottom · from −z</option></select></label>
+          <button class="mini-button" data-download-png type="button">Download PNG</button>
+        </div>
+        <p class="interaction-hint view-help" id="view-help">Top and bottom views look along the z-axis without perspective. Drag to return to free 3D. PNG saves the current view and visible items.</p>
+        <p class="interaction-hint" data-download-status role="status" aria-live="polite"></p>
         <div class="three-frame">
           <canvas data-three tabindex="0" aria-label="Three-dimensional B-spline surface with z pointing up" aria-describedby="three-help"></canvas>
           <p class="three-fallback" data-three-fallback hidden role="status">3D visualization is unavailable because WebGL could not start. You can still enter coordinates and use the generated program.</p>

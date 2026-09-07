@@ -14,8 +14,9 @@
 .xy-frame { width: 100%; aspect-ratio: 1; border-radius: 1rem; overflow: hidden; background: #171541; }
 .xy-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 .xy-frame canvas:active { cursor: grabbing; }
-.coordinate-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; align-items: end; margin: .75rem 0; }
+.coordinate-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; align-items: end; margin: .75rem 0; }
 .coordinate-fields .lab-field { min-width: 0; }
+.coordinate-fields input { min-width: 0; }
 .height-editor { border: 1px solid var(--line); border-radius: 1rem; padding: 1rem; margin: 1rem 0; background: var(--lavender-light); }
 .height-heading { display: flex; justify-content: space-between; gap: .6rem; align-items: center; font-size: .95rem; font-weight: 800; }
 .height-heading output { font-family: ui-monospace, monospace; color: var(--navy); font-size: 1.2rem; }
@@ -23,6 +24,11 @@
 .range-labels { display: flex; justify-content: space-between; color: var(--ink-soft); font: .875rem ui-monospace, monospace; }
 .height-editor p { font-size: .875rem; color: var(--ink-soft); }
 .view-controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.view-tools { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
+.view-tools .lab-field { flex: 1 1 12rem; min-width: 0; }
+.view-tools button { min-height: 2.75rem; }
+.view-help { margin-bottom: .8rem; }
+.toggle-control:has(input:disabled) { opacity: .55; }
 .three-frame { position: relative; height: clamp(22rem, 40vw, 37rem); border-radius: 1rem; overflow: hidden; background: #171541; }
 .three-frame canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
 .three-frame canvas:active { cursor: grabbing; }

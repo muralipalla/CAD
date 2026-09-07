@@ -4,9 +4,14 @@
   const state = new Math3.Grid();
   const $ = (name) => document.querySelector(`[data-${name}]`);
   const canvas = $("xy"), ctx = canvas.getContext("2d");
-  const view = new window.SurfaceThree($("three"), $("three-fallback"), (index) => { if (state.select(index)) update(); });
+  const view = new window.SurfaceThree($("three"), $("three-fallback"), (index) => { if (state.select(index)) update(); }, (mode) => {
+    $("view-preset").value = mode;
+    $("three").setAttribute("aria-label", mode === "perspective" ? "Three-dimensional B-spline surface with z pointing up" : `B-spline surface viewed from ${mode === "top" ? "positive" : "negative"} z along the z-axis`);
+  });
+  $("download-png").disabled = !view.available;
+  $("view-preset").disabled = !view.available;
   const colors = ["#ff9986", "#76dcc1", "#b8a7f5", "#ffd166", "#8ac7ff", "#f3a6d1"];
-  let language = "python", drag = null, frame = 0;
+  let language = "python", drag = null, frame = 0, exporting = false;
   let cells = [];
   function gridControls() {
     if (cells.length === state.points.length) return;
@@ -82,8 +87,14 @@
     if (frame) return;
     frame = requestAnimationFrame(() => {
       frame = 0; draw();
-      view.update(state.points, state.selected, { mode: state.mode, order: state.order, net: $("net").checked, labels: $("labels").checked, wireframe: $("wireframe").checked });
+      refreshView();
     });
+  }
+  function refreshView() {
+    $("labels").disabled = !$("points").checked;
+    view.update(state.points, state.selected, { mode: state.mode, order: state.order,
+      points: $("points").checked, axes: $("axes").checked, grid: $("grid").checked,
+      net: $("net").checked, labels: $("labels").checked, wireframe: $("wireframe").checked });
   }
   function updateCode() {
     $("code").textContent = window.SurfaceCode[language](state.points, state.mode, state.order);
@@ -97,6 +108,7 @@
     const prompt = `Selected ${selectedLabel} · drag to move, or edit its coordinates.`;
     if ($("prompt").textContent !== prompt) $("prompt").textContent = prompt;
     $("x").value = point.x.toFixed(2); $("y").value = point.y.toFixed(2);
+    $("z-coordinate").value = point.z.toFixed(2);
     $("z").value = point.z;
     $("height-output").textContent = point.z.toFixed(2);
     $("height-label").textContent = `Height z · ${selectedLabel}`;
@@ -120,9 +132,10 @@
   $("mode").addEventListener("change", () => { state.setMode($("mode").value); update(); });
   $("size").addEventListener("change", () => { drag = null; state.setSize(Number($("size").value)); update(); });
   $("order").addEventListener("change", () => { state.setOrder(Number($("order").value)); update(); });
-  for (const axis of ["x", "y"]) {
-    $(axis).addEventListener("change", () => {
-      const input = $(axis), value = input.valueAsNumber;
+  for (const axis of ["x", "y", "z"]) {
+    const input = $(axis === "z" ? "z-coordinate" : axis);
+    input.addEventListener("change", () => {
+      const value = input.valueAsNumber;
       if (Number.isFinite(value)) {
         state.edit(axis, value);
       }
@@ -176,10 +189,36 @@
     state.edit(axis, state.points[state.selected][axis] + change);
     update();
   });
-  for (const name of ["net", "labels", "wireframe"]) $(name).addEventListener("change", scheduleGraphics);
+  for (const name of ["points", "net", "labels", "axes", "grid", "wireframe"]) $(name).addEventListener("change", scheduleGraphics);
+  $("view-preset").addEventListener("change", () => view.setView($("view-preset").value));
   $("reset-view").addEventListener("click", () => view.reset());
   $("zoom-in").addEventListener("click", () => view.zoom(.85));
   $("zoom-out").addEventListener("click", () => view.zoom(1.18));
+  function exportAvailability() {
+    $("download-png").disabled = exporting || !view.available;
+    $("view-preset").disabled = !view.available;
+  }
+  for (const event of ["webglcontextlost", "webglcontextrestored"]) $("three").addEventListener(event, exportAvailability);
+  $("download-png").addEventListener("click", async () => {
+    if (exporting || !view.available) return;
+    const button = $("download-png");
+    exporting = true;
+    button.disabled = true;
+    $("download-status").textContent = "Preparing PNG…";
+    try {
+      if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      draw(); refreshView();
+      const filename = `b-spline-surface-${state.size}x${state.size}-order-${state.order}-${state.mode}-${$("view-preset").value}.png`;
+      const blob = await view.pngBlob();
+      const url = URL.createObjectURL(blob), link = document.createElement("a");
+      link.href = url; link.download = filename;
+      document.body.append(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      $("download-status").textContent = "PNG download started.";
+    } catch (error) {
+      $("download-status").textContent = error.message || "The PNG could not be created. Please try again.";
+    } finally { exporting = false; exportAvailability(); }
+  });
   document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => { language = button.dataset.language; updateCode(); }));
   $("copy").addEventListener("click", async () => {
     try {
