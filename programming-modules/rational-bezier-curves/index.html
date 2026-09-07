@@ -142,11 +142,49 @@
       <p>At \(\theta=90^\circ\), \(w_1=0\) and \(\mathbf p_1\) is not finite. Evaluate the lifted polynomial and divide by W directly, using the final coordinate equation; never multiply zero by an infinite control coordinate. For \(90^\circ<\theta<180^\circ\), the negative middle weight produces the major circular arc.</p>
       <p>Since \(X^2+Y^2=r^2W^2\) on the cone, the projected coordinates satisfy \(r_x(u)^2+r_y(u)^2=r^2\) exactly. The curve passes through the endpoints, and \(\mathbf r(\tfrac12)=(r,0,1)\). Its angle is generally <strong>not linear in u</strong>.</p>
 
-      <h3>9. Interpret w as the weight coordinate</h3>
-      <p>A point \((x_i,y_i)\) in two dimensions is lifted to \((w_ix_i,w_iy_i,w_i)\) in three dimensions. Polynomial Bézier blending happens in this higher-dimensional space. Returning to the plane \(w=1\) requires division by \(W(u)=\sum_iw_iB_{i,n}(u)\); this division creates the rational denominator.</p>
+      <h3 id="weighted-lifting-and-rational-basis">9. From weighted lifting to rational basis functions</h3>
+      <p>To construct a rational Bézier curve from <strong>finite 2D control points</strong> and their weights, introduce \(\mathbf q_i=(x_i,y_i)\), with weight \(w_i\), for \(i=0,1,2\). Its representative on the projection plane is \(\mathbf p_i=(x_i,y_i,1)\), consistent with the notation above. The notes write the Bernstein basis as \(B_{i,n}(u)\): the first index identifies the basis function and the second is the degree. Here \(n=2\).</p>
+
+      <p><strong>Lift the controls.</strong> Introduce the weighted spatial coordinates \(X_i=w_ix_i\) and \(Y_i=w_iy_i\). Both spatial coordinates must be multiplied by their weight when forming the 3D homogeneous control:</p>
+      <div class="equation">\[\boxed{\mathbf P_i=(X_i,Y_i,w_i)=(w_ix_i,w_iy_i,w_i)=w_i\mathbf p_i.}\]</div>
+      <p>Lowercase \(x_i,y_i\) are the final 2D control coordinates; uppercase \(X_i,Y_i\) are the coordinates after weighted lifting. The lowercase w-axis names the third coordinate of this homogeneous space, while \(W(u)\) denotes that coordinate along the curve.</p>
+
+      <p><strong>Blend in homogeneous space.</strong> The polynomial Bézier curve remains \(\mathbf H(u)=\sum_{i=0}^{2}B_{i,2}(u)\mathbf P_i=(X(u),Y(u),W(u))\). Its three components are</p>
+      <div class="equation">\[\begin{aligned}
+        X(u)&=w_0x_0B_{0,2}(u)+w_1x_1B_{1,2}(u)+w_2x_2B_{2,2}(u),\\
+        Y(u)&=w_0y_0B_{0,2}(u)+w_1y_1B_{1,2}(u)+w_2y_2B_{2,2}(u),\\
+        W(u)&=w_0B_{0,2}(u)+w_1B_{1,2}(u)+w_2B_{2,2}(u).
+      \end{aligned}\]</div>
+
+      <p><strong>Project onto w = 1.</strong> Introduce \(x'(u)\) and \(y'(u)\) for the projected coordinates, so \(\mathbf r(u)=(x'(u),y'(u),1)\). The primes here label projected coordinates, not derivatives. Where \(W(u)\ne0\), the projection matrix from step 7 gives</p>
+      <div class="equation">\[x'(u)=\frac{X(u)}{W(u)}=
+        \frac{w_0x_0B_{0,2}(u)+w_1x_1B_{1,2}(u)+w_2x_2B_{2,2}(u)}
+        {w_0B_{0,2}(u)+w_1B_{1,2}(u)+w_2B_{2,2}(u)},
+        \qquad y'(u)=\frac{Y(u)}{W(u)}.\]</div>
+      <p>Group the x-coordinate expression by the original 2D coordinates:</p>
+      <div class="equation">\[x'(u)=x_0\left(\frac{w_0B_{0,2}(u)}{W(u)}\right)
+        +x_1\left(\frac{w_1B_{1,2}(u)}{W(u)}\right)
+        +x_2\left(\frac{w_2B_{2,2}(u)}{W(u)}\right).\]</div>
+
+      <p><strong>Define the rational basis.</strong> Introduce \(R_{i,2}(u)\), using the same index order as the Bernstein basis:</p>
+      <div class="result-box">
+        <div class="equation">\[\boxed{R_{i,2}(u)=\frac{w_iB_{i,2}(u)}{W(u)}
+          =\frac{w_iB_{i,2}(u)}{\displaystyle\sum_{j=0}^{2}w_jB_{j,2}(u)},
+          \qquad i=0,1,2.}\]</div>
+        <div class="equation">\[\begin{aligned}
+          x'(u)&=x_0R_{0,2}(u)+x_1R_{1,2}(u)+x_2R_{2,2}(u),\\
+          y'(u)&=y_0R_{0,2}(u)+y_1R_{1,2}(u)+y_2R_{2,2}(u).
+        \end{aligned}\]</div>
+        <div class="equation">\[\boxed{(x'(u),y'(u))=\sum_{i=0}^{2}R_{i,2}(u)\mathbf q_i.}\]</div>
+      </div>
+      <p>These rational basis functions sum to one wherever \(W(u)\ne0\), since their numerators sum to W. For positive weights they are also nonnegative. With negative weights, their sum remains one, but nonnegativity is not guaranteed.</p>
+
+      <p><strong>Where the numerator weights enter.</strong> If \(x_i,y_i\) denote the final 2D coordinates, starting with \(X(u)=\sum_i x_iB_{i,2}(u)\) would omit the weights during lifting. Division by W would then give coefficients \(B_{i,2}(u)/W(u)\), rather than the required \(w_iB_{i,2}(u)/W(u)\). The weighted lift supplies the missing factors.</p>
+      <p>In the cone construction above, \(\mathbf P_i\) already contains the weighted homogeneous coordinates. Consequently, \(X(u)=\sum_iX_iB_{i,2}(u)\) is correct: the weights are contained in \(X_i=w_ix_i\). For example, when \(c\ne0\), the projected middle control has \(x_1=r/c\) and \(w_1=c\), so \(X_1=w_1x_1=c(r/c)=r\), exactly the first coordinate of \(\mathbf P_1=(r,0,c)\). Multiplying these already lifted coordinates by the weights again would count the weights twice.</p>
+      <p>The finite-control lifting above does not describe the middle control at \(\theta=90^\circ\): there \(\mathbf P_1=(r,0,0)\) projects to infinity and cannot be obtained by multiplying a finite \(\mathbf p_1\) by zero. Retain that homogeneous control directly and use \((X/W,Y/W,1)\), as in step 8. Projection is undefined wherever \(W(u)=0\).</p>
       <p>This is the two-dimensional version of the notes’ <a href="../../cad-modules/curves/index.html#homogeneous-coordinates-and-rational-curves">homogeneous-coordinate construction</a> for a 3D curve lifted into 4D. The projected controls \(\mathbf p_i\) here play the role of \(\mathbf P_i\) in the notes’ rational-curve formula.</p>
       <p><strong>Try it:</strong> set \(\theta=45^\circ\) for a quarter circle with middle weight \(1/\sqrt2\), 90° for a semicircle, and 120° for a 240° major arc with middle weight \(-1/2\).</p>
-      <p><strong>At 0°:</strong> the selected arc collapses to \((r,0,1)\). <strong>At 180°:</strong> PL becomes the tangent plane \(x+rw=0\), and the quadratic degenerates to \(\mathbf H(u)=(-rt^2,0,t^2)\), where \(t=2u-1\). It reaches O at \(u=1/2\), where projection is undefined. Everywhere else it projects to \((-r,0,1)\). The fixed circle C is the 360° limiting reference, not the projection of this degenerate quadratic. An exact full circle needs multiple rational Bézier spans.</p>
+      <p><strong>At 0°:</strong> the selected arc collapses to \((r,0,1)\). <strong>At 180°:</strong> PL becomes the tangent plane \(x+rw=0\), and the quadratic degenerates to \(\mathbf H(u)=(-rt^2,0,t^2)\), where \(t=2u-1\). It reaches O at \(u=1/2\), where projection is undefined. Everywhere else it projects to \((-r,0,1)\). The fixed circle C is the 360° limiting reference, not the projection of this degenerate quadratic. Representing an exact full circle with rational quadratic Bézier curves requires multiple spans.</p>
       <p>For stable evaluation near 180°, set \(a=\cos(\theta/2)\), \(b=\sin(\theta/2)\). Then \(\mathbf H(u)=(r(a^2-b^2t^2),\,2rabt,\,a^2+b^2t^2)\). The visualization uses this equivalent form and samples the polar angle densely enough to resolve the major arc.</p>
       <p class="further-reading">Related reading: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB-conics.html">C.-K. Shene, Rational Bézier Curves: Conic Sections</a>, Michigan Technological University.</p>
     </section>
