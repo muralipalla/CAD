@@ -33,9 +33,10 @@
       const [x, y] = pixel(p); ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
       if (label && showLabels) text(label, p, dx, dy, color);
     }
-    path([[left, 0], [right + 0.08 * r, 0]], "#555179");
-    path([[0, -1.15 * r], [0, 1.15 * r]], "#555179");
-    text("x", [right + 0.08 * r, 0], 8, 22); text("y", [0, 1.15 * r], -20, 0);
+    const axisColor = "#ffe066";
+    path([[left, 0], [right + 0.08 * r, 0]], axisColor);
+    path([[0, -1.15 * r], [0, 1.15 * r]], axisColor);
+    text("x", [right + 0.08 * r, 0], 8, 22, axisColor); text("y", [0, 1.15 * r], -20, 0, axisColor);
     text("0", [0, 0], -18, 18, "#c9c6e4");
     const circle = Array.from({ length: 161 }, (_, i) => [r * Math.cos(i * Math.PI / 80), r * Math.sin(i * Math.PI / 80)]);
     path(circle, "#a6a3c6", 1.5);

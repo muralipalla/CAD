@@ -12,9 +12,9 @@
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
   <script src="rational-math.js?v=bed15aee2a3d" defer></script>
-  <script src="rational-three.js?v=bf9eb63c1406" defer></script>
+  <script src="rational-three.js?v=920153716696" defer></script>
   <script src="rational-code.js?v=68aff3e908ff" defer></script>
-  <script src="app.js?v=07c25cfd1d5a" defer></script>
+  <script src="app.js?v=06f1037bafef" defer></script>
   <script>window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };</script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
 </head>
@@ -50,9 +50,9 @@
     <section class="projection-workspace" aria-label="Linked three-dimensional and projected views">
       <article class="lab-window spatial-panel">
         <div class="window-heading"><div><p class="card-kicker">3D construction · x, y, w</p><h2>From parabola to circle</h2></div></div>
-        <div class="view-frame"><canvas data-three-canvas tabindex="0" aria-label="Three-dimensional cone, cutting plane, parabola and circular projection. Drag or use arrow keys to orbit. Plus and minus zoom; Home resets." aria-describedby="view-help"></canvas><p class="view-fallback" data-three-fallback hidden>The 3D view needs WebGL. The projected view, values and derivation remain available.</p></div>
+        <div class="view-frame"><canvas data-three-canvas tabindex="0" aria-label="Three-dimensional cone, cutting plane, parabola and circular projection on the plane w = 1. Drag or use arrow keys to orbit. Plus and minus zoom; Home resets." aria-describedby="view-help"></canvas><p class="view-fallback" data-three-fallback hidden>The 3D view needs WebGL. The projected view, values and derivation remain available.</p></div>
         <div class="legend" aria-label="Curve legend"><span><i class="swatch parabola"></i>Parabola H(u)</span><span><i class="swatch arc"></i>Circular arc r(u)</span><span><i class="swatch control"></i>Lifted control P₁</span></div>
-        <fieldset class="visibility"><legend>Show in 3D</legend><label><input type="checkbox" data-layer="cone" checked> Cone</label><label><input type="checkbox" data-layer="plane" checked> Cutting plane PL</label><label><input type="checkbox" data-layer="controls" checked> Control polygons</label><label><input type="checkbox" data-layer="rays"> Projection lines</label><label><input type="checkbox" data-layer="axes" checked> Axes</label></fieldset>
+        <fieldset class="visibility"><legend>Show in 3D</legend><label><input type="checkbox" data-layer="cone" checked> Cone</label><label><input type="checkbox" data-layer="plane" checked> Cutting plane PL</label><label><input type="checkbox" data-layer="projection" checked> Projection plane w = 1</label><label><input type="checkbox" data-layer="controls" checked> Control polygons</label><label><input type="checkbox" data-layer="rays"> Projection lines</label><label><input type="checkbox" data-layer="axes" checked> Axes</label></fieldset>
         <div class="view-actions"><button class="mini-button" type="button" data-view="orbit">Reset 3D view</button><button class="mini-button" type="button" data-view="y">Along y-axis</button><button class="mini-button" type="button" data-zoom="0.85" aria-label="Zoom in">Zoom +</button><button class="mini-button" type="button" data-zoom="1.18" aria-label="Zoom out">Zoom −</button></div>
         <p class="interaction-hint" id="view-help">Drag to rotate; scroll or pinch inside this panel to zoom the 3D scene. Keyboard: arrow keys rotate, +/− zoom, Home resets. The dashed generator through (−r, 0, 1) is parallel to PL.</p>
       </article>

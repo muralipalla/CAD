@@ -11,13 +11,13 @@
     const camera = new T.OrthographicCamera(-5, 5, 5, -5, 0.01, 1000);
     camera.up.set(0, 0, 1);
     const groups = {};
-    ["base", "cone", "plane", "controls", "rays", "axes", "moving"].forEach(name => {
+    ["base", "cone", "plane", "projection", "controls", "rays", "axes", "moving"].forEach(name => {
       groups[name] = new T.Group(); groups[name].name = name; scene.add(groups[name]);
     });
-    const colors = { parabola: 0xffd166, arc: 0x76dcc1, control: 0xb8a7f5, ink: 0xeae8ff };
+    const colors = { parabola: 0xffd166, arc: 0x76dcc1, control: 0xb8a7f5, ink: 0xeae8ff, axes: 0xffe066 };
     let model, samples, azimuth = -1.12, elevation = 0.56, zoom = 1, lost = false, viewMode = "orbit";
     let bounds, center = new T.Vector3(), span = 5, currentU = 0.5;
-    const visibility = { cone: true, plane: true, controls: true, rays: false, axes: true };
+    const visibility = { cone: true, plane: true, projection: true, controls: true, rays: false, axes: true };
     let showLabels = false;
     const vector = p => new T.Vector3(...p);
     function clear(group) {
@@ -80,7 +80,11 @@
       const circle = Array.from({ length: 181 }, (_, i) => [r * Math.cos(i * Math.PI / 90), r * Math.sin(i * Math.PI / 90), 1]);
       line(circle, 0xa6a3c6, groups.base);
       point([0, 0, 0], colors.ink, groups.base, "O", [-16, 18]);
-      label("C · w = 1", [-0.8 * r, 0.7 * r, 1], 0xc9c6e4, groups.base, [-10, -22]);
+      const projectionCorners = [[-1.2 * r, -1.2 * r, 1], [1.2 * r, -1.2 * r, 1], [1.2 * r, 1.2 * r, 1], [-1.2 * r, 1.2 * r, 1]];
+      patch(projectionCorners, 0x83c5f5, 0.16, groups.projection);
+      line([...projectionCorners, projectionCorners[0]], 0x83c5f5, groups.projection, false, 0.7);
+      label("w = 1", [-0.35 * r, 1.08 * r, 1], 0xaddcff, groups.projection, [0, 0]);
+      label("C(φ)", [-r, 0, 1], 0xc9c6e4, groups.base, [-38, -55]);
       const positions = [];
       for (let i = 0; i < 120; i++) {
         const a = i * Math.PI / 60, b = (i + 1) * Math.PI / 60;
@@ -89,8 +93,6 @@
       const coneGeometry = new T.BufferGeometry();
       coneGeometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3));
       groups.cone.add(new T.Mesh(coneGeometry, new T.MeshBasicMaterial({ color: 0x8ac7ff, transparent: true, opacity: 0.14, side: T.DoubleSide, depthWrite: false })));
-      const disk = new T.Mesh(new T.CircleGeometry(r, 96), new T.MeshBasicMaterial({ color: 0x8898b4, transparent: true, opacity: 0.06, side: T.DoubleSide, depthWrite: false }));
-      disk.position.z = 1; groups.cone.add(disk);
       for (let i = 0; i < 6; i++) {
         const angle = i * Math.PI / 3;
         line([[0, 0, 0], [r * Math.cos(angle), r * Math.sin(angle), 1]], 0x8b99b0, groups.cone, false, 0.4);
@@ -121,7 +123,7 @@
       }
       const axisEnds = [[1.27 * r, 0, 0], [0, 1.27 * r, 0], [0, 0, 1.45]];
       const axisStarts = [[-1.25 * r, 0, 0], [0, -1.25 * r, 0], [0, 0, -1.1]];
-      axisEnds.forEach((end, i) => { line([axisStarts[i], end], colors.ink, groups.axes, false, 0.6); label(["x", "y", "w"][i], end, colors.ink, groups.axes, [8, -12]); });
+      axisEnds.forEach((end, i) => { line([axisStarts[i], end], colors.axes, groups.axes); label(["x", "y", "w"][i], end, colors.axes, groups.axes, [8, -12]); });
       Object.keys(visibility).forEach(name => { groups[name].visible = visibility[name]; });
       updateParameter(u);
     }
