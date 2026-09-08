@@ -33,7 +33,7 @@
       const [x, y] = pixel(p); ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
       if (label && showLabels) text(label, p, dx, dy, color);
     }
-    const axisColor = "#ffe066";
+    const axisColor = "#66dd66";
     path([[left, 0], [right + 0.08 * r, 0]], axisColor);
     path([[0, -1.15 * r], [0, 1.15 * r]], axisColor);
     text("x", [right + 0.08 * r, 0], 8, 22, axisColor); text("y", [0, 1.15 * r], -20, 0, axisColor);

@@ -14,7 +14,7 @@
     ["base", "cone", "plane", "projection", "controls", "rays", "axes", "moving"].forEach(name => {
       groups[name] = new T.Group(); groups[name].name = name; scene.add(groups[name]);
     });
-    const colors = { parabola: 0xffd166, arc: 0x76dcc1, control: 0xb8a7f5, ink: 0xeae8ff, axes: 0xffe066 };
+    const colors = { parabola: 0xffd166, arc: 0x76dcc1, control: 0xb8a7f5, ink: 0xeae8ff, axes: 0x66dd66 };
     let model, samples, azimuth = -1.12, elevation = 0.56, zoom = 1, lost = false, viewMode = "orbit";
     let bounds, center = new T.Vector3(), span = 5, currentU = 0.5;
     const visibility = { cone: true, plane: true, projection: true, controls: true, rays: false, axes: true };
@@ -83,8 +83,8 @@
       const projectionCorners = [[-1.2 * r, -1.2 * r, 1], [1.2 * r, -1.2 * r, 1], [1.2 * r, 1.2 * r, 1], [-1.2 * r, 1.2 * r, 1]];
       patch(projectionCorners, 0x83c5f5, 0.16, groups.projection);
       line([...projectionCorners, projectionCorners[0]], 0x83c5f5, groups.projection, false, 0.7);
-      label("w = 1", [-0.35 * r, 1.08 * r, 1], 0xaddcff, groups.projection, [0, 0]);
-      label("C(φ)", [-r, 0, 1], 0xc9c6e4, groups.base, [-38, -55]);
+      label("w = 1", [-r, 0, 1], 0xaddcff, groups.projection, [-38, -5]);
+      label("C(φ)", [-0.35 * r, 1.08 * r, 1], 0xc9c6e4, groups.base, [0, 0]);
       const positions = [];
       for (let i = 0; i < 120; i++) {
         const a = i * Math.PI / 60, b = (i + 1) * Math.PI / 60;
