@@ -11,7 +11,7 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 The site includes:
 
 - six teaching modules organized from the course LaTeX source;
-- a standalone rational Bezier visualization in Theory;
+- standalone Rational Bezier Curves and Möbius Surface visualizations in Theory;
 - six interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a comprehensive geometry and curves self-assessment quiz.
@@ -75,6 +75,16 @@ the middle projected control is at infinity; above 90 its weight is negative.
 At 180 degrees, the section degenerates to a generator and its midpoint cannot
 be projected. The reference circle remains visible without claiming that this
 degenerate single quadratic represents a full circle.
+
+The Möbius Surface module at `cad-modules/mobius-surface/` constructs a strip
+with adjustable strip width, loop radius, and 0–3 half-twists. The completed
+strip is shown directly, with the construction algorithm and a worked normal
+calculation below. A separate view follows a continuous local normal through
+one and two laps: even twist counts give an orientable band with two boundary
+curves, while odd counts give a non-orientable strip with one boundary curve.
+`mobius-math.js` provides the construction and derivatives;
+`mobius-three.js` renders the views. Run its mathematical checks with
+`node --test tests/mobius-surface.test.js`.
 
 ## Accessibility and compatibility
 
