@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bezier curve properties, derivatives, subdivision, degree elevation and rational curves with an interactive projection simulation.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Bezier Curves</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="../../assets/css/theory-simulation.css">
+  <script src="../../assets/js/theory-simulation.js" defer></script>
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page theory-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Bezier Curves</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>Bezier Curves</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol><li class="toc-section"><a href="#bezier-curves">Bezier Curves</a></li>
+<li class="toc-section"><a href="#properties">Properties</a></li>
+<li class="toc-section"><a href="#derivative-of-a-bezier-curve">Derivative of a Bezier Curve</a></li>
+<li class="toc-section"><a href="#curve-subdivision">Curve Subdivision</a></li>
+<li class="toc-section"><a href="#degree-elevation">Degree Elevation</a></li>
+<li class="toc-section"><a href="#rational-bezier-curves">Rational Bezier Curves</a></li>
+<li class="toc-section"><a href="#homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</a></li>
+<li class="toc-section"><a href="#rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</a></li>
+<li class="toc-section"><a href="#rational-bezier-simulation">Interactive Rational Bezier Curves</a></li>
+<li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
+    </nav>
+    <article class="notes-article">
+<h2 id="bezier-curves">Bezier Curves</h2>
+<p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 4. Further reading: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapters 4–5, and Shene’s university notes <a href="../references/index.html#ref-7">[7]</a> for Bézier construction, subdivision and degree elevation.</p>
+<p>A Bezier curve of degree $n$ is defined using $n+1$ control points</p>
+<div class="math-display">\[
+\mathbf P_0,\mathbf P_1,\ldots,\mathbf P_n.
+\]</div>
+<p>The curve is</p>
+<div class="math-display">\[
+\mathbf r(u)=\sum_{i=0}^{n} B_{i,n}(u)\mathbf P_i,
+\qquad 0\le u\le 1,
+\]</div>
+<p>where $B_{i,n}(u)$ are Bernstein basis polynomials:</p>
+<div class="math-display">\[
+B_{i,n}(u)=
+\binom{n}{i}u^i(1-u)^{n-i}.
+\]</div>
+<aside class="notes-box examplebox"><p class="notes-box-title">Example</p><div class="notes-box-body"><p>A quadratic Bezier curve has three control points $\mathbf P_0,\mathbf P_1,\mathbf P_2$ and is given by</p>
+<div class="math-display">\[
+\mathbf r(u)=(1-u)^2\mathbf P_0+2u(1-u)\mathbf P_1+u^2\mathbf P_2.
+\]</div></div></aside>
+<h2 id="properties">Properties</h2>
+<p>Bezier curves have the following important properties.</p>
+<ol class="roman-list"><li><p><strong>Endpoint interpolation:</strong></p>
+<div class="math-display">\[
+\mathbf r(0)=\mathbf P_0,
+\qquad
+\mathbf r(1)=\mathbf P_n.
+\]</div></li><li><p><strong>Convex hull property:</strong> The curve lies inside the convex hull of its control points.</p></li><li><p><strong>Affine invariance:</strong> Applying an affine transformation to the control points gives the same result as applying it to the curve.</p></li><li><p><strong>Variation diminishing property:</strong> A line intersects the curve no more times than it intersects the control polygon.</p></li><li><p><strong>Endpoint tangent property:</strong></p>
+<div class="math-display">\[
+\mathbf r'(0)=n(\mathbf P_1-\mathbf P_0),
+\qquad
+\mathbf r'(1)=n(\mathbf P_n-\mathbf P_{n-1}).
+\]</div></li></ol>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The control polygon gives a visual handle for shaping the curve. Moving a control point changes the shape of the curve.</p></div></aside>
+<h2 id="derivative-of-a-bezier-curve">Derivative of a Bezier Curve</h2>
+<p>The derivative of a Bezier curve of degree $n$ is another Bezier curve of degree $n-1$:</p>
+<div class="math-display">\[
+\mathbf r'(u)=
+n\sum_{i=0}^{n-1}B_{i,n-1}(u)(\mathbf P_{i+1}-\mathbf P_i).
+\]</div>
+<p>Thus, the derivative control points are</p>
+<div class="math-display">\[
+\mathbf Q_i = n(\mathbf P_{i+1}-\mathbf P_i),
+\qquad i=0,1,\ldots,n-1.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The derivative of a Bezier curve is controlled by the differences between consecutive control points.</p></div></aside>
+<h2 id="curve-subdivision">Curve Subdivision</h2>
+<p>Bezier curve subdivision splits a curve into two Bezier curves at a parameter value $u=t$. The de Casteljau algorithm is used for this purpose.</p>
+<p>Starting from control points</p>
+<div class="math-display">\[
+\mathbf P_i^{(0)}=\mathbf P_i,
+\]</div>
+<p>define recursively</p>
+<div class="math-display">\[
+\mathbf P_i^{(r)}=(1-t)\mathbf P_i^{(r-1)}
++t\mathbf P_{i+1}^{(r-1)}.
+\]</div>
+<p>The final point</p>
+<div class="math-display">\[
+\mathbf P_0^{(n)}
+\]</div>
+<p>is the point on the Bezier curve at parameter $t$.</p>
+<p>The left and right sets of generated points form the control points of the two subdivided curves.</p>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Subdivision is useful in rendering, intersection calculations, adaptive refinement and geometric modeling.</p></div></aside>
+<h2 id="degree-elevation">Degree Elevation</h2>
+<p>Degree elevation converts a Bezier curve of degree $n$ into an equivalent curve of degree $n+1$.</p>
+<p>Let the old control points be</p>
+<div class="math-display">\[
+\mathbf P_0,\mathbf P_1,\ldots,\mathbf P_n.
+\]</div>
+<p>The new control points are</p>
+<div class="math-display">\[
+\mathbf Q_0=\mathbf P_0,
+\qquad
+\mathbf Q_{n+1}=\mathbf P_n,
+\]</div>
+<p>and</p>
+<div class="math-display">\[
+\mathbf Q_i=
+\frac{i}{n+1}\mathbf P_{i-1}
++
+\left(1-\frac{i}{n+1}\right)\mathbf P_i,
+\qquad i=1,2,\ldots,n.
+\]</div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Degree elevation changes the control polygon but not the geometric curve.</p></div></aside>
+<h2 id="rational-bezier-curves">Rational Bezier Curves</h2>
+<p>A rational Bezier curve uses weights $w_i$ associated with control points:</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\frac{
+\sum_{i=0}^{n} w_i B_{i,n}(u)\mathbf P_i
+}{
+\sum_{i=0}^{n} w_i B_{i,n}(u)
+}.
+\]</div>
+<p>When all weights are equal, the rational Bezier curve reduces to the ordinary polynomial Bezier curve.</p>
+<p>Weights provide additional shape control. Increasing a weight pulls the curve closer to the corresponding control point.</p>
+<h2 id="homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</h2>
+<p class="topic-citation">Further reading on weighted homogeneous control points and rational curves: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapter 13; Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>, pp. 117–139; and Shene <a href="../references/index.html#ref-7">[7]</a>.</p>
+<p>Rational curves can be understood as projections of polynomial curves in homogeneous coordinates.</p>
+<p>For a point</p>
+<div class="math-display">\[
+\mathbf P_i=(x_i,y_i,z_i)
+\]</div>
+<p>with weight $w_i$, define the homogeneous point</p>
+<div class="math-display">\[
+\mathbf P_i^h=(w_ix_i,w_iy_i,w_iz_i,w_i).
+\]</div>
+<p>Construct the polynomial Bezier curve in homogeneous space:</p>
+<div class="math-display">\[
+\mathbf R^h(u)=\sum_{i=0}^{n}B_{i,n}(u)\mathbf P_i^h.
+\]</div>
+<p>If</p>
+<div class="math-display">\[
+\mathbf R^h(u)=(X(u),Y(u),Z(u),W(u)),
+\]</div>
+<p>then the rational curve in ordinary space is</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\left(
+\frac{X(u)}{W(u)},
+\frac{Y(u)}{W(u)},
+\frac{Z(u)}{W(u)}
+\right).
+\]</div>
+<h2 id="rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</h2>
+<p class="topic-citation">For exact conic and circular-arc representations, see Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>, pp. 281–331, and Shene’s conic-section and circular-arc notes <a href="../references/index.html#ref-7">[7]</a>.</p>
+<p>Polynomial Bezier curves cannot exactly represent a circle. Rational Bezier curves can.</p>
+<p>A quarter circle of radius $R$ from $(R,0)$ to $(0,R)$ can be represented using a quadratic rational Bezier curve with</p>
+<div class="math-display">\[
+\mathbf P_0=(R,0),
+\qquad
+\mathbf P_1=(R,R),
+\qquad
+\mathbf P_2=(0,R),
+\]</div>
+<p>and weights</p>
+<div class="math-display">\[
+w_0=1,
+\qquad
+w_1=\frac{1}{\sqrt{2}},
+\qquad
+w_2=1.
+\]</div>
+<p>The corresponding curve is</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\frac{
+(1-u)^2w_0\mathbf P_0
++2u(1-u)w_1\mathbf P_1
++u^2w_2\mathbf P_2
+}{
+(1-u)^2w_0+2u(1-u)w_1+u^2w_2
+}.
+\]</div>
+<p>An ellipse can be obtained by applying non-uniform scaling to a circle.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Conic sections such as circles, ellipses, parabolas and hyperbolas require rational representations for exact CAD modeling.</p></div></aside>
+<h2 id="rational-bezier-simulation">Interactive Rational Bezier Curves</h2>
+<p>Project a polynomial parabola onto the plane \(w=1\) to obtain an exact circular arc. Change the radius, half-angle and curve parameter; rotate the 3D construction and compare the lifted points with their projections.</p>
+<p class="simulation-links"><a class="text-link" href="../../programming-modules/rational-bezier-curves/index.html">Open the full simulation and derivation</a></p>
+<iframe class="theory-simulation-frame" data-rational-simulation src="../../programming-modules/rational-bezier-curves/index.html?embed=1" title="Interactive rational Bezier curves: cone, parabola and projection onto w = 1" loading="lazy" height="1600"></iframe>
+<noscript><p><a href="../../programming-modules/rational-bezier-curves/index.html">Open the rational Bezier module</a> to read the derivation. JavaScript enables the interactive simulation.</p></noscript>
+<h2 id="references-and-further-reading">References and Further Reading</h2>
+<p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
+<ul class="reference-section-links"><li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 4.</li>
+<li>Bézier algorithms and rational curves: Farin <a href="../references/index.html#ref-5">[5]</a> and Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>.</li>
+<li>Free worked explanations of subdivision, degree elevation and conics: Shene <a href="../references/index.html#ref-7">[7]</a>.</li></ul>
+<p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
+<nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../curves/index.html"><span>Previous module</span><strong>Geometry of Curves</strong></a><a class="notes-nav-link next" href="../b-splines/index.html"><span>Next module</span><strong>B-Splines</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

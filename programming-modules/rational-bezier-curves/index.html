@@ -6,15 +6,17 @@
   <meta name="description" content="Construct a parabola on a cone and project it into an exact rational Bézier circular arc. Explore the geometry, controls, weights, projection matrix, and Python/MATLAB code.">
   <meta name="theme-color" content="#fdf6ec">
   <title>CAD · Rational Bézier Curves</title>
+  <script>if (new URLSearchParams(window.location.search).get("embed") === "1") document.documentElement.classList.add("rational-embed");</script>
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/curve-labs.css">
-  <link rel="stylesheet" href="app.css?v=d3d8f3bacdcd">
+  <link rel="stylesheet" href="app.css?v=eecb0ec9d484">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
   <script src="rational-math.js?v=bed15aee2a3d" defer></script>
   <script src="rational-three.js?v=09d78373e515" defer></script>
   <script src="rational-code.js?v=68aff3e908ff" defer></script>
   <script src="app.js?v=63b398d0c456" defer></script>
+  <script src="embed.js?v=0ce7493ab1b5" defer></script>
   <script>window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };</script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
 </head>
@@ -182,7 +184,7 @@
       <p><strong>Where the numerator weights enter.</strong> If \(x_i,y_i\) denote the final 2D coordinates, starting with \(X(u)=\sum_i x_iB_{i,2}(u)\) would omit the weights during lifting. Division by W would then give coefficients \(B_{i,2}(u)/W(u)\), rather than the required \(w_iB_{i,2}(u)/W(u)\). The weighted lift supplies the missing factors.</p>
       <p>In the cone construction above, \(\mathbf P_i\) already contains the weighted homogeneous coordinates. Consequently, \(X(u)=\sum_iX_iB_{i,2}(u)\) is correct: the weights are contained in \(X_i=w_ix_i\). For example, when \(c\ne0\), the projected middle control has \(x_1=r/c\) and \(w_1=c\), so \(X_1=w_1x_1=c(r/c)=r\), exactly the first coordinate of \(\mathbf P_1=(r,0,c)\). Multiplying these already lifted coordinates by the weights again would count the weights twice.</p>
       <p>The finite-control lifting above does not describe the middle control at \(\theta=90^\circ\): there \(\mathbf P_1=(r,0,0)\) projects to infinity and cannot be obtained by multiplying a finite \(\mathbf p_1\) by zero. Retain that homogeneous control directly and use \((X/W,Y/W,1)\), as in step 8. Projection is undefined wherever \(W(u)=0\).</p>
-      <p>This is the two-dimensional version of the notes’ <a href="../../cad-modules/curves/index.html#homogeneous-coordinates-and-rational-curves">homogeneous-coordinate construction</a> for a 3D curve lifted into 4D. The projected controls \(\mathbf p_i\) here play the role of \(\mathbf P_i\) in the notes’ rational-curve formula.</p>
+      <p>This is the two-dimensional version of the notes’ <a href="../../cad-modules/bezier-curves/index.html#homogeneous-coordinates-and-rational-curves">homogeneous-coordinate construction</a> for a 3D curve lifted into 4D. The projected controls \(\mathbf p_i\) here play the role of \(\mathbf P_i\) in the notes’ rational-curve formula.</p>
       <p><strong>Try it:</strong> set \(\theta=45^\circ\) for a quarter circle with middle weight \(1/\sqrt2\), 90° for a semicircle, and 120° for a 240° major arc with middle weight \(-1/2\).</p>
       <p><strong>At 0°:</strong> the selected arc collapses to \((r,0,1)\). <strong>At 180°:</strong> PL becomes the tangent plane \(x+rw=0\), and the quadratic degenerates to \(\mathbf H(u)=(-rt^2,0,t^2)\), where \(t=2u-1\). It reaches O at \(u=1/2\), where projection is undefined. Everywhere else it projects to \((-r,0,1)\). The fixed circle C is the 360° limiting reference, not the projection of this degenerate quadratic. Representing an exact full circle with rational quadratic Bézier curves requires multiple spans.</p>
       <p>For stable evaluation near 180°, set \(a=\cos(\theta/2)\), \(b=\sin(\theta/2)\). Then \(\mathbf H(u)=(r(a^2-b^2t^2),\,2rabt,\,a^2+b^2t^2)\). The visualization uses this equivalent form and samples the polar angle densely enough to resolve the major arc.</p>
@@ -197,6 +199,6 @@
       <p class="interaction-hint" role="status" data-code-status aria-live="polite"></p>
     </details>
   </main>
-  <footer class="site-footer"><p><strong>CAD</strong> · Rational Bézier Curves</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../cad-modules/curves/index.html#rational-bezier-curves">Rational Bézier theory</a></li></ul><p><a href="../../cad-modules/references/index.html#licensing">Licensing and Attributions</a> · Created by Murali Palla · <span data-year>2026</span></p></footer>
+  <footer class="site-footer"><p><strong>CAD</strong> · Rational Bézier Curves</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../cad-modules/bezier-curves/index.html#rational-bezier-curves">Rational Bézier theory</a></li></ul><p><a href="../../cad-modules/references/index.html#licensing">Licensing and Attributions</a> · Created by Murali Palla · <span data-year>2026</span></p></footer>
 </body>
 </html>

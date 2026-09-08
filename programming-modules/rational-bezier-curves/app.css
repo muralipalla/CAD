@@ -62,6 +62,15 @@
 .program-panel pre { max-height: 34rem; font-size: 0.875rem; overflow: auto; }
 .code-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
 .further-reading { font-size: 1rem; }
+.rational-embed body { min-height: 0; background: transparent; }
+.rational-embed body::before,
+.rational-embed .skip-link,
+.rational-embed .page-header,
+.rational-embed .activity-intro,
+.rational-embed .derivation,
+.rational-embed .program-panel,
+.rational-embed .site-footer { display: none; }
+.rational-embed .activity-shell { display: flow-root; width: 100%; max-width: none; margin: 0; padding: 0.25rem; }
 @media (max-width: 900px) { .projection-workspace { grid-template-columns: 1fr; } [data-projection-canvas] { height: 23rem; } [data-three-canvas] { height: 28rem; } }
 @media (max-width: 480px) { .parameter { flex-basis: 100%; } [data-three-canvas] { height: 23rem; } [data-projection-canvas] { height: 20rem; } .coordinate-panel th, .coordinate-panel td { padding: 0.65rem; } .derivation { font-size: 1rem; } }
 @media print { .parameters, .view-actions, .visibility, .program-panel { display: none; } .projection-workspace { display: block; } .lab-window { break-inside: avoid; box-shadow: none; } .derivation { break-inside: auto; } }

@@ -1,0 +1,17 @@
+.theory-simulation-frame {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 0;
+  margin: 1.25rem 0 2rem;
+  background: transparent;
+}
+
+.simulation-links a {
+  font-weight: 700;
+  text-underline-offset: .2em;
+}
+
+@media print {
+  .theory-simulation-frame { display: none; }
+}
