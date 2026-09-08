@@ -4,7 +4,7 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory** — course notes on geometric transformations, geometry of curves, Bezier curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints. The Bezier Curves page includes the rational Bezier projection simulation.
+- **Theory** — course notes on geometric transformations, geometry of curves, Bezier curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints. The Bezier Curves page links to the standalone Rational Bezier Curves module.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier and rational Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
