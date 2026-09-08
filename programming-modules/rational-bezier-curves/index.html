@@ -3,200 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Construct a parabola on a cone and project it into an exact rational Bézier circular arc. Explore the geometry, controls, weights, projection matrix, and Python/MATLAB code.">
-  <meta name="theme-color" content="#fdf6ec">
-  <title>CAD · Rational Bézier Curves</title>
+  <title>Rational Bezier Curves · CAD Theory</title>
+  <link rel="canonical" href="../../cad-modules/rational-bezier-curves/index.html">
   <link rel="stylesheet" href="../../assets/css/style.css">
-  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
-  <link rel="stylesheet" href="app.css?v=d3d8f3bacdcd">
-  <script src="../../assets/js/main.js" defer></script>
-  <script src="../../assets/vendor/three.min.js" defer></script>
-  <script src="rational-math.js?v=bed15aee2a3d" defer></script>
-  <script src="rational-three.js?v=09d78373e515" defer></script>
-  <script src="rational-code.js?v=68aff3e908ff" defer></script>
-  <script src="app.js?v=63b398d0c456" defer></script>
-  <script>window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] } };</script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  <script>
+    const destination = new URL("../../cad-modules/rational-bezier-curves/index.html", window.location.href);
+    destination.search = window.location.search;
+    destination.hash = window.location.hash;
+    window.location.replace(destination.href);
+  </script>
 </head>
-<body class="rational-lab">
-  <a class="skip-link" href="#main-content">Skip to content</a>
-  <header class="page-header">
-    <nav class="top-nav" aria-label="Main navigation">
-      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
-      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
-    </nav>
-  </header>
-  <main class="activity-shell" id="main-content">
-    <header class="activity-intro">
-      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">Rational Bézier Curves</li></ol>
-      <p class="eyebrow">Interactive programming module 07</p>
-      <h1>Rational <em>Bézier Curves</em></h1>
-      <p class="activity-lead">A polynomial parabola in one higher dimension becomes an exact circular arc under central projection. See where the rational weights come from.</p>
-      <p class="objective"><strong>Objective:</strong> understand rational Bézier curves as projections of polynomial Bézier curves onto a lower-dimensional affine plane. We name the vertical axis <strong>w</strong> and project from the origin onto <strong>w = 1</strong>.</p>
-      <a class="text-link" href="#derivation">Follow the derivation ↓</a>
-    </header>
-    <noscript><p class="lab-status">Enable JavaScript for the interactive views. The complete derivation below can still be read.</p></noscript>
-
-    <section class="lab-window parameters" aria-label="Construction parameters">
-      <label class="parameter"><span>Circle radius r <output id="radius-value" for="radius">2.00</output></span><input id="radius" type="range" min="0.5" max="3" step="0.05" value="2" aria-describedby="radius-help"><small id="radius-help">Circle C lies in w = 1.</small></label>
-      <label class="parameter"><span>Half-angle θ <output id="theta-value" for="theta">60°</output></span><input id="theta" type="range" min="0" max="180" step="1" value="60" aria-describedby="theta-help"><small id="theta-help">Arc angle 2θ = <span data-arc-angle>120°</span>.</small></label>
-      <label class="parameter"><span>Curve parameter u <output id="u-value" for="parameter-u">0.50</output></span><input id="parameter-u" type="range" min="0" max="1" step="0.005" value="0.5" aria-describedby="u-help"><small id="u-help">Move H(u) and its projection r(u).</small></label>
-      <button class="mini-button" type="button" data-reset>Reset example</button>
-    </section>
-
-    <div class="display-options"><label><input type="checkbox" data-show-labels> Point labels · both views</label><p>The circle stays framed as θ changes. Projected controls can move outside the view.</p></div>
-    <p class="construction-note" data-construction-note role="status" aria-live="polite">Minor arc: all three weights are positive.</p>
-
-    <section class="projection-workspace" aria-label="Linked three-dimensional and projected views">
-      <article class="lab-window spatial-panel">
-        <div class="window-heading"><div><p class="card-kicker">3D construction · x, y, w</p><h2>From parabola to circle</h2></div></div>
-        <div class="view-frame"><canvas data-three-canvas tabindex="0" aria-label="Three-dimensional cone, cutting plane, parabola and circular projection on the plane w = 1. Drag or use arrow keys to orbit. Plus and minus zoom; Home resets." aria-describedby="view-help"></canvas><p class="view-fallback" data-three-fallback hidden>The 3D view needs WebGL. The projected view, values and derivation remain available.</p></div>
-        <div class="legend" aria-label="Curve legend"><span><i class="swatch parabola"></i>Parabola H(u)</span><span><i class="swatch arc"></i>Circular arc r(u)</span><span><i class="swatch control"></i>Lifted control P₁</span></div>
-        <fieldset class="visibility"><legend>Show in 3D</legend><label><input type="checkbox" data-layer="cone" checked> Cone</label><label><input type="checkbox" data-layer="plane" checked> Cutting plane PL</label><label><input type="checkbox" data-layer="projection" checked> Projection plane w = 1</label><label><input type="checkbox" data-layer="controls" checked> Control polygons</label><label><input type="checkbox" data-layer="rays"> Projection lines</label><label><input type="checkbox" data-layer="axes" checked> Axes</label></fieldset>
-        <div class="view-actions"><button class="mini-button" type="button" data-view="orbit">Reset 3D view</button><button class="mini-button" type="button" data-view="y">Along y-axis</button><button class="mini-button" type="button" data-zoom="0.85" aria-label="Zoom in">Zoom +</button><button class="mini-button" type="button" data-zoom="1.18" aria-label="Zoom out">Zoom −</button></div>
-        <p class="interaction-hint" id="view-help">Drag to rotate; scroll or pinch inside this panel to zoom the 3D scene. Keyboard: arrow keys rotate, +/− zoom, Home resets. The dashed generator through (−r, 0, 1) is parallel to PL.</p>
-      </article>
-      <article class="lab-window projection-panel">
-        <div class="window-heading"><div><p class="card-kicker">2D projection · w = 1</p><h2>The rational arc</h2></div></div>
-        <canvas data-projection-canvas width="650" height="540" aria-label="Circular arc in the x–y plane, projected control triangle and current curve point"></canvas>
-        <p class="projection-equation">Weights (w₀, w₁, w₂) = <strong data-weights>(1, 0.5000, 1)</strong></p>
-        <p data-control-note>The projected middle control p₁ can leave the fixed frame. Its coordinates remain in the table below.</p>
-        <dl class="point-readout"><div><dt>H(u) · before division</dt><dd data-lifted></dd></div><div><dt>r(u) · after division by W(u)</dt><dd data-projected></dd></div><div><dt>W(u) · projection denominator</dt><dd data-denominator></dd></div></dl>
-      </article>
-    </section>
-
-    <section class="lab-window coordinate-panel" aria-labelledby="coordinates-title">
-      <h2 id="coordinates-title">Control points and their weights</h2>
-      <p>Uppercase Pᵢ denotes a control point in the lifted (x, y, w) space; lowercase pᵢ is its projection on w = 1. The third coordinate of Pᵢ is its weight wᵢ.</p>
-      <div class="table-scroll"><table><thead><tr><th scope="col">i</th><th scope="col">Lifted Pᵢ = (Xᵢ, Yᵢ, wᵢ)</th><th scope="col">Projected pᵢ = (Xᵢ/wᵢ, Yᵢ/wᵢ, 1)</th><th scope="col">Weight wᵢ</th></tr></thead><tbody data-controls-table></tbody></table></div>
-      <p class="vertex-note"><strong>Q is a point on the parabola; P₁ is a control point.</strong> At u = ½, H(u) = Q = <span data-vertex></span>. In general, P₁ is neither on the parabola nor on the cone.</p>
-    </section>
-
-    <section class="derivation lab-window" id="derivation" aria-labelledby="derivation-title">
-      <p class="section-kicker">Geometric construction</p><h2 id="derivation-title">Why the projection is rational</h2>
-      <p>We use the notes’ Bernstein notation \(B_{i,n}(u)\), weights \(w_i\), and rational curve \(\mathbf r(u)\). Here \(\mathbf P_i\) labels the lifted controls requested in the construction, and \(\mathbf p_i\) labels their projections. Let \(c=\cos\theta\), \(s=\sin\theta\), \(r>0\), and \(0<\theta<180^\circ\). The finite-control formulas require \(\theta\ne90^\circ\); the homogeneous construction also handles the semicircle. The endpoint cases 0° and 180° are described below.</p>
-
-      <h3>1. Draw the circle in w = 1</h3>
-      <p>The original z-axis is now called the <strong>w-axis</strong>. Points are written in the order \((x,y,w)\). The circle and chosen endpoints are</p>
-      <div class="equation">\[C(\phi)=(r\cos\phi,r\sin\phi,1),\qquad \phi\in\mathbb R,\]</div>
-      <div class="equation">\[\mathbf P_0=(rc,-rs,1),\qquad \mathbf P_2=(rc,rs,1).\]</div>
-      <p>C is periodic with period \(2\pi\). The desired arc has \(-\theta\leq\phi\leq\theta\), so its central angle is \(2\theta\). The origin of projection is \(O=(0,0,0)\), below the circle’s centre \((0,0,1)\).</p>
-
-      <h3>2. Join the circle to the origin to make the cone</h3>
-      <p>A generator from O to the circle is \(\lambda C(\phi)\). Thus</p>
-      <div class="equation">\[(x,y,w)=(r\lambda\cos\phi,r\lambda\sin\phi,\lambda),\qquad x^2+y^2=r^2w^2.\]</div>
-      <p>The visualization shows \(0\leq\lambda\leq1\). Every non-apex point on this lateral surface (\(w>0\)) projects radially onto C when its coordinates are divided by w. Projection is undefined at O itself.</p>
-
-      <h3>3. Construct the plane PL</h3>
-      <p>Take PL through <strong>both given endpoints</strong> \(\mathbf P_0,\mathbf P_2\), parallel to the generator from O to \((-r,0,1)\). We reserve Q for the vertex of the resulting parabola. The chord direction is \((0,1,0)\), and the generator direction is \((-r,0,1)\). A normal perpendicular to both is \((1,0,r)\), giving</p>
-      <div class="equation">\[(1,0,r)\cdot\big((x,y,w)-(rc,-rs,1)\big)=0,\]</div>
-      <div class="equation">\[\boxed{PL:\quad x+rw=r(1+c).}\]</div>
-      <p>Indeed, \((1,0,r)\cdot(-r,0,1)=0\), verifying the required parallelism.</p>
-
-      <h3>4. Find the parabola and its vertex Q</h3>
-      <p>Substitute \(x=r(1+c-w)\) into the cone equation:</p>
-      <div class="equation">\[r^2(1+c-w)^2+y^2=r^2w^2.\]</div>
-      <p>The \(w^2\) terms cancel. Solving for w and then x gives the parabolic section:</p>
-      <div class="equation">\[w=\frac{1+c}{2}+\frac{y^2}{2r^2(1+c)},\qquad x=\frac{r(1+c)}2-\frac{y^2}{2r(1+c)}.\]</div>
-      <p>At \(y=0\), its vertex is</p>
-      <div class="equation">\[\boxed{\mathbf Q=\left(\frac{r(1+c)}2,\,0,\,\frac{1+c}2\right).}\]</div>
-      <p>The two endpoints occur at \(y=\pm rs\). Choose \(y(u)=rs(2u-1)\) so that they correspond to \(u=0\) and \(u=1\), while Q corresponds to \(u=\tfrac12\). With \(t=2u-1\), a polynomial parameterization is</p>
-      <div class="equation">\[\mathbf H(u)=\left(\frac r2\big[(1+c)-(1-c)t^2\big],\ rs\,t,\ \frac12\big[(1+c)+(1-c)t^2\big]\right).\]</div>
-      <p>This describes the section from \(\mathbf P_0\) through Q to \(\mathbf P_2\). The remainder of the infinite parabola is outside the displayed cone segment.</p>
-
-      <h3>5. Recover the middle Bézier control P₁</h3>
-      <p>For a quadratic Bézier curve, the endpoint controls are \(\mathbf P_0\) and \(\mathbf P_2\). At the parameter midpoint,</p>
-      <div class="equation">\[\mathbf H\!\left(\tfrac12\right)=\tfrac14\mathbf P_0+\tfrac12\mathbf P_1+\tfrac14\mathbf P_2=\mathbf Q.\]</div>
-      <p>Therefore,</p>
-      <div class="equation">\[\boxed{\mathbf P_1=2\mathbf Q-\frac{\mathbf P_0+\mathbf P_2}{2}=(r,0,c).}\]</div>
-      <p>These three controls reproduce the parameterization in step 4. P₁ lies in PL, but its cone residual is \(r^2-r^2c^2=r^2s^2>0\): it lies <strong>off the cone and off the parabola</strong>. Q is the actual curve point between the endpoints.</p>
-
-      <h3>6. Write the polynomial Bézier curve</h3>
-      <div class="equation">\[B_{0,2}=(1-u)^2,\qquad B_{1,2}=2u(1-u),\qquad B_{2,2}=u^2.\]</div>
-      <div class="equation">\[\mathbf H(u)=\sum_{i=0}^2B_{i,2}(u)\mathbf P_i=(X(u),Y(u),W(u)),\qquad 0\leq u\leq1.\]</div>
-      <p>Expanding the coordinates,</p>
-      <div class="equation">\[\begin{aligned}X(u)&=r\big[c+2(1-c)u(1-u)\big],\\Y(u)&=rs(2u-1),\\W(u)&=1-2(1-c)u(1-u).\end{aligned}\]</div>
-      <p>The capital W denotes the varying w-coordinate of the curve. It obeys \(W(u)\geq(1+c)/2>0\), so the entire segment can be projected.</p>
-
-      <h3>7. Apply the projection matrix from the notes</h3>
-      <p>Use the <a href="../../cad-modules/geometric-transformations/index.html#compact-matrix-form">same general perspective-projection matrix</a>. The target plane is \(w-1=0\) and the viewpoint is O, so their homogeneous representations are</p>
-      <div class="equation">\[\boldsymbol\Pi=\begin{bmatrix}0\\0\\1\\-1\end{bmatrix},\qquad \mathbf V=\begin{bmatrix}0\\0\\0\\1\end{bmatrix},\qquad \boldsymbol\Pi^T\mathbf V=-1.\]</div>
-      <p>We substitute this scalar directly, retaining Q as the name of the parabola’s vertex. With the notes’ convention,</p>
-      <div class="equation">\[\operatorname{Proj}(\Pi,\mathbf V)=\mathbf V\boldsymbol\Pi^T-(\boldsymbol\Pi^T\mathbf V)I=\begin{bmatrix}1&0&0&0\\0&1&0&0\\0&0&1&0\\0&0&1&0\end{bmatrix}.\]</div>
-      <div class="equation">\[\begin{bmatrix}X'_h\\Y'_h\\W'_h\\S'\end{bmatrix}=\operatorname{Proj}(\Pi,\mathbf V)\begin{bmatrix}X\\Y\\W\\1\end{bmatrix}=\begin{bmatrix}X\\Y\\W\\W\end{bmatrix}.\]</div>
-      <p>The appended fourth coordinate is used only to apply the 3D projection matrix; it is distinct from the vertical w-coordinate. Divide by the last coordinate \(S'=W\):</p>
-      <div class="equation">\[\boxed{\pi(X,Y,W)=\left(\frac XW,\frac YW,1\right).}\]</div>
-      <p>For \(c\ne0\), the projection of \(\mathbf P_1=(r,0,c)\) is</p>
-      <div class="equation">\[\mathbf p_1=\pi(\mathbf P_1)=\left(\frac r c,0,1\right).\]</div>
-      <p>For \(c\ne0\), the endpoint tangents to the circle are \(cx-sy=r\) and \(cx+sy=r\); they intersect at this same \(\mathbf p_1\). At 90°, these tangents are parallel and the control projects to infinity. Above 90°, \(c<0\): the lifted control is below \(w=0\), and its projection lies on the opposite extension of the line through O.</p>
-
-      <h3>8. Obtain the rational circular arc</h3>
-      <p>When \(c\ne0\), write each lifted control as \(\mathbf P_i=w_i\mathbf p_i\), where the projected controls have last coordinate 1. Thus</p>
-      <div class="equation">\[\begin{aligned}\mathbf p_0&=(rc,-rs,1),& w_0&=1,\\\mathbf p_1&=(r/c,0,1),& w_1&=c,\\\mathbf p_2&=(rc,rs,1),& w_2&=1.\end{aligned}\]</div>
-      <p>Dividing the polynomial curve by its w-coordinate produces the rational Bézier form:</p>
-      <div class="result-box">
-        <div class="equation">\[\boxed{\mathbf r(u)=\frac{\sum_{i=0}^2w_iB_{i,2}(u)\mathbf p_i}{\sum_{i=0}^2w_iB_{i,2}(u)}=\left(\frac{X(u)}{W(u)},\frac{Y(u)}{W(u)},1\right).}\]</div>
-        <p>The final coordinate equation on \(w=1\) is</p>
-        <div class="equation">\[\boxed{\mathbf r(u)=\left(\frac{r[c+2(1-c)u(1-u)]}{1-2(1-c)u(1-u)},\ \frac{rs(2u-1)}{1-2(1-c)u(1-u)},\ 1\right).}\]</div>
-      </div>
-      <p>At \(\theta=90^\circ\), \(w_1=0\) and \(\mathbf p_1\) is not finite. Evaluate the lifted polynomial and divide by W directly, using the final coordinate equation; never multiply zero by an infinite control coordinate. For \(90^\circ<\theta<180^\circ\), the negative middle weight produces the major circular arc.</p>
-      <p>Since \(X^2+Y^2=r^2W^2\) on the cone, the projected coordinates satisfy \(r_x(u)^2+r_y(u)^2=r^2\) exactly. The curve passes through the endpoints, and \(\mathbf r(\tfrac12)=(r,0,1)\). Its angle is generally <strong>not linear in u</strong>.</p>
-
-      <h3 id="weighted-lifting-and-rational-basis">9. From weighted lifting to rational basis functions</h3>
-      <p>To construct a rational Bézier curve from <strong>finite 2D control points</strong> and their weights, introduce \(\mathbf q_i=(x_i,y_i)\), with weight \(w_i\), for \(i=0,1,2\). Its representative on the projection plane is \(\mathbf p_i=(x_i,y_i,1)\), consistent with the notation above. The notes write the Bernstein basis as \(B_{i,n}(u)\): the first index identifies the basis function and the second is the degree. Here \(n=2\).</p>
-
-      <p><strong>Lift the controls.</strong> Introduce the weighted spatial coordinates \(X_i=w_ix_i\) and \(Y_i=w_iy_i\). Both spatial coordinates must be multiplied by their weight when forming the 3D homogeneous control:</p>
-      <div class="equation">\[\boxed{\mathbf P_i=(X_i,Y_i,w_i)=(w_ix_i,w_iy_i,w_i)=w_i\mathbf p_i.}\]</div>
-      <p>Lowercase \(x_i,y_i\) are the final 2D control coordinates; uppercase \(X_i,Y_i\) are the coordinates after weighted lifting. The lowercase w-axis names the third coordinate of this homogeneous space, while \(W(u)\) denotes that coordinate along the curve.</p>
-
-      <p><strong>Blend in homogeneous space.</strong> The polynomial Bézier curve remains \(\mathbf H(u)=\sum_{i=0}^{2}B_{i,2}(u)\mathbf P_i=(X(u),Y(u),W(u))\). Its three components are</p>
-      <div class="equation">\[\begin{aligned}
-        X(u)&=w_0x_0B_{0,2}(u)+w_1x_1B_{1,2}(u)+w_2x_2B_{2,2}(u),\\
-        Y(u)&=w_0y_0B_{0,2}(u)+w_1y_1B_{1,2}(u)+w_2y_2B_{2,2}(u),\\
-        W(u)&=w_0B_{0,2}(u)+w_1B_{1,2}(u)+w_2B_{2,2}(u).
-      \end{aligned}\]</div>
-
-      <p><strong>Project onto w = 1.</strong> Introduce \(x'(u)\) and \(y'(u)\) for the projected coordinates, so \(\mathbf r(u)=(x'(u),y'(u),1)\). The primes here label projected coordinates, not derivatives. Where \(W(u)\ne0\), the projection matrix from step 7 gives</p>
-      <div class="equation">\[x'(u)=\frac{X(u)}{W(u)}=
-        \frac{w_0x_0B_{0,2}(u)+w_1x_1B_{1,2}(u)+w_2x_2B_{2,2}(u)}
-        {w_0B_{0,2}(u)+w_1B_{1,2}(u)+w_2B_{2,2}(u)},
-        \qquad y'(u)=\frac{Y(u)}{W(u)}.\]</div>
-      <p>Group the x-coordinate expression by the original 2D coordinates:</p>
-      <div class="equation">\[x'(u)=x_0\left(\frac{w_0B_{0,2}(u)}{W(u)}\right)
-        +x_1\left(\frac{w_1B_{1,2}(u)}{W(u)}\right)
-        +x_2\left(\frac{w_2B_{2,2}(u)}{W(u)}\right).\]</div>
-
-      <p><strong>Define the rational basis.</strong> Introduce \(R_{i,2}(u)\), using the same index order as the Bernstein basis:</p>
-      <div class="result-box">
-        <div class="equation">\[\boxed{R_{i,2}(u)=\frac{w_iB_{i,2}(u)}{W(u)}
-          =\frac{w_iB_{i,2}(u)}{\displaystyle\sum_{j=0}^{2}w_jB_{j,2}(u)},
-          \qquad i=0,1,2.}\]</div>
-        <div class="equation">\[\begin{aligned}
-          x'(u)&=x_0R_{0,2}(u)+x_1R_{1,2}(u)+x_2R_{2,2}(u),\\
-          y'(u)&=y_0R_{0,2}(u)+y_1R_{1,2}(u)+y_2R_{2,2}(u).
-        \end{aligned}\]</div>
-        <div class="equation">\[\boxed{(x'(u),y'(u))=\sum_{i=0}^{2}R_{i,2}(u)\mathbf q_i.}\]</div>
-      </div>
-      <p>These rational basis functions sum to one wherever \(W(u)\ne0\), since their numerators sum to W. For positive weights they are also nonnegative. With negative weights, their sum remains one, but nonnegativity is not guaranteed.</p>
-
-      <p><strong>Where the numerator weights enter.</strong> If \(x_i,y_i\) denote the final 2D coordinates, starting with \(X(u)=\sum_i x_iB_{i,2}(u)\) would omit the weights during lifting. Division by W would then give coefficients \(B_{i,2}(u)/W(u)\), rather than the required \(w_iB_{i,2}(u)/W(u)\). The weighted lift supplies the missing factors.</p>
-      <p>In the cone construction above, \(\mathbf P_i\) already contains the weighted homogeneous coordinates. Consequently, \(X(u)=\sum_iX_iB_{i,2}(u)\) is correct: the weights are contained in \(X_i=w_ix_i\). For example, when \(c\ne0\), the projected middle control has \(x_1=r/c\) and \(w_1=c\), so \(X_1=w_1x_1=c(r/c)=r\), exactly the first coordinate of \(\mathbf P_1=(r,0,c)\). Multiplying these already lifted coordinates by the weights again would count the weights twice.</p>
-      <p>The finite-control lifting above does not describe the middle control at \(\theta=90^\circ\): there \(\mathbf P_1=(r,0,0)\) projects to infinity and cannot be obtained by multiplying a finite \(\mathbf p_1\) by zero. Retain that homogeneous control directly and use \((X/W,Y/W,1)\), as in step 8. Projection is undefined wherever \(W(u)=0\).</p>
-      <p>This is the two-dimensional version of the notes’ <a href="../../cad-modules/bezier-curves/index.html#homogeneous-coordinates-and-rational-curves">homogeneous-coordinate construction</a> for a 3D curve lifted into 4D. The projected controls \(\mathbf p_i\) here play the role of \(\mathbf P_i\) in the notes’ rational-curve formula.</p>
-      <p><strong>Try it:</strong> set \(\theta=45^\circ\) for a quarter circle with middle weight \(1/\sqrt2\), 90° for a semicircle, and 120° for a 240° major arc with middle weight \(-1/2\).</p>
-      <p><strong>At 0°:</strong> the selected arc collapses to \((r,0,1)\). <strong>At 180°:</strong> PL becomes the tangent plane \(x+rw=0\), and the quadratic degenerates to \(\mathbf H(u)=(-rt^2,0,t^2)\), where \(t=2u-1\). It reaches O at \(u=1/2\), where projection is undefined. Everywhere else it projects to \((-r,0,1)\). The fixed circle C is the 360° limiting reference, not the projection of this degenerate quadratic. Representing an exact full circle with rational quadratic Bézier curves requires multiple spans.</p>
-      <p>For stable evaluation near 180°, set \(a=\cos(\theta/2)\), \(b=\sin(\theta/2)\). Then \(\mathbf H(u)=(r(a^2-b^2t^2),\,2rabt,\,a^2+b^2t^2)\). The visualization uses this equivalent form and samples the polar angle densely enough to resolve the major arc.</p>
-      <p class="further-reading">Related reading: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB-conics.html">C.-K. Shene, Rational Bézier Curves: Conic Sections</a>, Michigan Technological University.</p>
-    </section>
-
-    <details class="lab-window program-panel">
-      <summary>Python / MATLAB program</summary>
-      <p>These programs use the current radius and half-angle, construct the cone section, apply the projection matrix, and compare the result with rational Bézier evaluation. Python requires NumPy and Matplotlib; MATLAB uses built-in plotting functions.</p>
-      <div class="code-actions"><div class="language-toggle" role="group" aria-label="Code language"><button class="language-button" type="button" data-language="python" aria-pressed="true">Python</button><button class="language-button" type="button" data-language="matlab" aria-pressed="false">MATLAB</button></div><button class="mini-button" type="button" data-download-code>Download program</button></div>
-      <div class="curve-code-panel"><div class="code-toolbar"><span data-code-filename>rational_bezier.py</span><button class="copy-button" type="button" data-copy-code>Copy code</button></div><pre><code data-code-output></code></pre></div>
-      <p class="interaction-hint" role="status" data-code-status aria-live="polite"></p>
-    </details>
+<body>
+  <main class="section">
+    <h1>Rational Bezier Curves</h1>
+    <p>This interactive visualization is now in Theory.</p>
+    <p><a class="button primary" href="../../cad-modules/rational-bezier-curves/index.html">Open Rational Bezier Curves</a></p>
   </main>
-  <footer class="site-footer"><p><strong>CAD</strong> · Rational Bézier Curves</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../cad-modules/bezier-curves/index.html#rational-bezier-curves">Rational Bézier theory</a></li></ul><p><a href="../../cad-modules/references/index.html#licensing">Licensing and Attributions</a> · Created by Murali Palla · <span data-year>2026</span></p></footer>
 </body>
 </html>

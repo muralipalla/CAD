@@ -2,8 +2,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs"), vm = require("node:vm");
 const THREE = require("../assets/vendor/three.min.js");
-const M = require("../programming-modules/rational-bezier-curves/rational-math.js");
-const source = fs.readFileSync(require.resolve("../programming-modules/rational-bezier-curves/rational-three.js"), "utf8");
+const M = require("../cad-modules/rational-bezier-curves/rational-math.js");
+const source = fs.readFileSync(require.resolve("../cad-modules/rational-bezier-curves/rational-three.js"), "utf8");
 function harness() {
   const events = {}, captures = new Set();
   let scene, camera;

@@ -1,7 +1,7 @@
 const test = require("node:test"), assert = require("node:assert/strict");
 const fs = require("node:fs"), vm = require("node:vm");
-const M = require("../programming-modules/rational-bezier-curves/rational-math.js");
-const source = fs.readFileSync(require.resolve("../programming-modules/rational-bezier-curves/app.js"), "utf8");
+const M = require("../cad-modules/rational-bezier-curves/rational-math.js");
+const source = fs.readFileSync(require.resolve("../cad-modules/rational-bezier-curves/app.js"), "utf8");
 function harness() {
   const nodes = new Map(), paths = [], labels = [];
   let currentPath=[];

@@ -1,7 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const M = require("../programming-modules/rational-bezier-curves/rational-math.js");
-const Code = require("../programming-modules/rational-bezier-curves/rational-code.js");
+const M = require("../cad-modules/rational-bezier-curves/rational-math.js");
+const Code = require("../cad-modules/rational-bezier-curves/rational-code.js");
 const near = (a, b, tolerance = 1e-11) => assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 const nearPoint = (a, b) => a.forEach((value, i) => near(value, b[i]));
 

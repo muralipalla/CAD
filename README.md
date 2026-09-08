@@ -4,14 +4,15 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory** — course notes on geometric transformations, geometry of curves, Bezier curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints. The Bezier Curves page links to the standalone Rational Bezier Curves module.
-- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier and rational Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
+- **Theory** — course notes on geometric transformations, geometry of curves, Bezier curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints. The Bezier Curves page links to the standalone Rational Bezier Curves visualization in Theory.
+- **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
 - six teaching modules organized from the course LaTeX source;
-- seven interactive curve and surface laboratories with Python/MATLAB code views;
+- a standalone rational Bezier visualization in Theory;
+- six interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a comprehensive geometry and curves self-assessment quiz.
 
@@ -59,7 +60,7 @@ starts a new flat grid and reduces the order if needed.
 `surface-math.js` evaluates tensor-product B-spline surfaces and manages editable 4×4, 5×5 and 6×6 grids, with orders 2 through the control count per direction.
 Run the numerical and editing tests with `node --test tests/*.test.js`.
 
-The Rational Bézier Curves module at `programming-modules/rational-bezier-curves/`
+The Rational Bézier Curves module at `cad-modules/rational-bezier-curves/`
 shows a quadratic parabola cut from a cone and its central projection onto `w=1`.
 Adjust radius, half-angle, and curve parameter; inspect the 3D construction and
 linked 2D arc, controls, and weights `(1, cos(theta), 1)`. The step-by-step derivation
