@@ -31,6 +31,8 @@ jobs:
           mkdir _site
           cp index.html 404.html .nojekyll LICENSE _site/
           cp -r assets cad-modules programming-modules self-assessment-quizzes _site/
+          # Keep this draft offline while the visualization is being revised.
+          rm -r -- _site/cad-modules/intrinsic-extrinsic-rotations
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

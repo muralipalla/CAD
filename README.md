@@ -4,14 +4,14 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory and Interactive Modules** — six course-note modules on geometric transformations, curves, Bezier curves, B-splines, surfaces, and solid modeling, followed by standalone Rational Bezier Curves, Möbius Surface, and Intrinsic and Extrinsic Rotations visualizations.
+- **Theory and Interactive Modules** — six course-note modules on geometric transformations, curves, Bezier curves, B-splines, surfaces, and solid modeling, followed by standalone Rational Bezier Curves and Möbius Surface visualizations.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
 - six teaching modules organized from the course LaTeX source;
-- standalone Rational Bezier Curves, Möbius Surface, and Intrinsic and Extrinsic Rotations visualizations;
+- standalone Rational Bezier Curves and Möbius Surface visualizations;
 - six interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a comprehensive geometry and curves self-assessment quiz.
@@ -87,7 +87,9 @@ curves, while odd counts give a non-orientable strip with one boundary curve.
 `node --test tests/mobius-surface.test.js`.
 
 The Intrinsic and Extrinsic Rotations module at
-`cad-modules/intrinsic-extrinsic-rotations/` compares active, right-handed
+`cad-modules/intrinsic-extrinsic-rotations/` is a draft, temporarily offline for
+improvements. Its source and tests are retained, but the Pages workflow excludes
+the directory from the public site. The draft compares active, right-handed
 rotations about moving body axes and fixed world axes. Choose one of six axis
 orders and three signed degree angles, animate or step through the sequence,
 and reverse the extrinsic axis–angle pairs to compare equivalent endpoints.
