@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare intrinsic rotations about moving body axes with extrinsic rotations about fixed axes. Animate each step and discover their reverse-order equivalence.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Intrinsic and Extrinsic Rotations</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <link rel="stylesheet" href="app.css?v=f0e1a49a550f">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="rotations-math.js?v=7ffd3b3a6d16" defer></script>
+  <script src="rotations-three.js?v=5c5fe2510cba" defer></script>
+  <script src="app.js?v=a48bb016db9f" defer></script>
+  <script>window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}};</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="rotations-module">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+  <main class="rotations-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html#interactive-modules">Interactive Modules</a></li><li aria-current="page">Intrinsic and Extrinsic Rotations</li></ol>
+      <p class="eyebrow">Interactive visualization · Rigid-body motion</p>
+      <h1>Intrinsic and extrinsic <em>rotations</em></h1>
+      <p class="activity-lead">Does the next axis stay fixed, or move with the body? Compare the two motions, then reverse the order to reach the same final orientation.</p>
+    </header>
+    <noscript><p class="lesson-note">Enable JavaScript to use the rotation controls. The definitions, algorithm, and equivalence proof are available below.</p></noscript>
+
+    <section aria-labelledby="compare-title" id="comparison">
+      <div class="section-heading"><div><p class="section-kicker">One body, two rotation rules</p><h2 id="compare-title">Compare the rotations</h2></div></div>
+      <fieldset class="comparison-mode">
+        <legend>Extrinsic sequence</legend>
+        <label><input type="radio" name="comparison-mode" value="same" checked> Same order</label>
+        <label><input type="radio" name="comparison-mode" value="reverse"> Reverse order</label>
+        <p>Start with the same order to see the difference. Select <strong>Reverse order</strong> to make the final orientations match.</p>
+      </fieldset>
+      <div class="view-grid">
+        <article class="lab-window scene-panel">
+          <div class="window-heading"><h3>Intrinsic</h3><span class="frame-tag">Moving body axes</span></div>
+          <ol class="sequence" data-intrinsic-sequence aria-label="Intrinsic rotations in time order"></ol>
+          <div class="scene-frame"><canvas data-intrinsic-canvas tabindex="0" aria-label="Intrinsic rotation of an aircraft about its moving body axes. Drag or use arrow keys to orbit the camera, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas><p class="view-fallback" data-intrinsic-fallback hidden>The 3D view needs WebGL. The step descriptions, matrices, and comparison below still work.</p></div>
+          <p class="step-caption" data-intrinsic-caption></p>
+          <p class="axis-readout">Axis in world coordinates: <strong data-intrinsic-axis></strong></p>
+        </article>
+        <article class="lab-window scene-panel">
+          <div class="window-heading"><h3>Extrinsic</h3><span class="frame-tag">Fixed world axes</span></div>
+          <ol class="sequence" data-extrinsic-sequence aria-label="Extrinsic rotations in time order"></ol>
+          <div class="scene-frame"><canvas data-extrinsic-canvas tabindex="0" aria-label="Extrinsic rotation of an aircraft about fixed world axes. Drag or use arrow keys to orbit the camera, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas><p class="view-fallback" data-extrinsic-fallback hidden>The 3D view needs WebGL. The step descriptions, matrices, and comparison below still work.</p></div>
+          <p class="step-caption" data-extrinsic-caption></p>
+          <p class="axis-readout">Axis in world coordinates: <strong data-extrinsic-axis></strong></p>
+        </article>
+      </div>
+      <div class="view-toolbar">
+        <p class="scene-legend"><span><i class="swatch world"></i>Fixed X, Y, Z</span><span><i class="swatch body"></i>Body x′, y′, z′</span><span><i class="swatch active"></i>Active rotation axis</span></p>
+        <div class="view-actions"><button class="mini-button" type="button" data-camera="reset">Reset view</button><button class="mini-button" type="button" data-camera="in" aria-label="Zoom both 3D views in">Zoom +</button><button class="mini-button" type="button" data-camera="out" aria-label="Zoom both 3D views out">Zoom −</button></div>
+      </div>
+      <p class="interaction-hint" id="view-help">Drag either view to move both cameras. Scroll or pinch inside a view to zoom. The aircraft’s nose points along x′, its left wing along y′, and its top along z′. Camera motion does not change the rotations.</p>
+
+      <div class="lab-window playback-panel">
+        <div class="timeline-heading"><h3>Follow the three steps</h3><output for="progress" id="progress-output">Final orientation</output></div>
+        <label class="sr-only" for="progress">Rotation progress, from start to step three</label>
+        <input id="progress" class="timeline" type="range" min="0" max="3" step="0.005" value="3">
+        <div class="timeline-ticks" aria-hidden="true"><span>Start</span><span>1</span><span>2</span><span>3 · Finish</span></div>
+        <div class="playback-actions"><button class="mini-button" type="button" data-action="start">Start</button><button class="mini-button" type="button" data-action="previous">Previous step</button><button class="button primary" type="button" data-action="play">Play rotations</button><button class="mini-button" type="button" data-action="next">Next step</button><button class="mini-button" type="button" data-action="finish">Finish</button></div>
+        <p class="playback-note">Each step completes one rotation before the next begins. A gold axis shows the current or next step.</p>
+      </div>
+
+      <div class="comparison-result" data-result role="status" aria-live="polite" aria-atomic="true">
+        <div><p class="section-kicker">Orientation comparison</p><h3 data-result-title></h3><p data-result-message></p></div>
+        <div class="difference-readout"><span>Current difference</span><strong data-difference>—</strong><small data-final-difference></small></div>
+      </div>
+
+      <fieldset class="lab-window parameter-panel">
+        <legend>Choose the intrinsic sequence</legend>
+        <div class="parameter-grid">
+          <label class="order-control" for="axis-order"><span>Axes in time order</span><select id="axis-order"><option value="XYZ">X → Y → Z</option><option value="XZY">X → Z → Y</option><option value="YXZ">Y → X → Z</option><option value="YZX">Y → Z → X</option><option value="ZXY">Z → X → Y</option><option value="ZYX">Z → Y → X</option></select><small>Rotations use the current body axes.</small></label>
+          <div class="angle-control"><label for="angle-0">1 · <span data-angle-axis="0">X</span> angle (°)</label><input id="angle-0" type="number" min="-180" max="180" step="1" value="60"><label class="sr-only" for="slider-0">First rotation angle</label><input id="slider-0" type="range" min="-180" max="180" step="1" value="60"></div>
+          <div class="angle-control"><label for="angle-1">2 · <span data-angle-axis="1">Y</span> angle (°)</label><input id="angle-1" type="number" min="-180" max="180" step="1" value="45"><label class="sr-only" for="slider-1">Second rotation angle</label><input id="slider-1" type="range" min="-180" max="180" step="1" value="45"></div>
+          <div class="angle-control"><label for="angle-2">3 · <span data-angle-axis="2">Z</span> angle (°)</label><input id="angle-2" type="number" min="-180" max="180" step="1" value="30"><label class="sr-only" for="slider-2">Third rotation angle</label><input id="slider-2" type="range" min="-180" max="180" step="1" value="30"></div>
+        </div>
+        <div class="preset-row"><span>Try an example:</span><button class="mini-button" type="button" data-preset="quarter">Two quarter-turns</button><button class="mini-button" type="button" data-preset="general">60°, 45°, 30°</button><button class="mini-button" type="button" data-preset="zero">All zero</button></div>
+        <p class="fine-note">Angles are in degrees. A positive rotation follows the right-hand rule. Reversing the sequence keeps each angle attached to its axis and keeps its sign.</p>
+      </fieldset>
+
+      <details class="matrix-panel lab-window">
+        <summary>Inspect the rotation matrices</summary>
+        <p>The products below describe the <strong>complete sequences</strong>; the numerical matrices track the <strong>current animation position</strong>. Matrices act on column vectors, so the rightmost factor acts first.</p>
+        <div class="matrix-grid"><div><h3>Intrinsic</h3><p class="matrix-product" data-intrinsic-product></p><table class="matrix" aria-label="Current intrinsic orientation matrix"><tbody data-intrinsic-matrix></tbody></table></div><div><h3>Extrinsic</h3><p class="matrix-product" data-extrinsic-product></p><table class="matrix" aria-label="Current extrinsic orientation matrix"><tbody data-extrinsic-matrix></tbody></table></div></div>
+        <p class="fine-note">The columns give the directions of the body’s x′, y′, and z′ axes in world coordinates. Values are rounded to four decimal places.</p>
+      </details>
+    </section>
+
+    <section class="lesson-panel" aria-labelledby="concept-title">
+      <p class="section-kicker">Which frame defines the axis?</p><h2 id="concept-title">Fixed axes and moving axes</h2>
+      <div class="concept-grid"><article><h3>Extrinsic: use the world frame</h3><p>The X, Y, and Z axes stay fixed in space. After turning about X, the next turn about Y still uses the original world Y direction. The body’s own axes move, but they do not determine the next rotation.</p></article><article><h3>Intrinsic: use the body frame</h3><p>The x′, y′, and z′ axes are attached to the aircraft. Every turn carries all three axes with it. After turning about x′, the next turn uses the new y′ direction.</p></article></div>
+      <p>Both views start with the body frame aligned with the world frame. These are <strong>active, right-handed rotations</strong> of the body about a common origin, acting on column vectors. A point with body coordinates \(\mathbf p_b\) has world coordinates \(\mathbf p_w=Q\mathbf p_b\).</p>
+      <div class="lesson-note"><strong>Try two quarter-turns.</strong> Choose the example above, keep “Same order,” and advance one step at a time. Both begin with a 90° X rotation. In the second step, intrinsic Y is now directed along world Z, while extrinsic Y stays along world Y. Then choose “Reverse order” and compare the final orientations.</div>
+    </section>
+
+    <section class="lesson-panel" aria-labelledby="algorithm-title">
+      <p class="section-kicker">A step-by-step algorithm</p><h2 id="algorithm-title">Update the orientation matrix</h2>
+      <ol class="algorithm-list"><li>Start with the identity matrix: \(Q_0=I\).</li><li>Read the next axis \(a_i\) and its angle \(\theta_i\). Form the elementary rotation \(R_i=R_{a_i}(\theta_i)\).</li><li>For an <strong>extrinsic</strong> step, multiply on the left: \(Q_i=R_iQ_{i-1}\). The world-space axis is the fixed basis vector \(\mathbf e_{a_i}\).</li><li>For an <strong>intrinsic</strong> step, multiply on the right: \(Q_i=Q_{i-1}R_i\). The world-space axis is \(Q_{i-1}\mathbf e_{a_i}\).</li><li>Display each body point at \(Q_i\mathbf p_b\). To animate a step, replace \(\theta_i\) by \(t\theta_i\), with \(0\le t\le1\), while keeping all earlier steps complete.</li></ol>
+      <p>A rotation about the moved body axis, expressed in world coordinates, is \(Q_{i-1}R_iQ_{i-1}^{T}\). Applying it to the body explains the intrinsic update:</p>
+      <div class="equation">\[\underbrace{(Q_{i-1}R_iQ_{i-1}^{T})}_{\text{rotation about the moved axis}}Q_{i-1}=Q_{i-1}R_i.\]</div>
+    </section>
+
+    <section class="lesson-panel" aria-labelledby="equivalence-title">
+      <p class="section-kicker">Same endpoint, different journeys</p><h2 id="equivalence-title">Why reversing the order works</h2>
+      <p>Let \(A=R_x(\alpha)\), \(B=R_y(\beta)\), and \(C=R_z(\gamma)\). The arrows below indicate <strong>chronological order</strong>.</p>
+      <div class="equivalence-grid"><article><h3>Intrinsic X → Y → Z</h3><p>Each new rotation multiplies on the right.</p><div class="equation">\[I\ \longrightarrow\ A\ \longrightarrow\ AB\ \longrightarrow\ ABC.\]</div></article><article><h3>Extrinsic Z → Y → X</h3><p>Each new rotation multiplies on the left.</p><div class="equation">\[I\ \longrightarrow\ C\ \longrightarrow\ BC\ \longrightarrow\ ABC.\]</div></article></div>
+      <div class="equivalence-box"><div class="equation">\[\boxed{\operatorname{Intrinsic}\big(X(\alpha)\to Y(\beta)\to Z(\gamma)\big)=\operatorname{Extrinsic}\big(Z(\gamma)\to Y(\beta)\to X(\alpha)\big)}\]</div></div>
+      <p>Both finish at \(ABC\). Their intermediate orientations are generally different. The result also works in the other direction, for any axis order, when you reverse the axis–angle pairs and switch the frame rule.</p>
+      <p>Keeping the <em>same</em> order gives \(Q_{\mathrm{intrinsic}}=ABC\) and \(Q_{\mathrm{extrinsic}}=CBA\), which are generally unequal because 3D rotations do not commute. Special angle choices, such as all zero or only one nonzero angle, can still make them equal.</p>
+      <p><strong>This does not undo the rotation.</strong> To undo \(ABC\), use its inverse \(C^{-1}B^{-1}A^{-1}\). In the equivalence comparison, the angles retain their signs and the final orientation is preserved.</p>
+      <details class="formula-details"><summary>Elementary rotation matrices and comparison angle</summary><p>With \(c=\cos\theta\) and \(s=\sin\theta\),</p><div class="equation">\[R_x(\theta)=\begin{bmatrix}1&0&0\\0&c&-s\\0&s&c\end{bmatrix},\quad R_y(\theta)=\begin{bmatrix}c&0&s\\0&1&0\\-s&0&c\end{bmatrix},\quad R_z(\theta)=\begin{bmatrix}c&-s&0\\s&c&0\\0&0&1\end{bmatrix}.\]</div><p>The displayed difference is the smallest angle taking one current orientation to the other:</p><div class="equation">\[\Delta=\cos^{-1}\!\left(\frac{\operatorname{tr}(Q_{\mathrm{intrinsic}}^{T}Q_{\mathrm{extrinsic}})-1}{2}\right),\qquad 0\le\Delta\le\pi.\]</div><p>A difference of 0° means the whole body frame agrees, not just the direction of the nose.</p></details>
+      <p class="further-reading">Related notes: <a href="../geometric-transformations/index.html#intrinsic-and-extrinsic-rotations">Intrinsic and Extrinsic Rotations</a>. Further reading: Lynch and Park, <a href="https://modernrobotics.northwestern.edu/nu-gm-book-resource/3-2-1-rotation-matrices-part-2-of-2/">Modern Robotics §3.2.1</a>, on fixed-frame and body-frame multiplication; <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.from_euler.html">SciPy’s Euler rotation conventions</a>, on intrinsic and extrinsic axes.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><p><strong>CAD</strong> · Intrinsic and Extrinsic Rotations</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html#interactive-modules">Interactive Modules</a></li><li><a href="../geometric-transformations/index.html">Geometric Transformations</a></li></ul><p><a href="../references/index.html#licensing">Licensing and Attributions</a> · Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

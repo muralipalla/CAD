@@ -4,14 +4,14 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory** — course notes on geometric transformations, geometry of curves, Bezier curves, B-splines, surfaces, and solid modeling, plus interactive sketch constraints. The Bezier Curves page links to the standalone Rational Bezier Curves visualization in Theory.
+- **Theory and Interactive Modules** — six course-note modules on geometric transformations, curves, Bezier curves, B-splines, surfaces, and solid modeling, followed by standalone Rational Bezier Curves, Möbius Surface, and Intrinsic and Extrinsic Rotations visualizations.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, and B-spline surfaces.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
 - six teaching modules organized from the course LaTeX source;
-- standalone Rational Bezier Curves and Möbius Surface visualizations in Theory;
+- standalone Rational Bezier Curves, Möbius Surface, and Intrinsic and Extrinsic Rotations visualizations;
 - six interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a comprehensive geometry and curves self-assessment quiz.
@@ -85,6 +85,17 @@ curves, while odd counts give a non-orientable strip with one boundary curve.
 `mobius-math.js` provides the construction and derivatives;
 `mobius-three.js` renders the views. Run its mathematical checks with
 `node --test tests/mobius-surface.test.js`.
+
+The Intrinsic and Extrinsic Rotations module at
+`cad-modules/intrinsic-extrinsic-rotations/` compares active, right-handed
+rotations about moving body axes and fixed world axes. Choose one of six axis
+orders and three signed degree angles, animate or step through the sequence,
+and reverse the extrinsic axis–angle pairs to compare equivalent endpoints.
+Two synchronized Three.js cameras show an asymmetric aircraft and both frames.
+Current orientation matrices and angular differences remain available without
+WebGL. `rotations-math.js` provides the matrix and sequence calculations;
+`rotations-three.js` owns the 3D views. Run the mathematical checks with
+`node --test tests/intrinsic-extrinsic-rotations.test.js`.
 
 ## Accessibility and compatibility
 
