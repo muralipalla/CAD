@@ -194,7 +194,11 @@
     throw new RangeError("Unknown curve.");
   }
 
-  function geometry(name) { return name === "grid" ? makeGrid() : sampleCurve(name); }
+  function geometry(name, center = [0, 0]) {
+    validatePoint(center);
+    const localPaths = name === "grid" ? makeGrid() : sampleCurve(name);
+    return localPaths.map((path) => path.map(([x, y]) => [x + center[0], y + center[1]]));
+  }
 
   function makeViewport(width, height, zoomPercent = 100, baseSpan = 4) {
     if (![width, height, zoomPercent, baseSpan].every((value) => Number.isFinite(value) && value > 0)) throw new RangeError("Viewport dimensions, zoom and span must be positive finite numbers.");

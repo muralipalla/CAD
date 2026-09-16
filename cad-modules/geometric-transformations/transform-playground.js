@@ -11,7 +11,7 @@
   if (!canvas || !context) return;
 
   const matrixInputs = [...root.querySelectorAll("[data-matrix-cell]")];
-  const GRID_MARKER = [[[.75, .65], [2.15, .65], [2.15, 1.1], [1.35, 1.1], [1.35, 2.25], [.75, 2.25], [.75, .65]]];
+  const GRID_MARKER = [[[-.7, -.8], [.7, -.8], [.7, -.35], [-.1, -.35], [-.1, .8], [-.7, .8], [-.7, -.8]]];
   const COLORS = {
     background: "#171541",
     grid: "#353153",
@@ -60,6 +60,14 @@
     return left.length === right.length && left.every((value, index) => Math.abs(value - right[index]) <= tolerance);
   }
 
+  function placePaths(paths, center) {
+    return paths.map((path) => path.map(([x, y]) => [x + center[0], y + center[1]]));
+  }
+
+  function sourceCenter() {
+    return referenceMode === "origin" ? [0, 0] : referencePoint;
+  }
+
   function buildStages() {
     if (referenceMode === "origin") {
       const operators = [[...baseMatrix]];
@@ -73,7 +81,7 @@
     if (referenceMode === "point") {
       const result = Math2.aboutPointStages(baseMatrix, referencePoint);
       return [
-        { label: "Original", action: "Start with the original geometry", factor: "I", expression: "C₀ = I", matrix: result.states[0], operator: null },
+        { label: "Original", action: "Start with the original geometry centered at P", factor: "I", expression: "C₀ = I", matrix: result.states[0], operator: null },
         { label: "Move P to O", action: "Translate the reference point P to the origin", factor: "T(−P)", expression: "C₁ = T(−P)", matrix: result.states[1], operator: result.operators[0] },
         { label: "Apply A", action: "Apply A in the recentered frame", factor: "A", expression: "C₂ = A T(−P)", matrix: result.states[2], operator: result.operators[1] },
         { label: "Move P back", action: "Translate the reference frame back to P", factor: "T(P)", expression: "C₃ = T(P) A T(−P)", matrix: result.states[3], operator: result.operators[2] }
@@ -82,7 +90,7 @@
 
     const result = Math2.referenceFrameStages(baseMatrix, referencePoint, lineAngle);
     return [
-      { label: "Original", action: "Start with the original geometry and line L", factor: "I", expression: "C₀ = I", matrix: result.states[0], operator: null },
+      { label: "Original", action: "Start with the original geometry centered at P₀ on line L", factor: "I", expression: "C₀ = I", matrix: result.states[0], operator: null },
       { label: "Move P₀ to O", action: "Translate point P₀ on L to the origin", factor: "T(−P₀)", expression: "C₁ = T(−P₀)", matrix: result.states[1], operator: result.operators[0] },
       { label: "Align L", action: `Rotate by −${cleanNumber(lineAngle)}° so L coincides with the x-axis`, factor: "R(−φ)", expression: "C₂ = R(−φ) T(−P₀)", matrix: result.states[2], operator: result.operators[1] },
       { label: "Apply A", action: "Apply A in the aligned local frame", factor: "A", expression: "C₃ = A R(−φ) T(−P₀)", matrix: result.states[3], operator: result.operators[2] },
@@ -137,9 +145,9 @@
     if (referenceMode === "origin") {
       $("reference-note").textContent = "The base matrix acts in the global frame, so the final matrix is C = A.";
     } else if (referenceMode === "point") {
-      $("reference-note").textContent = "The frame is recentered at P: C = T(P) A T(−P). P stays fixed only when A fixes the local origin.";
+      $("reference-note").textContent = "The original geometry is centered at P. The frame is recentered there: C = T(P) A T(−P). P stays fixed only when A fixes the local origin.";
     } else {
-      $("reference-note").textContent = "The line L passes through P₀ at angle φ. Use C = T(P₀) R(φ) A R(−φ) T(−P₀); with local x-axis reflection, L is the reflection axis.";
+      $("reference-note").textContent = "The original geometry is centered at P₀ on line L. Use C = T(P₀) R(φ) A R(−φ) T(−P₀); with local x-axis reflection, L is the reflection axis.";
     }
   }
 
@@ -383,7 +391,8 @@
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
     const matrix = selectedMatrix();
-    const source = Math2.geometry(geometryName);
+    const center = sourceCenter();
+    const source = Math2.geometry(geometryName, center);
     const transformed = source.flatMap((path) => Math2.transformPath(matrix, path));
     const plot = Math2.makeViewport(width, height, zoomPercent);
     drawAxes(plot);
@@ -391,8 +400,9 @@
     drawPaths(transformed, plot, geometryName === "grid" ? COLORS.gridResult : COLORS.curveResult, geometryName === "grid" ? 1.25 : 3);
 
     if (geometryName === "grid") {
-      if (showOriginal) drawPaths(GRID_MARKER, plot, COLORS.original, 2.5, [6, 5]);
-      drawPaths(GRID_MARKER.flatMap((path) => Math2.transformPath(matrix, path)), plot, COLORS.marker, 3.5);
+      const marker = placePaths(GRID_MARKER, center);
+      if (showOriginal) drawPaths(marker, plot, COLORS.original, 2.5, [6, 5]);
+      drawPaths(marker.flatMap((path) => Math2.transformPath(matrix, path)), plot, COLORS.marker, 3.5);
     }
 
     drawReferenceGeometry(plot, matrix);

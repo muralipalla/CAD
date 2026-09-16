@@ -130,6 +130,23 @@ test("grid and circle samplers are deterministic and geometrically correct", () 
   assert.ok(M.sampleCurve("circle", 20)[0].flat().every(Number.isFinite));
 });
 
+test("grid and circle geometry can be centered on the active pivot", () => {
+  const pivot = [1.5,-1];
+  const grid = M.geometry("grid", pivot);
+  nearPoint(grid[0][0], [-1.5,-4]);
+  nearPoint(grid[0].at(-1), [-1.5,2]);
+  nearPoint(grid.at(-1)[0], [-1.5,2]);
+  nearPoint(grid.at(-1).at(-1), [4.5,2]);
+
+  const circle = M.geometry("circle", pivot)[0];
+  nearPoint(circle[0], [3.7,-1]);
+  circle.forEach(([x, y]) => near(Math.hypot(x - pivot[0], y - pivot[1]), 2.2));
+  nearPoint(M.transformPoint(M.translation(-pivot[0], -pivot[1]), circle[0]), [2.2,0]);
+
+  nearPoint(M.geometry("circle")[0][0], [2.2,0]);
+  assert.throws(() => M.geometry("circle", [NaN,0]), RangeError);
+});
+
 test("manual viewport zoom has fixed centered scaling", () => {
   const normal = M.makeViewport(800, 600, 100), out = M.makeViewport(800, 600, 50), inside = M.makeViewport(800, 600, 200);
   assert.equal(normal.cx, 400); assert.equal(normal.cy, 300); assert.equal(normal.span, 4);
