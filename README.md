@@ -4,14 +4,14 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory and Interactive Modules** — seven course-note modules on geometric transformations, curves, Bezier curves, Hermite curves, B-splines, surfaces, and solid modeling, followed by standalone interactive visualizations.
+- **Theory and Interactive Modules** — seven course-note modules on geometric transformations, curves, Bezier curves, Hermite curves, B-splines, surfaces, and solid modeling, followed by standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, B-spline surfaces, and Coons patches.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
 - seven teaching modules organized from the course notes;
-- standalone Rational Bezier Curves and Möbius Surface visualizations;
+- standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations;
 - seven interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
 - a comprehensive geometry and curves self-assessment quiz.
@@ -85,6 +85,16 @@ curves, while odd counts give a non-orientable strip with one boundary curve.
 `mobius-math.js` provides the construction and derivatives;
 `mobius-three.js` renders the views. Run its mathematical checks with
 `node --test tests/mobius-surface.test.js`.
+
+The General Sweep Surfaces module at `cad-modules/sweep-surface/` constructs a
+surface from editable parametric path and profile curves. Presets, transported
+or fixed profile frames, twist, taper from 0.1 to 5, and animation help explain
+the construction. The 3D view includes preset/custom surface colors, PNG and
+vector SVG downloads, and a cancellable sampled-mesh self-intersection check
+with highlighted triangle pairs. SVG lighting and depth ordering are approximate;
+intersection results are numerical diagnostics rather than guarantees about the
+continuous surface. All interactive dependencies are local and work from a file URL.
+Run its checks with `node --test tests/sweep-surface.test.js tests/sweep-intersections.test.js`.
 
 The Intrinsic and Extrinsic Rotations module at
 `cad-modules/intrinsic-extrinsic-rotations/` is a draft, temporarily offline for
