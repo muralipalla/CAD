@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build a general sweep surface from two editable parametric curves. Explore the path, profile, moving frame, twist, taper and surface parameters in 3D.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · General Sweep Surfaces</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="sweep-math.js" defer></script>
+  <script src="sweep-intersections.js" defer></script>
+  <script src="sweep-three.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="sweep-module">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+  <main class="sweep-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">General Sweep Surfaces</li></ol>
+      <p class="eyebrow">Theory · Interactive visualization</p>
+      <h1>Two curves. <em>One sweep surface.</em></h1>
+      <p class="activity-lead">Move a profile along a path to generate a surface. Change either curve, twist the moving profile, and watch the geometry take shape.</p>
+    </header>
+    <noscript><p class="lesson-note">Enable JavaScript to use the interactive view. The construction equations and explanation remain available below.</p></noscript>
+
+    <section id="explorer" aria-labelledby="explorer-title">
+      <div class="section-heading"><div><p class="section-kicker">Build and explore</p><h2 id="explorer-title">General Sweep Surfaces</h2></div><a class="text-link" href="#construction">How it works ↓</a></div>
+      <div class="explorer-grid">
+        <article class="scene-panel">
+          <div class="scene-heading"><h3 id="scene-title">Helix × Circle</h3><span class="scene-badge">3D surface</span></div>
+          <div class="scene-frame">
+            <canvas id="sweep-canvas" tabindex="0" aria-label="Interactive sweep surface. Drag or use arrow keys to rotate, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas>
+            <p class="view-fallback" id="view-fallback" hidden>The 3D view needs WebGL. The equations and curve previews are available below.</p>
+          </div>
+          <div class="scene-legend" aria-label="Visualization legend">
+            <span><i class="swatch surface" id="surface-swatch"></i>Surface</span><span><i class="swatch path"></i>Path P(u)</span><span><i class="swatch profile"></i>Moving profile</span><span><i class="swatch point"></i>Point S(u, v)</span><span id="intersection-legend" hidden><i class="swatch intersection"></i>Possible intersections</span>
+          </div>
+          <p class="overlay-note">The dashed path, moving profile and intersection highlights show through the surface for clarity.</p>
+          <div class="view-actions" aria-label="Camera controls"><button type="button" data-view="iso">Reset view</button><button type="button" data-view="top">Top</button><button type="button" data-view="front">Front</button><button type="button" data-view="side">Side</button><button type="button" data-zoom="0.85" aria-label="Zoom in">Zoom +</button><button type="button" data-zoom="1.18" aria-label="Zoom out">Zoom −</button></div>
+          <p class="interaction-hint" id="view-help">Drag to rotate · Scroll or pinch to zoom · Arrow keys to rotate</p>
+          <div class="view-actions export-actions" aria-label="Download current view"><button type="button" id="download-png">Download PNG</button><button type="button" id="download-svg">Download SVG</button></div>
+          <p id="export-status" class="overlay-note" role="status" aria-live="polite">Download the current view and visible layers. SVG uses flat vector shading and approximate depth ordering.</p>
+          <div class="point-readout"><span>Surface point S(u, v)</span><output id="point-output">—</output></div>
+        </article>
+
+        <form class="curve-editor" id="curve-form" aria-label="Define the two parametric curves">
+          <fieldset class="curve-card path-card">
+            <legend><span class="number">1</span> Path curve <span class="math-name">P(u)</span></legend>
+            <div class="curve-top"><label for="path-preset">Choose a path<select id="path-preset"><option value="helix">Helix</option><option value="circle">Circle</option><option value="wave">Spatial wave</option><option value="line">Straight line</option><option value="custom">Custom equations</option></select></label><svg id="path-preview" viewBox="0 0 120 90" role="img" aria-label="Preview of the path curve"></svg></div>
+            <p class="domain">u ∈ [0, 1] · coordinates in global x, y, z</p>
+            <label class="equation-input" for="path-x"><span>x(u)</span><input id="path-x" type="text" value="3*cos(3*pi*u)" maxlength="220" spellcheck="false" autocomplete="off" aria-describedby="equation-help"></label>
+            <label class="equation-input" for="path-y"><span>y(u)</span><input id="path-y" type="text" value="3*sin(3*pi*u)" maxlength="220" spellcheck="false" autocomplete="off" aria-describedby="equation-help"></label>
+            <label class="equation-input" for="path-z"><span>z(u)</span><input id="path-z" type="text" value="6*(u-0.5)" maxlength="220" spellcheck="false" autocomplete="off" aria-describedby="equation-help"></label>
+          </fieldset>
+          <fieldset class="curve-card profile-card">
+            <legend><span class="number">2</span> Profile curve <span class="math-name">C(v)</span></legend>
+            <div class="curve-top"><label for="profile-preset">Choose a profile<select id="profile-preset"><option value="circle">Circle</option><option value="ellipse">Ellipse</option><option value="segment">Line segment</option><option value="flower">Five-lobed curve</option><option value="custom">Custom equations</option></select></label><svg id="profile-preview" viewBox="0 0 120 90" role="img" aria-label="Preview of the profile curve in its local plane"></svg></div>
+            <p class="domain">v ∈ [0, 1] · coordinates in the local profile plane</p>
+            <label class="equation-input" for="profile-a"><span>a(v)</span><input id="profile-a" type="text" value="cos(2*pi*v)" maxlength="220" spellcheck="false" autocomplete="off" aria-describedby="equation-help"></label>
+            <label class="equation-input" for="profile-b"><span>b(v)</span><input id="profile-b" type="text" value="sin(2*pi*v)" maxlength="220" spellcheck="false" autocomplete="off" aria-describedby="equation-help"></label>
+          </fieldset>
+          <div class="editor-actions"><button class="primary-action" type="submit">Apply curves</button><button type="button" id="reset-all">Reset all</button></div>
+          <p id="equation-help" class="fine-note">Use * for multiplication, ^ for powers, pi, e, sin, cos, tan, sqrt, abs, exp and log. Angles are in radians. Edit any equation, then apply.</p>
+          <p id="curve-status" class="curve-status" role="status" aria-live="polite">Loading surface…</p>
+        </form>
+      </div>
+
+      <div class="controls-grid">
+        <section class="control-card" aria-labelledby="sweep-controls-title">
+          <div class="control-heading"><h3 id="sweep-controls-title">Follow the sweep</h3><button id="animate" class="primary-action" type="button" aria-pressed="false">Animate sweep</button></div>
+          <label class="slider-control" for="sweep-u"><span>Position along path · u <output id="u-output" for="sweep-u">0.65</output></span><input id="sweep-u" type="range" min="0" max="1" step="0.001" value="0.65"></label>
+          <label class="slider-control" for="profile-v"><span>Point along profile · v <output id="v-output" for="profile-v">0.20</output></span><input id="profile-v" type="range" min="0" max="1" step="0.001" value="0.2"></label>
+          <label class="check-label"><input id="reveal" type="checkbox"> Reveal surface up to u</label>
+          <p class="fine-note">Animate the moving profile, or reveal the surface as it is generated.</p>
+        </section>
+        <section class="control-card" aria-labelledby="shape-controls-title">
+          <h3 id="shape-controls-title">Shape and orientation</h3>
+          <label class="select-label" for="frame-mode">Profile orientation<select id="frame-mode"><option value="transport">Follow path · transported frame</option><option value="translate">Fixed plane · global XY</option></select></label>
+          <label class="slider-control" for="profile-scale"><span>Profile scale <output id="scale-output" for="profile-scale">0.65</output></span><input id="profile-scale" type="range" min="0.1" max="2" step="0.05" value="0.65"></label>
+          <label class="slider-control" for="twist"><span>Total twist <output id="twist-output" for="twist">0°</output></span><input id="twist" type="range" min="-360" max="360" step="15" value="0"></label>
+          <label class="slider-control" for="taper"><span>End scale / start scale <output id="taper-output" for="taper">1.00</output></span><input id="taper" type="range" min="0.1" max="5" step="0.05" value="1"></label>
+        </section>
+        <section class="control-card" aria-labelledby="display-title">
+          <h3 id="display-title">Show in the view</h3>
+          <div class="surface-color-controls"><label class="select-label" for="surface-color">Surface color<select id="surface-color"><option value="#36d2e4">Cyan</option><option value="#6aa9ff">Sky blue</option><option value="#64ddb1">Mint</option><option value="#ff927c">Coral</option><option value="#b9a2ff">Lavender</option><option value="#e4dfce">Ivory</option><option value="custom">Custom color</option></select></label><label id="custom-color-label" class="select-label" for="custom-color" hidden>Custom<input id="custom-color" type="color" value="#36d2e4"></label></div>
+          <div class="visibility-options"><label><input id="show-surface" type="checkbox" checked> Shaded surface</label><label><input id="show-wireframe" type="checkbox" checked> Parameter grid</label><label><input id="show-path" type="checkbox" checked> Dashed path</label><label><input id="show-profile" type="checkbox" checked> Moving profile</label><label><input id="show-frame" type="checkbox"> Local frame</label><label><input id="show-axes" type="checkbox" checked> Global axes</label></div>
+          <p id="frame-description" class="fine-note">T follows the path tangent. Nθ and Bθ span the moving profile plane, including twist.</p>
+          <p id="geometry-status" class="geometry-status">—</p>
+        </section>
+      </div>
+      <section class="intersection-panel" aria-labelledby="intersection-title">
+        <div class="intersection-heading"><div><p class="section-kicker">Inspect the geometry</p><h3 id="intersection-title">Self-intersection check</h3></div><div class="intersection-actions"><button id="check-intersections" class="primary-action" type="button">Check self-intersections</button><button id="cancel-intersections" type="button" hidden>Cancel check</button></div></div>
+        <p id="intersection-status" class="intersection-status" role="status" aria-live="polite" data-state="unchecked">This surface has not been checked.</p>
+        <label class="check-label"><input id="show-intersections" type="checkbox" checked> Highlight intersecting triangles</label>
+        <p class="fine-note">Checks the entire sampled surface, including parts hidden by the reveal control. Shared mesh vertices and matching periodic seams are excluded. Fine intersections between samples and exact tangencies may be missed; this is a numerical diagnostic, not a proof that the continuous surface is free of intersections.</p>
+      </section>
+    </section>
+
+    <section class="lesson-panel" id="construction" aria-labelledby="construction-title">
+      <p class="section-kicker">From two parameters to a surface</p><h2 id="construction-title">How a general sweep is constructed</h2>
+      <p>A sweep needs two curves and a rule for orienting the profile. The path <strong>P(u) = (x(u), y(u), z(u))</strong> tells us where to place it. The planar profile <strong>C(v) = (a(v), b(v))</strong> tells us its shape. Both parameters range from 0 to 1 independently.</p>
+      <div class="construction-steps">
+        <article><span class="step-number">1</span><h3>Locate the profile</h3><p>Choose u and evaluate P(u). This is the origin of the moving profile plane. The yellow dashed curve connects these origins.</p></article>
+        <article><span class="step-number">2</span><h3>Orient and shape it</h3><p>Choose orthonormal directions N(u), B(u) for the plane. Rotate them by θ(u), and scale the profile by s(u).</p></article>
+        <article><span class="step-number">3</span><h3>Trace the surface</h3><p>Let v trace the profile while u moves along the path. Connect neighboring samples to obtain the shaded surface and its parameter grid.</p></article>
+      </div>
+      <div class="formula-box" aria-label="Sweep surface formula"><p>S(u, v) = P(u) + s(u) [a(v) N<sub>θ</sub>(u) + b(v) B<sub>θ</sub>(u)]</p><p>N<sub>θ</sub> = cos θ N + sin θ B &nbsp; · &nbsp; B<sub>θ</sub> = −sin θ N + cos θ B</p><p>s(u) = scale × [1 + (taper − 1)u] &nbsp; · &nbsp; θ(u) = u × total twist</p></div>
+      <div class="explanation-grid">
+        <div><h3>Following the path</h3><p>In <strong>transported-frame mode</strong>, T = P′/|P′| is the unit tangent. N starts by projecting the global axis least aligned with T into its perpendicular plane; B = T × N. Successive frames use the smallest rotation that aligns their tangents. This keeps the profile perpendicular to the path and avoids the Frenet frame’s instability at straight segments and inflection points.</p><p>For a smooth closed path, the accumulated frame rotation is distributed around the loop so the untwisted frame returns to its starting orientation.</p></div>
+        <div><h3>Keeping the plane fixed</h3><p>In <strong>fixed-plane mode</strong>, N = (1, 0, 0) and B = (0, 1, 0). With zero twist and unit scale, the surface is simply S(u, v) = P(u) + (a(v), b(v), 0). The profile translates without following the path tangent.</p><p>The two curves alone do not determine a unique sweep: these different orientation rules produce different surfaces from the same curves.</p></div>
+      </div>
+      <div class="lesson-note"><strong>Try it:</strong> choose a circle path and circle profile to form a torus. Replace the profile with an ellipse to see orientation and twist more clearly. A line-segment profile produces a ribbon; a straight path with a circular profile produces a tube.</div>
+      <p><strong>Seams and regularity.</strong> A closed profile makes a tube wall; open ends are not capped. A closed path also needs matching profile position, scale and orientation at the seam. Twist or taper may leave a seam. Large profiles can intersect themselves, and fixed-plane sweeps can collapse locally. Use the self-intersection check to find overlapping non-neighboring triangles in the sampled mesh. Even a completed check cannot certify that the continuous surface is regular or free of intersections between samples.</p>
+      <p class="fine-note">Related module: <a href="../mobius-surface/index.html">Möbius Surface</a>, a special sweep of a line segment with a half-twist and reversed edge identification.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><p><strong>CAD</strong> · Theory and Interactive Modules</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../index.html">All interactive modules</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p><a href="../references/index.html#licensing">Licensing and Attributions</a> · Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

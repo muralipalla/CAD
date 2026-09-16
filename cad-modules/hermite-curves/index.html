@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Theory of cubic Hermite curves: endpoint and tangent constraints, basis functions, matrix form, Bezier conversion, continuity, tangent selection, and a worked example.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Hermite Curves</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page theory-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Hermite Curves</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>Hermite Curves</h1>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol>
+        <li class="toc-section"><a href="#cubic-hermite-interpolation">Cubic Hermite Interpolation</a></li>
+        <li class="toc-section"><a href="#deriving-the-basis-functions">Deriving the Basis Functions</a></li>
+        <li class="toc-section"><a href="#hermite-basis-form">Hermite Basis Form</a></li>
+        <li class="toc-section"><a href="#matrix-form">Matrix Form</a></li>
+        <li class="toc-section"><a href="#properties">Properties</a></li>
+        <li class="toc-section"><a href="#relation-to-bezier-curves">Relation to Bézier Curves</a></li>
+        <li class="toc-section"><a href="#parameterization-and-tangent-magnitude">Parameterization and Tangent Magnitude</a></li>
+        <li class="toc-section"><a href="#joining-hermite-segments">Joining Hermite Segments</a></li>
+        <li class="toc-section"><a href="#choosing-tangents">Choosing Tangents</a></li>
+        <li class="toc-section"><a href="#worked-example">Worked Example</a></li>
+        <li class="toc-subsection"><a href="#interactive-hermite-lab">Interactive Programming Lab</a></li>
+        <li class="toc-section"><a href="#summary">Summary</a></li>
+        <li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li>
+      </ol>
+    </nav>
+
+    <article class="notes-article">
+      <h2 id="cubic-hermite-interpolation">Cubic Hermite Interpolation</h2>
+      <p class="topic-citation">Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>. Supporting treatment of polynomial curve representations: Farin <a href="../references/index.html#ref-5">[5]</a>.</p>
+      <p>A cubic Hermite curve is determined by two endpoint positions and two endpoint tangent vectors:</p>
+      <div class="math-display">\[
+        \mathbf P_0,\quad \mathbf P_1,\quad \mathbf T_0,\quad \mathbf T_1.
+      \]</div>
+      <p>The curve parameter is normalized to $0\le u\le1$. The four interpolation conditions are</p>
+      <div class="math-display">\[
+        \mathbf r(0)=\mathbf P_0,\qquad \mathbf r(1)=\mathbf P_1,
+      \]</div>
+      <div class="math-display">\[
+        \mathbf r'(0)=\mathbf T_0,\qquad \mathbf r'(1)=\mathbf T_1.
+      \]</div>
+      <p>The positions determine where the segment begins and ends. The tangent vectors determine its endpoint directions and its parametric speed at those endpoints.</p>
+      <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Hermite data gives direct control over endpoint position and endpoint derivative. A unique polynomial of degree at most three satisfies the four conditions in each coordinate.</p></div></aside>
+
+      <h2 id="deriving-the-basis-functions">Deriving the Basis Functions</h2>
+      <p>Write a cubic vector polynomial as</p>
+      <div class="math-display">\[
+        \mathbf r(u)=\mathbf a u^3+\mathbf b u^2+\mathbf c u+\mathbf d.
+      \]</div>
+      <p>Its derivative is</p>
+      <div class="math-display">\[
+        \mathbf r'(u)=3\mathbf a u^2+2\mathbf b u+\mathbf c.
+      \]</div>
+      <p>The conditions at $u=0$ immediately give</p>
+      <div class="math-display">\[
+        \mathbf d=\mathbf P_0,\qquad \mathbf c=\mathbf T_0.
+      \]</div>
+      <p>Applying the two conditions at $u=1$ and solving for the remaining coefficients gives</p>
+      <div class="math-display">\[
+        \mathbf a=2\mathbf P_0-2\mathbf P_1+\mathbf T_0+\mathbf T_1,
+      \]</div>
+      <div class="math-display">\[
+        \mathbf b=-3\mathbf P_0+3\mathbf P_1-2\mathbf T_0-\mathbf T_1.
+      \]</div>
+      <p>Grouping the result by the four geometric inputs produces the Hermite basis form.</p>
+
+      <h2 id="hermite-basis-form">Hermite Basis Form</h2>
+      <div class="math-display">\[
+        \mathbf r(u)=h_{00}(u)\mathbf P_0+h_{10}(u)\mathbf T_0+h_{01}(u)\mathbf P_1+h_{11}(u)\mathbf T_1,
+      \]</div>
+      <p>where</p>
+      <div class="math-display">\[
+      \begin{aligned}
+        h_{00}(u)&=2u^3-3u^2+1, & h_{10}(u)&=u^3-2u^2+u,\\
+        h_{01}(u)&=-2u^3+3u^2, & h_{11}(u)&=u^3-u^2.
+      \end{aligned}
+      \]</div>
+      <div class="notes-table-wrap" role="region" aria-label="Hermite basis endpoint values" tabindex="0">
+        <table>
+          <caption>Endpoint values and derivatives of the cubic Hermite basis</caption>
+          <thead><tr><th>Basis</th><th>$h(0)$</th><th>$h(1)$</th><th>$h'(0)$</th><th>$h'(1)$</th></tr></thead>
+          <tbody>
+            <tr><th>$h_{00}$</th><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr><th>$h_{10}$</th><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+            <tr><th>$h_{01}$</th><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+            <tr><th>$h_{11}$</th><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each basis function is therefore associated with exactly one endpoint condition. Substituting $u=0$ or $u=1$, before or after differentiating, verifies all four constraints.</p>
+
+      <h2 id="matrix-form">Matrix Form</h2>
+      <p>For computation, the same curve can be written in power-basis matrix form:</p>
+      <div class="math-display">\[
+      \mathbf r(u)=
+      \begin{bmatrix}u^3&u^2&u&1\end{bmatrix}
+      \begin{bmatrix}
+        2&-2&1&1\\
+        -3&3&-2&-1\\
+        0&0&1&0\\
+        1&0&0&0
+      \end{bmatrix}
+      \begin{bmatrix}
+        \mathbf P_0\\ \mathbf P_1\\ \mathbf T_0\\ \mathbf T_1
+      \end{bmatrix}.
+      \]</div>
+      <p>The middle matrix is the cubic Hermite geometry matrix. Geometry is stored in the final vector, so the same basis can be evaluated independently for the $x$, $y$, and $z$ coordinates.</p>
+
+      <h2 id="properties">Properties</h2>
+      <ol class="roman-list">
+        <li><p><strong>Endpoint interpolation:</strong> the curve passes through $\mathbf P_0$ and $\mathbf P_1$.</p></li>
+        <li><p><strong>Endpoint derivative interpolation:</strong> the curve matches both specified tangent vectors, including their magnitudes.</p></li>
+        <li><p><strong>Affine invariance:</strong> applying an affine transformation to the endpoints and its linear part to the tangent vectors gives the transformed curve.</p></li>
+        <li><p><strong>Local segment control:</strong> changing one segment’s Hermite data does not directly alter distant segments in a piecewise curve.</p></li>
+        <li><p><strong>Polynomial form:</strong> a cubic Hermite segment can be converted exactly to cubic Bézier or power-basis form.</p></li>
+      </ol>
+      <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>The tangent vectors are not points. Under translation, endpoint positions move but tangent vectors do not; under rotation or scaling, both are transformed by the linear part of the transformation.</p></div></aside>
+
+      <h2 id="relation-to-bezier-curves">Relation to Bézier Curves</h2>
+      <p>A cubic Hermite segment is the same polynomial curve as the cubic Bézier segment with control points</p>
+      <div class="math-display">\[
+        \mathbf B_0=\mathbf P_0,\qquad
+        \mathbf B_1=\mathbf P_0+\frac{1}{3}\mathbf T_0,
+      \]</div>
+      <div class="math-display">\[
+        \mathbf B_2=\mathbf P_1-\frac{1}{3}\mathbf T_1,\qquad
+        \mathbf B_3=\mathbf P_1.
+      \]</div>
+      <p>This follows from the Bézier endpoint derivatives</p>
+      <div class="math-display">\[
+        \mathbf r'(0)=3(\mathbf B_1-\mathbf B_0),\qquad
+        \mathbf r'(1)=3(\mathbf B_3-\mathbf B_2).
+      \]</div>
+      <p>Hermite form is convenient when positions and derivatives are the natural inputs. Bézier form is convenient when a control polygon is the preferred geometric interface.</p>
+
+      <h2 id="parameterization-and-tangent-magnitude">Parameterization and Tangent Magnitude</h2>
+      <p>The tangent magnitude affects the curve shape because $\mathbf T_0$ and $\mathbf T_1$ are derivatives with respect to the chosen parameter. Multiplying a tangent by a positive scalar preserves its direction but changes how strongly it pulls the segment near that endpoint.</p>
+      <p>If a physical or global parameter $t$ spans $t_0\le t\le t_1$, define</p>
+      <div class="math-display">\[
+        u=\frac{t-t_0}{t_1-t_0}.
+      \]</div>
+      <p>By the chain rule, the tangent data used by the normalized $u$-segment must be</p>
+      <div class="math-display">\[
+        \frac{d\mathbf r}{du}=(t_1-t_0)\frac{d\mathbf r}{dt}.
+      \]</div>
+      <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Tangent direction controls the departure or arrival direction; tangent magnitude also depends on parameter scale. Reparameterizing without rescaling derivatives changes the curve.</p></div></aside>
+
+      <h2 id="joining-hermite-segments">Joining Hermite Segments</h2>
+      <p>Suppose segment $\mathbf r_A$ ends where segment $\mathbf r_B$ begins.</p>
+      <ul>
+        <li><strong>$C^0$ continuity:</strong> the endpoint positions agree, $\mathbf r_A(1)=\mathbf r_B(0)$.</li>
+        <li><strong>$C^1$ continuity:</strong> the endpoint positions and parameter derivatives agree, $\mathbf r_A'(1)=\mathbf r_B'(0)$.</li>
+        <li><strong>$G^1$ continuity:</strong> the derivatives point in the same direction, but their magnitudes may differ by a positive scale factor.</li>
+      </ul>
+      <p>For normalized neighboring segments, $C^1$ continuity is obtained directly by assigning the same tangent vector to the shared endpoint. If the segments cover unequal parameter intervals, their normalized tangents must include the corresponding interval lengths.</p>
+
+      <h2 id="choosing-tangents">Choosing Tangents</h2>
+      <p>Sometimes tangents are specified by the designer. When only interpolation points are given, they can be estimated. For uniformly spaced data $\mathbf P_i$, a common centered estimate is</p>
+      <div class="math-display">\[
+        \mathbf T_i=\frac{1}{2}(\mathbf P_{i+1}-\mathbf P_{i-1}).
+      \]</div>
+      <p>Using these tangents in consecutive cubic Hermite segments gives the familiar Catmull–Rom construction. One-sided differences or user-specified derivatives are used at the ends. For nonuniformly spaced data, derivative estimates should account for the parameter intervals rather than treating every sample as equally spaced.</p>
+      <aside class="notes-box remarkbox"><p class="notes-box-title">Design Consideration</p><div class="notes-box-body"><p>Large tangents can cause bulges or loops, while very small tangents flatten the curve near an endpoint. Interpolation alone does not guarantee fairness, monotonicity, or the absence of self-intersections.</p></div></aside>
+
+      <h2 id="worked-example">Worked Example</h2>
+      <p>Let</p>
+      <div class="math-display">\[
+        \mathbf P_0=(0,0),\quad \mathbf P_1=(3,2),\quad
+        \mathbf T_0=(3,0),\quad \mathbf T_1=(0,3).
+      \]</div>
+      <p>At $u=\tfrac12$, the four basis values are</p>
+      <div class="math-display">\[
+        h_{00}=\frac12,\qquad h_{10}=\frac18,\qquad
+        h_{01}=\frac12,\qquad h_{11}=-\frac18.
+      \]</div>
+      <p>Therefore,</p>
+      <div class="math-display">\[
+      \begin{aligned}
+        \mathbf r\!\left(\frac12\right)
+        &=\frac12(0,0)+\frac18(3,0)+\frac12(3,2)-\frac18(0,3)\\
+        &=\left(\frac{15}{8},\frac{5}{8}\right).
+      \end{aligned}
+      \]</div>
+      <p>The midpoint in parameter is not generally the midpoint of the endpoint positions. The tangent data changes both the path and the rate at which it is traversed.</p>
+
+      <h3 id="interactive-hermite-lab">Interactive Programming Lab</h3>
+      <p>Drag the endpoints and tangent handles, then compare the live construction with equivalent Python or MATLAB code.</p>
+      <p><a class="button secondary" href="../../programming-modules/hermite-curves/index.html">Open the Hermite Curves programming lab</a></p>
+
+      <h2 id="summary">Summary</h2>
+      <ul>
+        <li>A cubic Hermite segment interpolates two positions and two first derivatives.</li>
+        <li>Four cubic basis functions isolate the four endpoint constraints.</li>
+        <li>The Hermite and cubic Bézier forms are exactly convertible.</li>
+        <li>Tangent magnitude matters and must be scaled when the parameter interval changes.</li>
+        <li>Shared endpoint positions give $C^0$ continuity; compatible derivatives give $C^1$ or $G^1$ continuity.</li>
+      </ul>
+
+      <h2 id="references-and-further-reading">References and Further Reading</h2>
+      <p>Numbered citations link to the full bibliography in Theory.</p>
+      <ul class="reference-section-links">
+        <li>Core CAD curve reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>.</li>
+        <li>Polynomial and Bézier curve representations: Farin <a href="../references/index.html#ref-5">[5]</a>.</li>
+        <li>Related spline interpolation and piecewise-polynomial theory: de Boor <a href="../references/index.html#ref-9">[9]</a>.</li>
+      </ul>
+      <p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../bezier-curves/index.html"><span>Previous module</span><strong>Bézier Curves</strong></a><a class="notes-nav-link next" href="../b-splines/index.html"><span>Next module</span><strong>B-Splines</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Computer Aided Design</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

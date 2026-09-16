@@ -8,12 +8,12 @@
   <title>CAD · Intrinsic and Extrinsic Rotations</title>
   <link rel="stylesheet" href="../../assets/css/style.css">
   <link rel="stylesheet" href="../../assets/css/curve-labs.css">
-  <link rel="stylesheet" href="app.css?v=f0e1a49a550f">
+  <link rel="stylesheet" href="app.css?v=a20e5f42bf9b">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
   <script src="rotations-math.js?v=7ffd3b3a6d16" defer></script>
-  <script src="rotations-three.js?v=5c5fe2510cba" defer></script>
-  <script src="app.js?v=a48bb016db9f" defer></script>
+  <script src="rotations-three.js?v=2fe210b95945" defer></script>
+  <script src="app.js?v=fdb8c8c64166" defer></script>
   <script>window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}};</script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
 </head>
@@ -36,59 +36,63 @@
 
     <section aria-labelledby="compare-title" id="comparison">
       <div class="section-heading"><div><p class="section-kicker">One body, two rotation rules</p><h2 id="compare-title">Compare the rotations</h2></div></div>
-      <fieldset class="comparison-mode">
-        <legend>Extrinsic sequence</legend>
-        <label><input type="radio" name="comparison-mode" value="same" checked> Same order</label>
-        <label><input type="radio" name="comparison-mode" value="reverse"> Reverse order</label>
-        <p>Start with the same order to see the difference. Select <strong>Reverse order</strong> to make the final orientations match.</p>
-      </fieldset>
-      <div class="view-grid">
-        <article class="lab-window scene-panel">
-          <div class="window-heading"><h3>Intrinsic</h3><span class="frame-tag">Moving body axes</span></div>
-          <ol class="sequence" data-intrinsic-sequence aria-label="Intrinsic rotations in time order"></ol>
-          <div class="scene-frame"><canvas data-intrinsic-canvas tabindex="0" aria-label="Intrinsic rotation of an aircraft about its moving body axes. Drag or use arrow keys to orbit the camera, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas><p class="view-fallback" data-intrinsic-fallback hidden>The 3D view needs WebGL. The step descriptions, matrices, and comparison below still work.</p></div>
-          <p class="step-caption" data-intrinsic-caption></p>
-          <p class="axis-readout">Axis in world coordinates: <strong data-intrinsic-axis></strong></p>
-        </article>
-        <article class="lab-window scene-panel">
-          <div class="window-heading"><h3>Extrinsic</h3><span class="frame-tag">Fixed world axes</span></div>
-          <ol class="sequence" data-extrinsic-sequence aria-label="Extrinsic rotations in time order"></ol>
-          <div class="scene-frame"><canvas data-extrinsic-canvas tabindex="0" aria-label="Extrinsic rotation of an aircraft about fixed world axes. Drag or use arrow keys to orbit the camera, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas><p class="view-fallback" data-extrinsic-fallback hidden>The 3D view needs WebGL. The step descriptions, matrices, and comparison below still work.</p></div>
-          <p class="step-caption" data-extrinsic-caption></p>
-          <p class="axis-readout">Axis in world coordinates: <strong data-extrinsic-axis></strong></p>
-        </article>
-      </div>
-      <div class="view-toolbar">
-        <p class="scene-legend"><span><i class="swatch world"></i>Fixed X, Y, Z</span><span><i class="swatch body"></i>Body x′, y′, z′</span><span><i class="swatch active"></i>Active rotation axis</span></p>
-        <div class="view-actions"><button class="mini-button" type="button" data-camera="reset">Reset view</button><button class="mini-button" type="button" data-camera="in" aria-label="Zoom both 3D views in">Zoom +</button><button class="mini-button" type="button" data-camera="out" aria-label="Zoom both 3D views out">Zoom −</button></div>
-      </div>
-      <p class="interaction-hint" id="view-help">Drag either view to move both cameras. Scroll or pinch inside a view to zoom. The aircraft’s nose points along x′, its left wing along y′, and its top along z′. Camera motion does not change the rotations.</p>
-
-      <div class="lab-window playback-panel">
-        <div class="timeline-heading"><h3>Follow the three steps</h3><output for="progress" id="progress-output">Final orientation</output></div>
-        <label class="sr-only" for="progress">Rotation progress, from start to step three</label>
-        <input id="progress" class="timeline" type="range" min="0" max="3" step="0.005" value="3">
-        <div class="timeline-ticks" aria-hidden="true"><span>Start</span><span>1</span><span>2</span><span>3 · Finish</span></div>
-        <div class="playback-actions"><button class="mini-button" type="button" data-action="start">Start</button><button class="mini-button" type="button" data-action="previous">Previous step</button><button class="button primary" type="button" data-action="play">Play rotations</button><button class="mini-button" type="button" data-action="next">Next step</button><button class="mini-button" type="button" data-action="finish">Finish</button></div>
-        <p class="playback-note">Each step completes one rotation before the next begins. A gold axis shows the current or next step.</p>
-      </div>
-
-      <div class="comparison-result" data-result role="status" aria-live="polite" aria-atomic="true">
-        <div><p class="section-kicker">Orientation comparison</p><h3 data-result-title></h3><p data-result-message></p></div>
-        <div class="difference-readout"><span>Current difference</span><strong data-difference>—</strong><small data-final-difference></small></div>
-      </div>
-
-      <fieldset class="lab-window parameter-panel">
-        <legend>Choose the intrinsic sequence</legend>
-        <div class="parameter-grid">
-          <label class="order-control" for="axis-order"><span>Axes in time order</span><select id="axis-order"><option value="XYZ">X → Y → Z</option><option value="XZY">X → Z → Y</option><option value="YXZ">Y → X → Z</option><option value="YZX">Y → Z → X</option><option value="ZXY">Z → X → Y</option><option value="ZYX">Z → Y → X</option></select><small>Rotations use the current body axes.</small></label>
-          <div class="angle-control"><label for="angle-0">1 · <span data-angle-axis="0">X</span> angle (°)</label><input id="angle-0" type="number" min="-180" max="180" step="1" value="60"><label class="sr-only" for="slider-0">First rotation angle</label><input id="slider-0" type="range" min="-180" max="180" step="1" value="60"></div>
-          <div class="angle-control"><label for="angle-1">2 · <span data-angle-axis="1">Y</span> angle (°)</label><input id="angle-1" type="number" min="-180" max="180" step="1" value="45"><label class="sr-only" for="slider-1">Second rotation angle</label><input id="slider-1" type="range" min="-180" max="180" step="1" value="45"></div>
-          <div class="angle-control"><label for="angle-2">3 · <span data-angle-axis="2">Z</span> angle (°)</label><input id="angle-2" type="number" min="-180" max="180" step="1" value="30"><label class="sr-only" for="slider-2">Third rotation angle</label><input id="slider-2" type="range" min="-180" max="180" step="1" value="30"></div>
+      <div class="comparison-workspace lab-window">
+        <div class="workspace-controls">
+          <fieldset class="parameter-panel">
+            <legend>Rotation controls</legend>
+            <div class="parameter-grid">
+              <label class="order-control" for="axis-order"><span>Axes in time order</span><select id="axis-order"><option value="XYZ">X → Y → Z</option><option value="XZY">X → Z → Y</option><option value="YXZ">Y → X → Z</option><option value="YZX">Y → Z → X</option><option value="ZXY">Z → X → Y</option><option value="ZYX">Z → Y → X</option></select></label>
+              <div class="angle-control"><label for="angle-0">1 · <span data-angle-axis="0">X</span> angle</label><div><input id="angle-0" type="number" min="-180" max="180" step="1" value="60" aria-label="First rotation angle in degrees"><span>°</span></div><label class="sr-only" for="slider-0">First rotation angle</label><input id="slider-0" type="range" min="-180" max="180" step="1" value="60"></div>
+              <div class="angle-control"><label for="angle-1">2 · <span data-angle-axis="1">Y</span> angle</label><div><input id="angle-1" type="number" min="-180" max="180" step="1" value="45" aria-label="Second rotation angle in degrees"><span>°</span></div><label class="sr-only" for="slider-1">Second rotation angle</label><input id="slider-1" type="range" min="-180" max="180" step="1" value="45"></div>
+              <div class="angle-control"><label for="angle-2">3 · <span data-angle-axis="2">Z</span> angle</label><div><input id="angle-2" type="number" min="-180" max="180" step="1" value="30" aria-label="Third rotation angle in degrees"><span>°</span></div><label class="sr-only" for="slider-2">Third rotation angle</label><input id="slider-2" type="range" min="-180" max="180" step="1" value="30"></div>
+            </div>
+          </fieldset>
+          <fieldset class="comparison-mode">
+            <legend>Extrinsic sequence</legend>
+            <label><input type="radio" name="comparison-mode" value="same" checked> Same order</label>
+            <label><input type="radio" name="comparison-mode" value="reverse"> Reverse order</label>
+          </fieldset>
         </div>
-        <div class="preset-row"><span>Try an example:</span><button class="mini-button" type="button" data-preset="quarter">Two quarter-turns</button><button class="mini-button" type="button" data-preset="general">60°, 45°, 30°</button><button class="mini-button" type="button" data-preset="zero">All zero</button></div>
-        <p class="fine-note">Angles are in degrees. A positive rotation follows the right-hand rule. Reversing the sequence keeps each angle attached to its axis and keeps its sign.</p>
-      </fieldset>
+
+        <div class="playback-panel">
+          <div class="timeline-heading"><h3>Rotation progress</h3><output for="progress" id="progress-output">Final orientation</output></div>
+          <label class="sr-only" for="progress">Rotation progress, from start to rotation three</label>
+          <div class="playback-line">
+            <input id="progress" class="timeline" type="range" min="0" max="3" step="0.005" value="3">
+            <div class="playback-actions"><button class="mini-button" type="button" data-action="start">Start</button><button class="mini-button" type="button" data-action="previous" aria-label="Previous rotation">‹</button><button class="button primary" type="button" data-action="play">Play rotations</button><button class="mini-button" type="button" data-action="next" aria-label="Next rotation">›</button><button class="mini-button" type="button" data-action="finish">Finish</button></div>
+          </div>
+        </div>
+
+        <div class="combined-view">
+          <div class="scene-frame combined-scene">
+            <section class="figure-pane" aria-labelledby="intrinsic-figure-title">
+              <div class="window-heading"><div><h3 id="intrinsic-figure-title">Intrinsic</h3><span class="sequence-readout" data-intrinsic-order></span></div><span class="frame-tag">Moving body axes</span></div>
+              <canvas data-intrinsic-canvas tabindex="0" aria-label="Intrinsic rotation of an aircraft about its moving body axes. Drag or use arrow keys to orbit the camera, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas><p class="view-fallback" data-intrinsic-fallback hidden>The 3D view needs WebGL. The step descriptions, matrices, and comparison below still work.</p>
+            </section>
+            <section class="figure-pane" aria-labelledby="extrinsic-figure-title">
+              <div class="window-heading"><div><h3 id="extrinsic-figure-title">Extrinsic</h3><span class="sequence-readout" data-extrinsic-order></span></div><span class="frame-tag">Fixed world axes</span></div>
+              <canvas data-extrinsic-canvas tabindex="0" aria-label="Extrinsic rotation of an aircraft about fixed world axes. Drag or use arrow keys to orbit the camera, plus and minus to zoom, Home to reset." aria-describedby="view-help"></canvas><p class="view-fallback" data-extrinsic-fallback hidden>The 3D view needs WebGL. The step descriptions, matrices, and comparison below still work.</p>
+            </section>
+          </div>
+          <div class="combined-readouts">
+            <div class="scene-readout"><p class="step-caption" data-intrinsic-caption></p><p class="axis-readout">Axis: <strong data-intrinsic-axis></strong></p></div>
+            <div class="scene-readout"><p class="step-caption" data-extrinsic-caption></p><p class="axis-readout">Axis: <strong data-extrinsic-axis></strong></p></div>
+          </div>
+        </div>
+
+        <div class="workspace-footer">
+          <div class="view-toolbar">
+            <p class="scene-legend"><span><i class="swatch world"></i>Fixed X, Y, Z</span><span><i class="swatch body"></i>Body x′, y′, z′</span><span><i class="swatch active"></i>Active axis</span></p>
+            <div class="view-actions"><button class="mini-button" type="button" data-camera="reset">Reset view</button><button class="mini-button" type="button" data-camera="in" aria-label="Zoom both 3D views in">Zoom +</button><button class="mini-button" type="button" data-camera="out" aria-label="Zoom both 3D views out">Zoom −</button></div>
+          </div>
+          <div class="comparison-result" data-result role="status" aria-live="polite" aria-atomic="true">
+            <div><h3 data-result-title></h3><p data-result-message></p></div>
+            <div class="difference-readout"><span>Difference</span><strong data-difference>—</strong><small data-final-difference></small></div>
+          </div>
+          <div class="preset-row"><span>Examples:</span><button class="mini-button" type="button" data-preset="quarter">90°, 90°, 0°</button><button class="mini-button" type="button" data-preset="general">60°, 45°, 30°</button><button class="mini-button" type="button" data-preset="zero">All zero</button></div>
+        </div>
+        <p class="interaction-hint" id="view-help">Drag either view to move both cameras; scroll or pinch inside a figure to zoom. Positive angles follow the right-hand rule.</p>
+      </div>
 
       <details class="matrix-panel lab-window">
         <summary>Inspect the rotation matrices</summary>

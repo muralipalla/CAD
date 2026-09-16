@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CAD · From moving axes to intrinsic rotations</title>
+  <meta name="description" content="An interactive three-part lesson: arbitrary-axis conjugation, three body-fixed directions, and intrinsic XYZ versus extrinsic ZYX rotations.">
+  <meta name="theme-color" content="#fdf6ec">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <link rel="stylesheet" href="module.css?v=course-theme-2">
+  <script src="../../assets/js/main.js" defer></script>
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+  <script src="rotation-math.js" defer></script><script src="rotation-view.js" defer></script><script src="app.js" defer></script>
+</head>
+<body class="rotations-module">
+  <a class="skip-link" href="#lesson">Skip to lesson</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+  <main id="lesson" class="rotations-shell">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">Intrinsic and Extrinsic Rotations</li></ol>
+      <p class="eyebrow">Interactive visualization · Rigid-body motion</p>
+      <h1>Intrinsic and extrinsic <em>rotations</em></h1>
+      <p class="activity-lead">Start with two arbitrary directions. Build the identity. Then put three rotations together.</p>
+    </header>
+    <div class="convention"><strong>Our convention</strong><span>Active rotations · column vectors · right-hand rule · rightmost matrix acts first</span></div>
+    <nav class="chapters" aria-label="Lesson parts">
+      <button type="button" data-chapter="0" aria-current="step"><span>01</span><div>Two arbitrary axes<small>Move an axis by conjugation</small></div></button>
+      <button type="button" data-chapter="1"><span>02</span><div>Three attached directions<small>Build the intrinsic sequence</small></div></button>
+      <button type="button" data-chapter="2"><span>03</span><div>The X, Y, Z case<small>Reverse the order, match the result</small></div></button>
+    </nav>
+    <section class="chapter-intro" aria-labelledby="chapter-title"><div><p class="eyebrow" id="chapter-number">PART 01 / THE BUILDING BLOCK</p><h2 id="chapter-title">Rotate the axis, keep the angle</h2><p id="chapter-description">Choose any nonzero m and n. Rotating m about n gives m′. A rotation through θₘ about m′ is the conjugate of the original rotation about m.</p></div><div class="hero-equation" id="hero-equation">R<sub>m′</sub> = R<sub>n</sub> R<sub>m</sub> R<sub>n</sub><sup>T</sup></div></section>
+    <noscript><p class="error">Enable JavaScript for the interactive scenes. The complete mathematical derivation appears below.</p></noscript>
+    <div class="workspace">
+      <aside class="controls" aria-label="Rotation parameters">
+        <div class="control-heading"><h3>Choose the rotations</h3><button type="button" class="mini-button" id="reset">Reset</button></div>
+        <label class="select-label" id="preset-label">Axis directions<select id="axis-preset"><option value="arbitrary">Arbitrary directions</option><option value="orthogonal">Perpendicular directions</option><option value="parallel">Parallel directions</option><option value="custom" disabled>Custom directions</option></select></label>
+        <label class="select-label" id="order-label" hidden>Intrinsic order in time<select id="axis-order"><option>XYZ</option><option>XZY</option><option>YXZ</option><option>YZX</option><option>ZXY</option><option>ZYX</option></select></label>
+        <div id="axis-controls"></div>
+        <p class="control-note" id="normalize-note">Enter any nonzero direction; it is normalized automatically. Axes pass through the origin.</p>
+        <p class="error" id="input-error" role="alert" hidden></p>
+        <fieldset id="comparison-control" hidden><legend>Extrinsic comparison</legend><label><input type="radio" name="comparison" value="reverse" checked> Reverse axis–angle pairs</label><label><input type="radio" name="comparison" value="same"> Same axis–angle order</label></fieldset>
+        <div class="try-note" id="try-note"><strong>Try this</strong><p>Choose perpendicular directions and set θₙ = 90°. The axis m = X becomes m′ = Y.</p></div>
+      </aside>
+      <div class="experiment">
+        <div class="views">
+          <figure><figcaption><div><strong id="left-title">Direct rotation</strong><span id="left-subtitle">About the moved axis m′</span></div><span class="pane-index">A</span></figcaption><canvas id="left-view" tabindex="0" aria-label="Direct rotation in three dimensions. Drag to orbit. Arrow keys rotate the view. Plus and minus zoom; Home resets the camera."></canvas><div class="scene-caption" id="left-caption"></div></figure>
+          <figure><figcaption><div><strong id="right-title">Undo → rotate → restore</strong><span id="right-subtitle">The same map in three operations</span></div><span class="pane-index">B</span></figcaption><canvas id="right-view" tabindex="0" aria-label="Conjugated rotation in three dimensions. Drag to orbit. Arrow keys rotate the view. Plus and minus zoom; Home resets the camera."></canvas><div class="scene-caption" id="right-caption"></div></figure>
+        </div>
+        <div class="view-footer"><div class="legend" id="scene-legend"></div><button type="button" class="mini-button" id="camera-reset">Reset view</button></div>
+        <p class="view-help">Drag either scene to orbit both views. Arrow keys orbit; + / − zoom. The gold highlight marks the active axis.</p>
+        <div class="playback"><div class="playback-top"><button type="button" class="button primary" id="play">▶ Play construction</button><output id="progress-label" for="progress">Final result</output><span class="progress-count" id="progress-count">3 / 3</span></div><label class="sr-only" for="progress">Construction progress, zero to three</label><input type="range" id="progress" min="0" max="3" step="0.005" value="3"><div class="step-buttons" id="step-buttons"></div></div>
+        <div class="result-strip" aria-live="polite" aria-atomic="true" id="result"><div><strong id="result-title">The two rotations coincide</strong><span id="result-description">The identity holds for every nonzero axis direction.</span></div><div><span>Final matrix difference</span><output id="matrix-error">0</output><small>Frobenius norm</small></div></div>
+      </div>
+    </div>
+    <section class="readout-section" aria-label="Live geometry and matrix comparison"><div class="readout-heading"><h3>Read the geometry</h3><span id="live-progress">Values at the selected progress</span></div><div id="vector-readouts" class="vector-readouts"></div><details id="matrices"><summary>Inspect the matrices and the numerical identity</summary><div class="matrix-grid"><div><h4 id="matrix-a-title">Rot(m′, θₘ)</h4><div id="matrix-a"></div></div><div><h4 id="matrix-b-title">Rₙ Rₘ Rₙᵀ</h4><div id="matrix-b"></div></div><div><h4>Current scene difference</h4><output id="current-error"></output><p class="control-note">Intermediate states usually differ. Equality is the final result, not the path taken.</p></div></div></details></section>
+    <section class="proof" id="proof-0" aria-labelledby="proof-title-0">
+      <div class="proof-heading"><p class="eyebrow">01 / WHY CONJUGATION WORKS</p><h2 id="proof-title-0">Bring the axis back. Rotate. Put it back.</h2></div>
+      <p>Let \(R_n=\operatorname{Rot}(\vec n,\theta_n)\), \(R_m=\operatorname{Rot}(\vec m,\theta_m)\), and \(\vec m'=R_n\vec m\). Directions need not be perpendicular. For any test vector \(\vec v\), read the product from right to left:</p>
+      <div class="proof-steps"><article data-proof-step="0"><span>1</span><h3>Undo the axis motion</h3><div>\[\vec v_1=R_n^T\vec v\]</div><p>The same inverse rotation takes \(\vec m'\) back to \(\vec m\).</p></article><article data-proof-step="1"><span>2</span><h3>Rotate about m</h3><div>\[\vec v_2=R_m\vec v_1\]</div><p>Apply the original angle \(\theta_m\) about the original axis.</p></article><article data-proof-step="2"><span>3</span><h3>Restore the axis motion</h3><div>\[\vec v_3=R_n\vec v_2\]</div><p>Return the axis to \(\vec m'\). The angle is still \(\theta_m\).</p></article></div>
+      <div class="boxed-equation">\[\boxed{\operatorname{Rot}(R_n\vec m,\theta_m)=R_nR_mR_n^T}\]</div><p>The asymmetric kettle makes the changing orientation easy to see. Matching one solid object is still an illustration rather than a proof; the vector argument applies to <em>every</em> vector, and the live matrix comparison checks all nine entries.</p>
+      <details><summary>A proof for any direction n, using Rodrigues’ formula</summary><p>For a unit direction \(\hat m\), let \([\hat m]_\times\vec v=\hat m\times\vec v\). With \(c=\cos\theta_m\) and \(s=\sin\theta_m\),</p><div>\[R_m=cI+(1-c)\hat m\hat m^T+s[\hat m]_\times.\]</div><p>Any proper rotation \(Q\) preserves cross products, so \(Q[\hat m]_\times Q^T=[Q\hat m]_\times\). Hence</p><div>\[QR_mQ^T=cI+(1-c)(Q\hat m)(Q\hat m)^T+s[Q\hat m]_\times=\operatorname{Rot}(Q\hat m,\theta_m).\]</div><p>Take \(Q=R_n\). No alignment of \(\vec n\) with X, Y, or Z is assumed.</p></details>
+    </section>
+    <section class="proof" id="proof-1" hidden aria-labelledby="proof-title-1"><div class="proof-heading"><p class="eyebrow">02 / REUSE THE SAME IDENTITY</p><h2 id="proof-title-1">Each new axis follows the body</h2></div><p>Let \(R_\ell=\operatorname{Rot}(\vec\ell,\theta_\ell)\), \(R_m=\operatorname{Rot}(\vec m,\theta_m)\), and \(R_n=\operatorname{Rot}(\vec n,\theta_n)\). These are three directions attached to a rigid body, initially expressed in world coordinates. They need not form an orthogonal coordinate frame.</p><div class="derivation"><article data-derive-step="0"><span>1</span><div><h3>First: about ℓ</h3><div>\[A_1=R_\ell,\qquad\vec m'=A_1\vec m.\]</div></div></article><article data-derive-step="1"><span>2</span><div><h3>Then: about the moved direction m′</h3><div>\[R_{m'}=A_1R_mA_1^T\]</div><div>\[A_2=R_{m'}A_1=A_1R_m\underbrace{A_1^TA_1}_{I}=R_\ell R_m.\]</div></div></article><article data-derive-step="2"><span>3</span><div><h3>Finally: about the twice-moved direction n″</h3><div>\[\vec n''=A_2\vec n=R_\ell R_m\vec n,\qquad R_{n''}=A_2R_nA_2^T.\]</div><div>\[A_3=R_{n''}A_2=A_2R_n\underbrace{A_2^TA_2}_{I}=R_\ell R_mR_n.\]</div></div></article></div><details><summary>Expand the complete product and see the cancellations</summary><div>\[R_{\mathrm{intrinsic}}=(R_\ell R_mR_nR_m^TR_\ell^T)(R_\ell R_mR_\ell^T)R_\ell\]</div><div>\[=R_\ell R_mR_nR_m^T\underbrace{R_\ell^TR_\ell}_{I}R_m\underbrace{R_\ell^TR_\ell}_{I}\]</div><div>\[=R_\ell R_mR_n\underbrace{R_m^TR_m}_{I}=R_\ell R_mR_n.\]</div></details><div class="boxed-equation">\[\boxed{R_{\mathrm{intrinsic}}=R_\ell R_mR_n=R_{\mathrm{extrinsic,\ reversed}}}\]</div><p>In time, the intrinsic sequence is \(\ell\to m'\to n''\). The extrinsic sequence is \(n\to m\to\ell\) about the <em>original fixed</em> directions, with each angle kept with its axis. Both produce the same final orientation.</p></section>
+    <section class="proof" id="proof-2" hidden aria-labelledby="proof-title-2"><div class="proof-heading"><p class="eyebrow">03 / THE FAMILIAR COORDINATE AXES</p><h2 id="proof-title-2">Intrinsic XYZ is extrinsic ZYX</h2></div><p>Now set \(\vec\ell=\hat x\), \(\vec m=\hat y\), \(\vec n=\hat z\), with angles \(\alpha,\beta,\gamma\). The body and world coordinate frames initially coincide.</p><div class="sequence-proof"><article><h3>Intrinsic · moving body axes</h3><p>Chronological order:</p><div>\[X(\alpha)\ \to\ Y'(\beta)\ \to\ Z''(\gamma)\]</div><div>\[A_1=R_x(\alpha),\quad A_2=R_x(\alpha)R_y(\beta)\]</div><div>\[A_3=R_x(\alpha)R_y(\beta)R_z(\gamma).\]</div></article><article><h3>Extrinsic · fixed world axes</h3><p>Chronological order:</p><div>\[Z(\gamma)\ \to\ Y(\beta)\ \to\ X(\alpha)\]</div><div>\[B_1=R_z(\gamma),\quad B_2=R_y(\beta)R_z(\gamma)\]</div><div>\[B_3=R_x(\alpha)R_y(\beta)R_z(\gamma).\]</div></article></div><div class="boxed-equation">\[\boxed{\text{Intrinsic }XYZ(\alpha,\beta,\gamma)\equiv\text{Extrinsic }ZYX(\gamma,\beta,\alpha)}\]</div><p>Reverse the axis–angle pairs, not just the letters. Choosing the same chronological order generally produces a different final orientation. Special cases such as zero angles can still agree. The dropdown above applies the same rule to all six orders with distinct axes; these equations illustrate XYZ.</p><details><summary>The coordinate-axis matrices</summary><div class="coordinate-matrices">\[R_x(\alpha)=\begin{bmatrix}1&0&0\\0&\cos\alpha&-\sin\alpha\\0&\sin\alpha&\cos\alpha\end{bmatrix}\]\[R_y(\beta)=\begin{bmatrix}\cos\beta&0&\sin\beta\\0&1&0\\-\sin\beta&0&\cos\beta\end{bmatrix}\]\[R_z(\gamma)=\begin{bmatrix}\cos\gamma&-\sin\gamma&0\\\sin\gamma&\cos\gamma&0\\0&0&1\end{bmatrix}\]</div></details></section>
+    <div class="lesson-nav"><button type="button" class="button secondary" id="previous-chapter">← Previous part</button><span id="lesson-position">Part 1 of 3</span><button type="button" class="button primary" id="next-chapter">Three attached directions →</button></div>
+  </main>
+  <footer class="site-footer">
+    <p><strong>CAD</strong> · Geometric transformations</p>
+    <ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul>
+    <p>Created by Murali Palla · <span data-year>2026</span></p>
+  </footer>
+</body></html>

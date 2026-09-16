@@ -10,7 +10,17 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="transform-playground.css?v=6">
+  <link rel="stylesheet" href="projection-playground.css?v=2">
+  <link rel="stylesheet" href="euler-angles.css?v=1">
   <script src="../../assets/js/main.js" defer></script>
+  <script src="transform-2d-math.js?v=4" defer></script>
+  <script src="transform-playground.js?v=3" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="../intrinsic-extrinsic-rotations/rotations-math.js" defer></script>
+  <script src="../intrinsic-extrinsic-rotations/rotations-three.js" defer></script>
+  <script src="projection-playground.js?v=2" defer></script>
+  <script src="euler-angles.js?v=1" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -46,6 +56,7 @@
       <p>In this module</p>
       <ol><li class="toc-section"><a href="#affine-transformations">Affine Transformations</a></li>
 <li class="toc-subsection"><a href="#homogeneous-coordinates">Homogeneous Coordinates</a></li>
+<li class="toc-subsection"><a href="#transformation-playground">Interactive Transformation Playground</a></li>
 <li class="toc-section"><a href="#rotations">Rotations</a></li>
 <li class="toc-subsection"><a href="#2d-rotations">2D Rotations</a></li>
 <li class="toc-subsection"><a href="#rotation-about-an-arbitrary-point">Rotation about an Arbitrary Point</a></li>
@@ -143,6 +154,138 @@ a_{21} &amp; a_{22} &amp; b_2\\
 x\\y\\1
 \end{bmatrix}.
 \]</div>
+<section class="transform-lab" id="transformation-playground" data-transform-lab aria-labelledby="transformation-playground-title">
+  <div class="transform-lab-header">
+    <div>
+      <p class="section-kicker">Interactive homogeneous transformation</p>
+      <h4 id="transformation-playground-title">Transform from the origin, a point, or a line</h4>
+    </div>
+  </div>
+  <noscript><p class="transform-status">Enable JavaScript to use the transformation playground.</p></noscript>
+  <div class="transform-workspace">
+    <section class="transform-control-panel" aria-labelledby="transform-controls-title">
+      <div class="control-panel-heading">
+        <h5 id="transform-controls-title">Controls</h5>
+      </div>
+      <div class="transform-control-stack">
+        <label class="transform-field"><span>Matrix preset</span><select data-preset>
+          <option value="identity">Identity</option>
+          <option value="scale">Non-uniform scale</option>
+          <option value="shearX">Shear in x</option>
+          <option value="shearY">Shear in y</option>
+          <option value="rotate30">Rotate 30°</option>
+          <option value="translate">Translate</option>
+          <option value="reflectX">Reflect in local x-axis</option>
+          <option value="reflectY">Reflect in local y-axis</option>
+          <option value="reflectDiagonal">Reflect in local y = x</option>
+          <option value="projective">Projective tilt · advanced</option>
+          <option value="custom" disabled>Custom matrix</option>
+        </select></label>
+        <label class="transform-field"><span>Geometry</span><select data-geometry>
+          <option value="grid">Square grid</option>
+          <option value="circle">Circle</option>
+        </select></label>
+        <label class="transform-field"><span>Reference frame</span><select data-reference-mode>
+          <option value="origin">Global origin</option>
+          <option value="point">Point P(a, b)</option>
+          <option value="line">Oriented line L</option>
+        </select></label>
+        <div class="reference-settings" data-reference-settings hidden>
+          <fieldset class="reference-point-fields">
+            <legend>Reference location</legend>
+            <label><span>a</span><input data-reference-x type="number" step="0.25" value="1.5" aria-label="Reference x coordinate a"></label>
+            <label><span>b</span><input data-reference-y type="number" step="0.25" value="-1" aria-label="Reference y coordinate b"></label>
+          </fieldset>
+          <div class="reference-line-settings" data-line-settings hidden>
+            <div class="reference-range-row">
+              <label for="reference-angle">Line angle φ</label>
+              <input id="reference-angle" data-reference-angle type="range" min="-180" max="180" step="1" value="30">
+              <output data-reference-angle-output for="reference-angle">30°</output>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="compact-stepper">
+        <div class="compact-stepper-heading">
+          <span>Construction step</span>
+          <output data-step-count aria-live="off"></output>
+        </div>
+        <strong data-step-title></strong>
+        <div class="construction-navigation">
+          <button class="button secondary" type="button" data-step-prev aria-label="Previous construction step">Previous</button>
+          <button class="button secondary" type="button" data-step-next aria-label="Next construction step">Next</button>
+        </div>
+      </div>
+    </section>
+    <div class="transform-visual-column">
+      <figure class="transform-figure-card">
+        <figcaption class="transform-figure-heading">
+          <h5>Figure</h5>
+          <span data-figure-stage></span>
+        </figcaption>
+        <div class="transform-canvas-wrap"><canvas data-canvas width="900" height="660" role="img" aria-label="Transformation figure" aria-describedby="transform-legend transform-status transform-help"></canvas></div>
+        <div class="transform-legend" id="transform-legend">
+          <span><i class="transform-swatch dashed" style="--swatch:#8d86aa"></i>original</span>
+          <span><i class="transform-swatch" data-geometry-swatch style="--swatch:#76c9e8"></i><em data-geometry-key>current grid</em></span>
+          <span data-marker-legend><i class="transform-swatch" style="--swatch:#f5c451"></i>orientation marker</span>
+          <span data-reference-legend hidden><i class="transform-swatch" style="--swatch:#f2b84b"></i><em data-reference-key>reference</em></span>
+          <span><i class="transform-swatch" style="--swatch:#ff8d78"></i>x basis</span>
+          <span><i class="transform-swatch" style="--swatch:#76dcc1"></i>y basis</span>
+        </div>
+      </figure>
+      <section class="figure-controls" aria-labelledby="figure-controls-title">
+        <h6 class="visually-hidden" id="figure-controls-title">Figure and matrix controls</h6>
+        <div class="figure-view-options">
+          <label class="transform-toggle"><input type="checkbox" data-show-original checked><span>Show original</span></label>
+          <div class="transform-view-controls">
+            <label for="transform-zoom">View zoom</label>
+            <div class="transform-range-row">
+              <input id="transform-zoom" data-zoom type="range" min="10" max="200" step="10" value="100">
+              <output data-zoom-output for="transform-zoom">100%</output>
+            </div>
+          </div>
+        </div>
+        <details class="matrix-details">
+          <summary>Edit matrix entries</summary>
+          <div class="matrix-shell">
+            <span class="matrix-bracket left" aria-hidden="true"></span>
+            <div class="matrix-editor" role="group" aria-label="Base transformation matrix entries">
+              <label class="matrix-cell"><span>m11</span><input data-matrix-cell type="number" step="0.05" value="1" aria-label="Matrix row 1 column 1"></label>
+              <label class="matrix-cell"><span>m12</span><input data-matrix-cell type="number" step="0.05" value="0" aria-label="Matrix row 1 column 2"></label>
+              <label class="matrix-cell"><span>tx</span><input data-matrix-cell type="number" step="0.05" value="0" aria-label="Matrix row 1 column 3, x translation"></label>
+              <label class="matrix-cell"><span>m21</span><input data-matrix-cell type="number" step="0.05" value="0" aria-label="Matrix row 2 column 1"></label>
+              <label class="matrix-cell"><span>m22</span><input data-matrix-cell type="number" step="0.05" value="1" aria-label="Matrix row 2 column 2"></label>
+              <label class="matrix-cell"><span>ty</span><input data-matrix-cell type="number" step="0.05" value="0" aria-label="Matrix row 2 column 3, y translation"></label>
+              <label class="matrix-cell projective"><span>px</span><input data-matrix-cell type="number" step="0.02" value="0" aria-label="Matrix row 3 column 1, projective x coefficient"></label>
+              <label class="matrix-cell projective"><span>py</span><input data-matrix-cell type="number" step="0.02" value="0" aria-label="Matrix row 3 column 2, projective y coefficient"></label>
+              <label class="matrix-cell projective"><span>w0</span><input data-matrix-cell type="number" step="0.05" value="1" aria-label="Matrix row 3 column 3, homogeneous scale"></label>
+            </div>
+            <span class="matrix-bracket right" aria-hidden="true"></span>
+          </div>
+        </details>
+      </section>
+    </div>
+  </div>
+  <section class="transform-explanation" aria-labelledby="transform-explanation-title">
+    <h5 id="transform-explanation-title">Transformation details</h5>
+    <p class="transform-view-note reference-note" data-reference-note>The base matrix acts in the global frame.</p>
+    <p class="transform-status" id="transform-status" data-status></p>
+    <div class="transform-explanation-grid">
+      <div>
+        <h6>Base matrix equations</h6>
+        <code class="transform-formula" data-formula aria-label="Base matrix coordinate equations"></code>
+      </div>
+      <div>
+        <h6>Current construction</h6>
+        <code class="construction-formula" data-composition aria-label="Selected cumulative matrix"></code>
+      </div>
+    </div>
+    <p class="visually-hidden" data-announcer role="status" aria-live="polite" aria-atomic="true"></p>
+    <p class="transform-help" id="transform-help">The editor defines $A$. About point $P$, the final matrix is $T(P) A T(-P)$. About an oriented line $L$ through $P_0$, it is $T(P_0)R(\varphi)A R(-\varphi)T(-P_0)$. With an oriented line selected, the reflection preset uses $L$ as the reflection axis.</p>
+  </section>
+</section>
+<aside class="notes-box keybox"><p class="notes-box-title">Reading the Interactive Matrix</p><div class="notes-box-body"><p>Scaling changes diagonal entries, shear changes off-diagonal entries, and translation changes the last column. The reference controls conjugate the base matrix: move the chosen point to the origin, align an oriented line with the $x$-axis when needed, apply $A$, and undo those frame changes. The fixed zoom makes every movement geometrically comparable.</p>
+<p>For reflection in an arbitrary line $L$, choose the local $x$-axis reflection $F_x$. Then $T(P_0)R(\varphi)F_xR(-\varphi)T(-P_0)$ fixes every point on $L$ and reverses the perpendicular component.</p></div></aside>
 <p>In three dimensions,</p>
 <div class="math-display">\[
 (x,y,z) \quad \longrightarrow \quad (x,y,z,1),
@@ -239,6 +382,7 @@ a\\b
 T(a,b)R(\theta)T(-a,-b),
 \]</div>
 <p>where $T(a,b)$ is the translation matrix.</p>
+<p><a href="#transformation-playground">In the interactive transformation playground above</a>, choose <strong>Point P(a, b)</strong> to step through this construction, or choose <strong>Oriented line L</strong> to align an arbitrary axis, apply the local matrix and undo the alignment.</p>
 <h3 id="3d-rotations">3D Rotations</h3>
 <p>In three dimensions, rotations may be performed about the $x$-, $y$-, and $z$-axes.</p>
 <p>Rotation about the $x$-axis:</p>
@@ -336,6 +480,60 @@ R_{21}-R_{12}
 R = R_z(\alpha)R_y(\beta)R_x(\gamma).
 \]</div>
 <p>Here $\alpha$, $\beta$, and $\gamma$ are called Euler angles.</p>
+<section class="euler-lab" id="euler-angle-animation" data-euler-lab aria-labelledby="euler-animation-title">
+  <div class="euler-lab-header">
+    <div>
+      <p class="section-kicker">Interactive Euler-angle animation</p>
+      <h4 id="euler-animation-title">Build the Z–Y′–X″ orientation</h4>
+    </div>
+    <p>The animation applies intrinsic rotations in the order $Z \rightarrow Y' \rightarrow X''$, producing $R_z(\alpha)R_y(\beta)R_x(\gamma)$.</p>
+  </div>
+  <div class="euler-workspace">
+    <section class="euler-controls" aria-labelledby="euler-controls-title">
+      <h5 id="euler-controls-title">Angles and playback</h5>
+      <label class="euler-angle-control euler-alpha" for="euler-alpha">
+        <span><strong>α</strong> · first turn about z</span>
+        <output data-euler-angle-output="0" for="euler-alpha">60°</output>
+        <input id="euler-alpha" data-euler-angle="0" type="range" min="-180" max="180" step="1" value="60">
+      </label>
+      <label class="euler-angle-control euler-beta" for="euler-beta">
+        <span><strong>β</strong> · second turn about y′</span>
+        <output data-euler-angle-output="1" for="euler-beta">45°</output>
+        <input id="euler-beta" data-euler-angle="1" type="range" min="-90" max="90" step="1" value="45">
+      </label>
+      <label class="euler-angle-control euler-gamma" for="euler-gamma">
+        <span><strong>γ</strong> · third turn about x″</span>
+        <output data-euler-angle-output="2" for="euler-gamma">30°</output>
+        <input id="euler-gamma" data-euler-angle="2" type="range" min="-180" max="180" step="1" value="30">
+      </label>
+      <div class="euler-playback">
+        <button class="button" type="button" data-euler-action="play">Play</button>
+        <button class="button secondary" type="button" data-euler-action="restart">Restart</button>
+      </div>
+      <label class="euler-timeline" for="euler-progress">
+        <span>Sequence position</span>
+        <output data-euler-progress-output for="euler-progress">Start · frames aligned</output>
+        <input id="euler-progress" data-euler-progress type="range" min="0" max="3" step="0.01" value="0">
+      </label>
+      <p class="euler-step-readout" data-euler-step-readout id="euler-step-readout">Next: rotate 60° about the moving z-axis.</p>
+      <p class="euler-lock-note" data-euler-lock hidden>At β = ±90°, two rotational degrees of freedom align: gimbal lock.</p>
+    </section>
+    <figure class="euler-figure">
+      <div class="euler-canvas-wrap">
+        <canvas data-euler-canvas tabindex="0" aria-label="Three-dimensional Euler-angle animation with fixed world axes, moving body axes and the current rotation axis." aria-describedby="euler-help euler-step-readout"></canvas>
+        <p class="euler-fallback" data-euler-fallback hidden>The interactive Euler-angle view needs WebGL. The formulas and explanation remain available.</p>
+      </div>
+      <div class="euler-legend" aria-label="Figure legend">
+        <span><i class="euler-swatch world"></i>fixed world axes</span>
+        <span><i class="euler-swatch body"></i>moving body axes</span>
+        <span><i class="euler-swatch active"></i>current rotation axis</span>
+      </div>
+      <figcaption id="euler-help">Drag to orbit; scroll or pinch to zoom. Arrow keys orbit, +/− zoom and Home resets the view.</figcaption>
+    </figure>
+  </div>
+  <p class="euler-live" data-euler-live role="status" aria-live="polite" aria-atomic="true"></p>
+  <noscript><p class="euler-noscript">Enable JavaScript to use the Euler-angle animation.</p></noscript>
+</section>
 <p>Euler angles are intuitive, but they have disadvantages:</p>
 <ol class="roman-list"><li><p>the same orientation may sometimes be represented by different angle sets,</p></li><li><p>singularities may occur,</p></li><li><p>interpolation between orientations is not always smooth.</p></li></ol>
 <h2 id="intrinsic-and-extrinsic-rotations">Intrinsic and Extrinsic Rotations</h2>
@@ -1227,7 +1425,22 @@ X_v\\Y_v\\Z_v\\1
 <div class="math-display">\[
 \mathbf P'=\operatorname{Proj}(\Pi,\mathbf V)\mathbf P.
 \]</div>
-<figure class="notes-figure" id="fig:general-plane-projection" style="--figure-width: 55%"><img src="../../assets/images/caad-notes/Projections2.png" alt="Projection of a point P onto the plane Pi from the viewpoint V." loading="lazy" decoding="async"><figcaption>Projection of a point \(\mathbf P\) onto the plane \(\Pi\) from the viewpoint \(\mathbf V\).</figcaption></figure>
+<figure class="projection-explorer" id="fig:general-plane-projection" data-projection-explorer>
+  <div class="projection-explorer-header">
+    <div>
+      <p class="projection-explorer-title">Projection onto Π</p>
+      <p class="projection-explorer-hint" id="projection-help">Drag a labeled point to move it; drag empty space to orbit and scroll or pinch to zoom. Keyboard: press V, 1, 2 or 3, then use the arrow keys.</p>
+    </div>
+    <output class="projection-readout" data-projection-readout aria-label="Current projection">Selected P₁ · P′₁ = (−1.12, −0.92, 0)</output>
+  </div>
+  <div class="projection-stage">
+    <canvas data-projection-canvas tabindex="0" aria-label="Three-dimensional projection scene. Viewpoint V is below plane Pi. Points P1, P2 and P3 are above the plane, and their projection rays meet the plane at P1 prime, P2 prime and P3 prime." aria-describedby="projection-help"></canvas>
+    <p class="projection-fallback" data-projection-fallback hidden>The interactive 3D view needs WebGL. The projection derivation remains available below.</p>
+  </div>
+  <p class="projection-live" data-projection-live role="status" aria-live="polite" aria-atomic="true"></p>
+  <noscript><p class="projection-noscript">Enable JavaScript to use the interactive Three.js projection scene.</p></noscript>
+  <figcaption>Shown in coordinates where Π: z = 0. V remains below the plane, while P₁, P₂ and P₃ remain above it; each sightline intersects Π at its corresponding projected point P′.</figcaption>
+</figure>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The projected point \(\mathbf P'\) is the intersection of the projection plane and the line of sight from the viewpoint \(\mathbf V\) to the point \(\mathbf P\).</p></div></aside>
 <h3 id="line-of-sight">Line of Sight</h3>
 <p>Since \(\mathbf P'\) lies on the line joining \(\mathbf V\) and \(\mathbf P\), we may write</p>

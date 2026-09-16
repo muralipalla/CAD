@@ -22,17 +22,6 @@
       });
     }
     if (!views[frame] || !views[frame].supported) $(`[data-${frame}-fallback]`).hidden = false;
-    const sequence = $(`[data-${frame}-sequence]`);
-    for (let i = 0; i < 3; i += 1) {
-      const li = document.createElement('li');
-      const index = document.createElement('span');
-      index.className = 'step-index';
-      index.textContent = `STEP ${i + 1}`;
-      const value = document.createElement('span');
-      value.className = 'step-value';
-      li.append(index, value);
-      sequence.append(li);
-    }
     const table = $(`[data-${frame}-matrix]`);
     for (let row = 0; row < 3; row += 1) {
       const tr = document.createElement('tr');
@@ -52,12 +41,7 @@
     if (views[frame]) views[frame].setState({ orientation, activeAxis, showActiveAxis: state.progress < 3 });
     const step = Math.min(2, Math.floor(state.progress));
     const fraction = state.progress === 3 ? 1 : state.progress - step;
-    $(`[data-${frame}-sequence]`).querySelectorAll('li').forEach((li, i) => {
-      li.querySelector('.step-value').textContent = `${axisName(sequence.axes[i], frame)} ${angleText(sequence.angles[i])}`;
-      li.dataset.state = state.progress >= i + 1 ? 'done' : step === i ? 'active' : 'pending';
-      if (step === i && state.progress < 3) li.setAttribute('aria-current', 'step');
-      else li.removeAttribute('aria-current');
-    });
+    $(`[data-${frame}-order]`).textContent = Array.from(sequence.axes, (axis, i) => `${axisName(axis, frame)} ${angleText(sequence.angles[i])}`).join(' → ');
     const axis = axisName(sequence.axes[step], frame);
     const frameWord = frame === 'intrinsic' ? 'moving' : 'fixed';
     $(`[data-${frame}-caption]`).textContent = state.progress === 3

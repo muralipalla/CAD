@@ -5,7 +5,7 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (root) {
   "use strict";
 
-  const DEFAULT_CAMERA = { azimuth: -1.1, elevation: 0.57, zoom: 1 };
+  const DEFAULT_CAMERA = { azimuth: -1.1, elevation: 0.57, zoom: 1.18 };
   const IDENTITY = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 

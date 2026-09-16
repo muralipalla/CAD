@@ -10,8 +10,11 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="frenet-frame.css?v=2">
   <script src="../../assets/js/curve-topic-redirect.js"></script>
   <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="frenet-frame.js?v=2" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -51,6 +54,7 @@
 <li class="toc-subsection"><a href="#arc-length-parametrization">Arc Length Parametrization</a></li>
 <li class="toc-subsection"><a href="#curvature">Curvature</a></li>
 <li class="toc-subsection"><a href="#binormal-and-torsion">Binormal and Torsion</a></li>
+<li class="toc-subsection"><a href="#interactive-frenet-frame">Interactive Frenet Frame</a></li>
 <li class="toc-subsection"><a href="#frenetserret-formulae">Frenet–Serret Formulae</a></li>
 <li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
@@ -312,6 +316,75 @@ c^3\kappa=\|\mathbf v\times\mathbf a\|.
 \]</div>
 <p>Here \(\tau\) is the torsion of the curve.</p>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Curvature measures bending of the curve. Torsion measures twisting of the curve out of the osculating plane.</p></div></aside>
+<h3 id="interactive-frenet-frame">Interactive Frenet Frame on a 3D Spiral</h3>
+<p>Explore the moving Frenet frame on a tapered spiral whose radius changes continuously from \(R_0\) to \(R_1\):</p>
+<div class="math-display">\[
+\mathbf r(u)=
+\begin{bmatrix}
+R(u)\cos u\\
+R(u)\sin u\\
+\dfrac{p}{2\pi}u
+\end{bmatrix},
+\qquad
+R(u)=R_0+(R_1-R_0)\frac{u+3\pi}{6\pi},
+\quad -3\pi\le u\le3\pi.
+\]</div>
+<p>The signed pitch \(p\) is the rise in one complete turn. At the selected point, \(\hat{\mathbf T}\) is tangent to the curve, \(\hat{\mathbf N}\) points toward the center of curvature, and \(\hat{\mathbf B}=\hat{\mathbf T}\times\hat{\mathbf N}\) is normal to the osculating plane. The osculating circle is the best-fitting circle at that point.</p>
+<section class="frenet-lab" data-frenet-lab aria-labelledby="frenet-lab-title">
+  <div class="frenet-lab-heading">
+    <div>
+      <p class="frenet-kicker">Interactive geometry</p>
+      <h4 id="frenet-lab-title">Move the local frame along the spiral</h4>
+    </div>
+    <p>The construction updates immediately as the spiral changes.</p>
+  </div>
+  <div class="frenet-workspace">
+    <form class="frenet-controls" aria-label="Spiral controls">
+      <label class="frenet-control">
+        <span><strong>Start radius</strong> <output data-start-radius-output for="frenet-start-radius">0.70</output></span>
+        <input id="frenet-start-radius" data-start-radius type="range" min="0.35" max="2.5" step="0.05" value="0.7">
+        <small>Radius at the start of the spiral.</small>
+      </label>
+      <label class="frenet-control">
+        <span><strong>End radius</strong> <output data-end-radius-output for="frenet-end-radius">2.20</output></span>
+        <input id="frenet-end-radius" data-end-radius type="range" min="0.35" max="2.5" step="0.05" value="2.2">
+        <small>Radius at the end of the spiral.</small>
+      </label>
+      <label class="frenet-control">
+        <span><strong>Pitch per turn</strong> <output data-pitch-output for="frenet-pitch">2.00</output></span>
+        <input id="frenet-pitch" data-pitch type="range" min="-4" max="4" step="0.1" value="2">
+        <small>A negative value reverses the handedness.</small>
+      </label>
+      <label class="frenet-control">
+        <span><strong>Point on curve</strong> <output data-position-output for="frenet-position">0°</output></span>
+        <input id="frenet-position" data-position type="range" min="-540" max="540" step="1" value="0">
+        <small>Slide through three turns of the spiral.</small>
+      </label>
+      <dl class="frenet-readouts" aria-label="Local curve measurements">
+        <div><dt>Curvature κ</dt><dd data-curvature>—</dd></div>
+        <div><dt>Torsion τ</dt><dd data-torsion>—</dd></div>
+        <div><dt>Circle radius ρ</dt><dd data-circle-radius>—</dd></div>
+      </dl>
+    </form>
+    <figure class="frenet-figure">
+      <div class="frenet-canvas-wrap">
+        <canvas data-frenet-canvas tabindex="0" role="img" aria-label="Interactive tapered 3D spiral with tangent, normal and binormal vectors and its osculating circle" aria-describedby="frenet-instructions"></canvas>
+        <p class="frenet-fallback" data-frenet-fallback role="status" hidden>3D graphics are unavailable. Enable WebGL or try another browser; the controls and equations remain available.</p>
+      </div>
+      <figcaption>
+        <ul class="frenet-legend" aria-label="Graphic legend">
+          <li><span class="frenet-swatch curve"></span>Spiral</li>
+          <li><span class="frenet-swatch tangent"></span>T</li>
+          <li><span class="frenet-swatch normal"></span>N</li>
+          <li><span class="frenet-swatch binormal"></span>B</li>
+          <li><span class="frenet-swatch circle"></span>Osculating circle</li>
+        </ul>
+        <p id="frenet-instructions">Drag to orbit. Scroll or pinch to zoom. Use the arrow keys, +, −, and Home from the keyboard.</p>
+      </figcaption>
+    </figure>
+  </div>
+  <p class="visually-hidden" data-frenet-status aria-live="polite"></p>
+</section>
 <h3 id="frenetserret-formulae">Frenet–Serret Formulae</h3>
 <p>The Frenet–Serret formulae describe how the moving frame</p>
 <div class="math-display">\[

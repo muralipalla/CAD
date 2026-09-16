@@ -1,0 +1,298 @@
+.frenet-lab {
+  margin: 1.5rem 0 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1.15rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(238, 234, 248, 0.56));
+  box-shadow: var(--shadow-small);
+  overflow: hidden;
+}
+
+.frenet-lab * {
+  box-sizing: border-box;
+}
+
+.frenet-lab-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem 1.1rem 0.95rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.frenet-lab-heading h4,
+.frenet-lab-heading p {
+  margin: 0;
+}
+
+.frenet-lab-heading h4 {
+  color: var(--navy);
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.25;
+}
+
+.frenet-lab-heading > p {
+  max-width: 20rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.frenet-lab .frenet-kicker {
+  margin-bottom: 0.2rem;
+  color: var(--coral);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.frenet-workspace {
+  display: grid;
+  grid-template-columns: minmax(14.5rem, 17rem) minmax(0, 1fr);
+  min-height: 27rem;
+}
+
+.frenet-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  margin: 0;
+  padding: 1.15rem;
+  border-right: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.frenet-control {
+  display: grid;
+  gap: 0.42rem;
+  color: var(--ink);
+}
+
+.frenet-control > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.86rem;
+}
+
+.frenet-control output {
+  min-width: 3.35rem;
+  padding: 0.12rem 0.38rem;
+  border-radius: 0.35rem;
+  background: var(--lavender-light);
+  color: var(--lavender);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  text-align: right;
+}
+
+.frenet-control input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--coral);
+  cursor: pointer;
+}
+
+.frenet-control small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.frenet-readouts {
+  display: grid;
+  gap: 0;
+  margin: auto 0 0;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: rgba(238, 234, 248, 0.7);
+  overflow: hidden;
+}
+
+.frenet-readouts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.frenet-readouts > div + div {
+  border-top: 1px solid var(--line);
+}
+
+.frenet-readouts dt {
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+}
+
+.frenet-readouts dd {
+  margin: 0;
+  color: var(--navy);
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.frenet-figure {
+  display: grid;
+  grid-template-rows: minmax(20rem, 1fr) auto;
+  min-width: 0;
+  margin: 0;
+  background: #10182d;
+}
+
+.frenet-canvas-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 20rem;
+}
+
+.frenet-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 20rem;
+  touch-action: none;
+  cursor: grab;
+}
+
+.frenet-canvas-wrap canvas:active {
+  cursor: grabbing;
+}
+
+.frenet-canvas-wrap canvas:focus-visible {
+  outline: 3px solid #ffd76a;
+  outline-offset: -3px;
+}
+
+.frenet-fallback {
+  position: absolute;
+  inset: 1rem;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 0.75rem;
+  background: rgba(16, 24, 45, 0.96);
+  color: #f7f8ff;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.frenet-fallback[hidden] {
+  display: none;
+}
+
+.frenet-figure figcaption {
+  padding: 0.75rem 0.85rem 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: #17223c;
+  color: #dbe4f5;
+}
+
+.frenet-figure figcaption p {
+  margin: 0.55rem 0 0;
+  color: #aebbd0;
+  font-size: 0.69rem;
+  line-height: 1.4;
+}
+
+.frenet-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.frenet-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #f7f8ff;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.frenet-swatch {
+  width: 0.72rem;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: #64d7ff;
+}
+
+.frenet-swatch.tangent { background: #ff7868; }
+.frenet-swatch.normal { background: #7ce8b2; }
+.frenet-swatch.binormal { background: #bba5ff; }
+.frenet-swatch.circle { background: #ffd76a; }
+
+@media (max-width: 50rem) {
+  .frenet-lab-heading {
+    align-items: start;
+  }
+
+  .frenet-lab-heading > p {
+    display: none;
+  }
+
+  .frenet-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .frenet-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .frenet-readouts {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0;
+  }
+
+  .frenet-readouts > div {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .frenet-readouts > div + div {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 38rem) {
+  .frenet-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .frenet-readouts {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .frenet-readouts > div + div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .frenet-canvas-wrap,
+  .frenet-canvas-wrap canvas {
+    min-height: 18rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frenet-lab * {
+    scroll-behavior: auto;
+  }
+}
