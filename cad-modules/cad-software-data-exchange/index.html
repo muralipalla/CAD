@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare CAD, meshing, and visualization software and learn how native, exact, tessellated, drawing, and lightweight exchange formats preserve different parts of a product model.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · CAD Software and Data Exchange</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="../../assets/css/cad-professional.css?v=1">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="exchange-lab.js?v=1" defer></script>
+</head>
+<body class="notes-page theory-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">CAD Software and Data Exchange</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>CAD Software and Data Exchange</h1>
+      <p class="page-lead">Choose tools by the work they perform, then choose exchange formats by the information the next activity requires.</p>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol>
+        <li class="toc-section"><a href="#cad-software-ecosystem">The CAD software ecosystem</a></li>
+        <li class="toc-section"><a href="#comparison-of-cad-software">Comparison of CAD software</a></li>
+        <li class="toc-section"><a href="#software-profiles">Software profiles</a></li>
+        <li class="toc-subsection"><a href="#freecad">FreeCAD</a></li>
+        <li class="toc-subsection"><a href="#solvespace">SolveSpace</a></li>
+        <li class="toc-subsection"><a href="#openscad">OpenSCAD</a></li>
+        <li class="toc-subsection"><a href="#paraview">ParaView</a></li>
+        <li class="toc-subsection"><a href="#gmsh">Gmsh</a></li>
+        <li class="toc-subsection"><a href="#autodesk-inventor">Autodesk Inventor</a></li>
+        <li class="toc-subsection"><a href="#autocad">AutoCAD</a></li>
+        <li class="toc-subsection"><a href="#autodesk-fusion">Autodesk Fusion</a></li>
+        <li class="toc-subsection"><a href="#solidworks">SOLIDWORKS</a></li>
+        <li class="toc-subsection"><a href="#catia">CATIA</a></li>
+        <li class="toc-subsection"><a href="#other-systems">Other important systems</a></li>
+        <li class="toc-section"><a href="#native-and-neutral-data">Native and neutral data</a></li>
+        <li class="toc-section"><a href="#exchange-formats">Exchange formats</a></li>
+        <li class="toc-section"><a href="#interactive-data-exchange">Interactive data exchange</a></li>
+        <li class="toc-section"><a href="#choosing-a-format">Choosing a format</a></li>
+        <li class="toc-section"><a href="#validating-an-exchange">Validating an exchange</a></li>
+        <li class="toc-section"><a href="#summary">Summary</a></li>
+        <li class="toc-section"><a href="#references-and-further-reading">References</a></li>
+      </ol>
+    </nav>
+
+    <article class="notes-article">
+      <div class="professional-overview"><p>A CAD system is part of a larger engineering toolchain. A model may move from authoring to simulation, manufacturing, inspection, visualization, archiving, and service. The most useful question is therefore not “Which package is best?” but “Which representation and workflow preserve the information needed next?”</p></div>
+
+      <h2 id="cad-software-ecosystem">The CAD Software Ecosystem</h2>
+      <p>Programs commonly grouped under “CAD software” can play very different roles. A mechanical authoring system creates constrained parts and assemblies. A drafting system organizes drawing entities and documentation. A mesher converts geometry into finite elements. A post-processor interprets numerical fields. A lightweight viewer makes a large product structure easier to review. Confusing these roles leads to poor comparisons and unsuitable exchange formats.</p>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Role</th><th scope="col">Primary representation</th><th scope="col">Typical output</th></tr></thead>
+        <tbody>
+          <tr><td>Mechanical CAD authoring</td><td>Features, constraints, B-Rep solids, assemblies</td><td>Native model, drawing, STEP, Parasolid</td></tr>
+          <tr><td>Drafting and documentation</td><td>2D entities, layers, layouts, annotations</td><td>DWG, DXF, PDF</td></tr>
+          <tr><td>Scripted solid construction</td><td>Program, parameters, CSG tree</td><td>Source script, mesh, 2D profile</td></tr>
+          <tr><td>Meshing and pre-processing</td><td>CAD entities plus finite-element mesh</td><td>Solver mesh and physical groups</td></tr>
+          <tr><td>Simulation post-processing</td><td>Mesh, scalar/vector/tensor fields, time steps</td><td>Plots, images, extracted datasets, state files</td></tr>
+          <tr><td>Visualization and review</td><td>Scene graph and tessellated geometry</td><td>JT, glTF, 3D PDF, rendered media</td></tr>
+        </tbody>
+      </table></div></div>
+      <aside class="notes-box keybox"><p class="notes-box-title">Key idea</p><div class="notes-box-body"><p>Compare systems by modeling paradigm, intended lifecycle role, product structure, documentation, automation, platform, and interoperability—not by the length of a feature list.</p></div></aside>
+
+      <h2 id="comparison-of-cad-software">Comparison of CAD Software</h2>
+      <p class="comparison-note">The table describes characteristic strengths rather than ranking the systems. Exchange entries name representative format families, not guaranteed bidirectional support: import/export direction, product edition, and translator options must be verified for the current release.</p>
+      <div class="notes-table-wrap" role="region" aria-label="Comparison of CAD and related engineering software" tabindex="0"><table>
+        <thead><tr><th scope="col">System</th><th scope="col">Primary role</th><th scope="col">Modeling character</th><th scope="col">Typical deployment</th><th scope="col">Automation</th><th scope="col">Representative import/export families</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">FreeCAD</th><td>General-purpose open-source engineering CAD</td><td>Feature-parametric B-Rep with specialist workbenches</td><td>Cross-platform desktop</td><td>Python, macros, workbenches</td><td>STEP, IGES, IFC, DXF, STL, OBJ</td></tr>
+          <tr><th scope="row">SolveSpace</th><td>Lightweight parametric CAD and mechanisms</td><td>Constraint-based sketches, NURBS solids, linkages</td><td>Desktop</td><td>Constraint-solver library</td><td>STEP, DXF, SVG, PDF, STL, OBJ</td></tr>
+          <tr><th scope="row">OpenSCAD</th><td>Code-parametric solid construction</td><td>Scripted CSG and extrusion</td><td>Cross-platform desktop and command line</td><td>Language, modules, command line</td><td>STL, 3MF, OFF, AMF, DXF, SVG</td></tr>
+          <tr><th scope="row">ParaView</th><td>Scientific visualization and simulation post-processing</td><td>Reader–filter–view data pipeline</td><td>Desktop, client/server, and HPC</td><td>Python, batch, plug-ins, Catalyst</td><td>VTK-family and solver-oriented datasets</td></tr>
+          <tr><th scope="row">Gmsh</th><td>Geometry preparation and finite-element meshing</td><td>Built-in/OpenCASCADE geometry plus discrete meshes</td><td>Desktop, command line, and embedded API</td><td><code>.geo</code>, command line, multi-language API</td><td>STEP, IGES, BREP, STL, MSH</td></tr>
+          <tr><th scope="row">Autodesk Inventor</th><td>Mechanical product design</td><td>Parametric parts, assemblies, drawings, MBD</td><td>Desktop</td><td>iLogic, API, add-ins</td><td>STEP, IGES, JT, Parasolid, SAT, STL</td></tr>
+          <tr><th scope="row">AutoCAD</th><td>General drafting and documentation</td><td>Precise 2D entities with 3D solid/surface tools</td><td>Desktop, web, and mobile workflows</td><td>AutoLISP, .NET, ObjectARX and other APIs</td><td>DWG, DXF, DWF, PDF, SAT</td></tr>
+          <tr><th scope="row">Autodesk Fusion</th><td>Integrated product design and manufacturing</td><td>Parametric/direct CAD with CAM, CAE, electronics, and managed data</td><td>Desktop client with cloud-managed data</td><td>Python and C++ APIs</td><td>Import: IGES, JT, Parasolid, STEP; export: STEP, SAT, STL, 3MF, DXF/DWG</td></tr>
+          <tr><th scope="row">SOLIDWORKS</th><td>Mechanical product development</td><td>Feature-parametric parts, assemblies, configurations, drawings</td><td>Desktop with PDM/platform services</td><td>Macros, VBA/.NET/C++ APIs, add-ins</td><td>Parasolid, STEP, IGES, SAT, STL, 3MF, DXF</td></tr>
+          <tr><th scope="row">CATIA</th><td>Complex product and systems development</td><td>Mechanical design, advanced surfacing, knowledgeware, systems engineering</td><td>Role- and platform-dependent</td><td>CAA and platform services</td><td>Native CATIA data, STEP, IGES, JT, 3DXML</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="software-profiles">Software Profiles</h2>
+      <p>The profiles below emphasize modeling approach, suitable work, and interoperability. Licensing plans and feature bundles are intentionally omitted because they change more quickly than the underlying workflow concepts.</p>
+
+      <section class="software-profile" aria-labelledby="freecad"><h3 id="freecad">FreeCAD</h3><p>FreeCAD is a community-developed, open-source parametric modeler built around an Open CASCADE geometry engine. Its workbench architecture covers part design, drafting, BIM, CAM, finite-element preparation, and other domains, while an integrated Python environment supports macros and custom workbenches. The native <code>.FCStd</code> document can retain the parametric dependency structure; neutral or mesh exports retain less.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Learning, customizable engineering workflows, parametric parts, and open toolchains.</dd></div><div><dt>Exchange</dt><dd>STEP and IGES for exact geometry; DXF/SVG for 2D; STL/OBJ for meshes; IFC for BIM workflows.</dd></div><div><dt>Check</dt><dd>Workbench and importer capabilities vary. A mesh import does not reconstruct features or constraints.</dd></div></dl><p class="topic-citation">Official overview and formats: FreeCAD <a href="../references/index.html#ref-19">[19]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="solvespace"><h3 id="solvespace">SolveSpace</h3><p>SolveSpace is a compact, open-source parametric 2D/3D CAD application centered on geometric constraints. It supports constrained sketches, extrusion and revolution, Boolean operations, and planar or spatial linkage analysis. Its narrow scope makes the solver and degrees of freedom especially visible to a learner.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Constraint learning, small mechanical parts, linkages, and quick exact models.</dd></div><div><dt>Exchange</dt><dd>STEP for exact NURBS surfaces; DXF/SVG/PDF for 2D; STL/OBJ for tessellated output.</dd></div><div><dt>Check</dt><dd>Assembly, drawing, and lifecycle-management functions are lighter than in large MCAD platforms.</dd></div></dl><p class="topic-citation">Official overview, solver, and export reference: SolveSpace <a href="../references/index.html#ref-20">[20]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="openscad"><h3 id="openscad">OpenSCAD</h3><p>OpenSCAD describes a model with a program rather than an interactive feature tree. Primitives, transformations, Boolean operations, modules, loops, and parameters make a CSG construction reproducible and easy to generate in families. This is excellent for explicit design logic, but a received triangle mesh does not recreate the source program.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Code-parametric components, configurable families, fixtures, and additive designs.</dd></div><div><dt>Exchange</dt><dd>STL/3MF/OFF/AMF for 3D meshes and DXF/SVG for 2D profiles.</dd></div><div><dt>Check</dt><dd>Curved geometry becomes tessellated at render/export; resolution affects size and smoothness.</dd></div></dl><p>See the <a href="../solid-modeling/index.html#introduction-to-openscad">OpenSCAD construction example in Solid Modeling</a>. Official language documentation: <a href="../references/index.html#ref-18">[18]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="paraview"><h3 id="paraview">ParaView</h3><p>ParaView is an open-source scientific visualization and data-analysis application, not primarily a production CAD authoring system. Readers load simulation or experimental datasets, filters derive quantities or subsets, and views render geometry and fields. The pipeline can run locally, remotely, in parallel, in batch with Python, or in situ through Catalyst.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>CFD/FEA post-processing, large datasets, fields, time histories, and reproducible visualization pipelines.</dd></div><div><dt>Exchange</dt><dd>VTK-family formats, CGNS, Exodus, OpenFOAM, XDMF, and many solver-oriented readers.</dd></div><div><dt>Check</dt><dd>A saved state may reference external datasets; derived filters can change the representation.</dd></div></dl><p class="topic-citation">Official user guide and feature list: ParaView <a href="../references/index.html#ref-21">[21]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="gmsh"><h3 id="gmsh">Gmsh</h3><p>Gmsh is an open-source finite-element mesh generator with geometry, mesh, solver-interface, and post-processing modules. Models can be built through the graphical interface, <code>.geo</code> scripts, the command line, or APIs for several programming languages. It supports both built-in geometry and OpenCASCADE CAD entities.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Controlled FEM/CFD meshing, physical groups, parametric mesh studies, and solver preparation.</dd></div><div><dt>Exchange</dt><dd>STEP/IGES/BREP through OpenCASCADE, STL and discrete meshes, and the native MSH family.</dd></div><div><dt>Check</dt><dd>Meshing need not preserve feature history, assembly semantics, labels, colors, or PMI.</dd></div></dl><p class="topic-citation">Official overview and reference manual: Gmsh <a href="../references/index.html#ref-22">[22]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="autodesk-inventor"><h3 id="autodesk-inventor">Autodesk Inventor</h3><p>Inventor is a mechanical-design system for parametric and direct modeling, assemblies, sheet metal, drawings, simulation, and model-based definition. Native parts, assemblies, drawings, and presentations are stored separately and resolved as a managed product structure. iLogic and the application API support rules-based automation.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Mechanical equipment, detailed assemblies, drawings, sheet metal, and rules-driven variants.</dd></div><div><dt>Exchange</dt><dd>STEP, IGES, JT, Parasolid, SAT, STL, OBJ, CATIA V5, DWG, DXF, and 3D PDF.</dd></div><div><dt>Check</dt><dd>Referenced files, release versions, STEP protocol, and PMI export options must be controlled.</dd></div></dl><p class="topic-citation">Official product and translator documentation: Autodesk <a href="../references/index.html#ref-23">[23]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="autocad"><h3 id="autocad">AutoCAD</h3><p>AutoCAD is a general design and documentation system with a strong 2D drafting foundation and additional 3D solid and surface tools. DWG is its native drawing database; DXF is a documented interchange representation of drawing entities. Its broad use across disciplines makes layers, units, external references, fonts, and discipline-specific objects important parts of an exchange.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Precise drawings, layouts, annotation, standards-based documentation, and multidisciplinary 2D coordination.</dd></div><div><dt>Exchange</dt><dd>DWG for native fidelity, DXF for entity interchange, plus DWF/PDF and 3D formats where applicable.</dd></div><div><dt>Check</dt><dd>DWG release, custom vertical objects, object enablers, external references, fonts, and plot styles.</dd></div></dl><p class="topic-citation">Official overview, DWG, and DXF documentation: Autodesk <a href="../references/index.html#ref-24">[24]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="autodesk-fusion"><h3 id="autodesk-fusion">Autodesk Fusion</h3><p>Fusion combines parametric and direct CAD with CAM, CAE, electronics, collaboration, and managed project data. Its connected environment can reduce handoffs between design and manufacturing activities, while APIs support repeatable automation. The cloud-managed data model differs from a folder of independently copied native files.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Integrated product development, prototyping, machining, additive preparation, and collaborative small teams.</dd></div><div><dt>Exchange</dt><dd>Imports include STEP, IGES, JT, and Parasolid; common exports include STEP, SAT/SMT, STL, 3MF, DWG, and DXF, depending on the active workflow and entitlement.</dd></div><div><dt>Check</dt><dd>Translator direction matters: a listed import format is not automatically exportable. Translated data also does not reproduce all source history.</dd></div></dl><p class="topic-citation">Official overview, format, and API documentation: Autodesk <a href="../references/index.html#ref-25">[25]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="solidworks"><h3 id="solidworks">SOLIDWORKS</h3><p>SOLIDWORKS is a feature-parametric mechanical CAD environment for associative parts, assemblies, configurations, and drawings. Its ecosystem extends into simulation, manufacturing, data management, and model-based definition. Macros and add-ins can automate repeated design and documentation tasks.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Mainstream mechanical product development, assemblies, configurations, and manufacturing drawings.</dd></div><div><dt>Exchange</dt><dd>Parasolid, STEP, IGES, SAT, STL, 3MF, DXF, DWG, IFC, and direct CAD translators.</dd></div><div><dt>Check</dt><dd>Native version and references matter. Parasolid or STEP does not carry the original feature tree and mates.</dd></div></dl><p class="topic-citation">Official fundamentals and translator documentation: SOLIDWORKS <a href="../references/index.html#ref-26">[26]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="catia"><h3 id="catia">CATIA</h3><p>CATIA is a broad product family spanning mechanical design, advanced surfacing and styling, knowledge-based engineering, systems engineering, simulation, and collaborative product development. It is widely associated with complex products, large assemblies, and high-quality surfaces. “CATIA” can refer to different generations, roles, and platform deployments, so exchange requirements must name the actual environment.</p><dl class="software-facts"><div><dt>Best suited to</dt><dd>Aerospace, automotive, industrial equipment, complex products, Class-A surfacing, and systems contexts.</dd></div><div><dt>Exchange</dt><dd>Native CATIA part/product data, 3DXML, STEP, IGES, and JT depending on role and configuration.</dd></div><div><dt>Check</dt><dd>Constraints, knowledgeware, configurations, product links, and PMI may be lost in neutral translation.</dd></div></dl><p class="topic-citation">Official CATIA product and engineering overview: Dassault Systèmes <a href="../references/index.html#ref-27">[27]</a>.</p></section>
+
+      <section class="software-profile" aria-labelledby="other-systems"><h3 id="other-systems">Other Important Systems</h3><p>Siemens NX represents enterprise mechanical design with manufacturing, simulation, and product-lifecycle integration. Onshape provides a cloud-native document, version, branch, and history model with built-in collaboration. These systems illustrate why deployment, configuration control, collaboration, and lifecycle context belong in a comparison alongside geometric features.</p><dl class="software-facts"><div><dt>Lesson</dt><dd>First classify the role and representation; only then compare systems in the same category.</dd></div><div><dt>Enterprise concern</dt><dd>PDM/PLM, configuration, permissions, identifiers, and lifecycle state can matter as much as geometric tools.</dd></div><div><dt>Exchange concern</dt><dd>Direct translators can preserve more than neutral files, but version support and licensing must be verified.</dd></div></dl><p class="topic-citation">Official material for cloud-native CAD and enterprise design: <a href="../references/index.html#ref-28">[28]</a>.</p></section>
+
+      <h2 id="native-and-neutral-data">Native and Neutral Data</h2>
+      <p>A <strong>native file</strong> follows the internal schema of its authoring application. It can preserve features, parameters, constraints, assembly mates, configurations, drawing links, and application metadata. Native exchange is therefore rich but strongly dependent on product version, licensed options, referenced files, and the receiving application.</p>
+      <p>A <strong>neutral file</strong> follows a shared specification intended for more than one system. Neutral exchange improves portability but translates the model into a common information model. Even a successful solid transfer normally loses the source application’s construction history and behavioral intent.</p>
+      <aside class="notes-box remarkbox"><p class="notes-box-title">Representation, not just extension</p><div class="notes-box-body"><p>Two files with the same extension can carry different content. A JT file may contain only tessellation or may also include precise B-Rep and PMI. A STEP file can use different application protocols and exporter options. Record the delivery profile, not merely the suffix.</p></div></aside>
+
+      <h2 id="exchange-formats">Exchange Formats</h2>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Format</th><th scope="col">Representation</th><th scope="col">Good use</th><th scope="col">Main caution</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">STEP / ISO 10303</th><td>Standardized product-model data; AP242 supports managed model-based engineering</td><td>Exact solids, assemblies, selected PMI/product data</td><td>Translator support and AP/options determine what survives</td></tr>
+          <tr><th scope="row">Parasolid XT</th><td>Exact kernel geometry and topology</td><td>High-fidelity transfer between compatible Parasolid-based systems</td><td>Not a source feature tree; kernel versions still matter</td></tr>
+          <tr><th scope="row">IGES</th><td>Curves, surfaces, and drafting entities</td><td>Legacy curve/surface workflows</td><td>Faces may arrive disconnected and require healing</td></tr>
+          <tr><th scope="row">STL</th><td>Triangle surface</td><td>Simple mesh and additive handoff</td><td>No standard units, feature history, PMI, or rich appearance</td></tr>
+          <tr><th scope="row">3MF</th><td>Packaged triangle model with units and extensible metadata</td><td>Additive manufacturing</td><td>Every tool in the chain must preserve the extensions used</td></tr>
+          <tr><th scope="row">DXF / DWG</th><td>Drawing database/entities; can include 3D content</td><td>2D drawings, profiles, layouts, AutoCAD-native work</td><td>Units, versions, layers, fonts, splines, and custom objects</td></tr>
+          <tr><th scope="row">JT</th><td>Lightweight tessellation with optional precise geometry and PMI</td><td>Enterprise review, PLM, digital mock-up</td><td>Confirm the delivered content profile</td></tr>
+          <tr><th scope="row">glTF / GLB</th><td>Runtime scene graph, triangle meshes, materials, animation</td><td>Web and real-time visualization</td><td>Publishing format, not manufacturing CAD</td></tr>
+        </tbody>
+      </table></div></div>
+      <p class="topic-citation">Format specifications and official guidance: STEP <a href="../references/index.html#ref-29">[29]</a>, IGES <a href="../references/index.html#ref-30">[30]</a>, 3MF <a href="../references/index.html#ref-31">[31]</a>, Autodesk drawing formats <a href="../references/index.html#ref-24">[24]</a>, Siemens Parasolid/JT <a href="../references/index.html#ref-32">[32]</a>, and Khronos glTF <a href="../references/index.html#ref-33">[33]</a>.</p>
+
+      <h2 id="interactive-data-exchange">Interactive Data Exchange</h2>
+      <p>The same nominal part can be encoded as a feature model, exact boundary representation, collection of surfaces, triangle mesh, drawing, or lightweight scene. Change the target representation below and compare what is normally retained. The “exact” views are conceptual: WebGL ultimately renders triangles even when the exchange file can carry analytic or NURBS surfaces.</p>
+      <section class="cad-lab" data-exchange-lab aria-labelledby="exchange-lab-title">
+        <div class="cad-lab-heading">
+          <div><p class="cad-lab-kicker">Interactive representation lab</p><h3 id="exchange-lab-title">What survives the exchange?</h3></div>
+          <p>Compare the representation before choosing a file extension.</p>
+        </div>
+        <div class="cad-lab-workspace">
+          <form class="cad-lab-controls" aria-label="Exchange representation controls">
+            <label class="cad-lab-field"><span>Target format</span><select data-exchange-format>
+              <option value="native">Native CAD model</option>
+              <option value="step" selected>STEP AP242</option>
+              <option value="parasolid">Parasolid XT</option>
+              <option value="iges">IGES</option>
+              <option value="jt">JT</option>
+              <option value="stl">STL</option>
+              <option value="threeMf">3MF</option>
+              <option value="dxf">DXF</option>
+              <option value="gltf">glTF / GLB</option>
+            </select></label>
+            <label class="cad-lab-field"><span>Mesh detail <output data-mesh-detail-output for="mesh-detail">Medium</output></span><input id="mesh-detail" data-mesh-detail type="range" min="0" max="3" step="1" value="1"><small>Available when tessellation is central to the delivery.</small></label>
+            <dl class="retention-scale" aria-label="Typical retained information">
+              <div><dt>Geometry</dt><dd data-retain-geometry>—</dd></div>
+              <div><dt>Topology</dt><dd data-retain-topology>—</dd></div>
+              <div><dt>Feature history</dt><dd data-retain-history>—</dd></div>
+              <div><dt>Assemblies</dt><dd data-retain-assemblies>—</dd></div>
+              <div><dt>PMI</dt><dd data-retain-pmi>—</dd></div>
+              <div><dt>Units / appearance</dt><dd data-retain-units>—</dd></div>
+            </dl>
+          </form>
+          <figure class="cad-lab-figure">
+            <div class="cad-lab-canvas-wrap">
+              <canvas data-exchange-canvas tabindex="0" role="img" aria-label="Interactive comparison of CAD exchange representations" aria-describedby="exchange-instructions exchange-status"></canvas>
+              <p class="cad-lab-fallback" data-exchange-fallback role="status" hidden>The Three.js exchange viewer could not be loaded. The format comparison remains available.</p>
+              <div class="cad-lab-overlay" aria-hidden="true"><strong data-exchange-overlay-title>STEP AP242</strong><span data-exchange-overlay-text>Mechanical solids, assemblies, and managed product data</span></div>
+            </div>
+            <figcaption><ul class="cad-lab-legend" aria-label="Graphic legend"><li><span class="cad-lab-swatch"></span>transferred geometry</li><li><span class="cad-lab-swatch secondary"></span>edges, mesh, or construction entities</li></ul><p id="exchange-instructions">Drag to orbit. Scroll or pinch to zoom. Use the arrow keys, +, −, and Home from the keyboard.</p></figcaption>
+          </figure>
+        </div>
+        <p class="cad-lab-status" id="exchange-status" data-exchange-status></p>
+        <p class="visually-hidden" data-exchange-live aria-live="polite"></p>
+      </section>
+
+      <h2 id="choosing-a-format">Choosing a Format</h2>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Downstream need</th><th scope="col">Typical starting choice</th><th scope="col">Verify</th></tr></thead>
+        <tbody>
+          <tr><td>Continue exact mechanical editing</td><td>Native/direct translator, STEP AP242, or Parasolid XT</td><td>Solids, topology, assemblies, attributes, PMI, and healing</td></tr>
+          <tr><td>Laser, waterjet, or profile cutting</td><td>DXF</td><td>Units, closed loops, layers, duplicates, spline/polylines</td></tr>
+          <tr><td>Additive manufacturing</td><td>3MF; STL when required</td><td>Units, mesh tolerance, watertightness, materials, build orientation</td></tr>
+          <tr><td>Simulation pre-processing</td><td>Exact CAD into a mesher; then a solver-native mesh</td><td>Idealization, defeaturing, physical groups, element order, units</td></tr>
+          <tr><td>Large-assembly review</td><td>JT or governed lightweight derivative</td><td>Structure, transforms, level of detail, PMI, precise geometry option</td></tr>
+          <tr><td>Browser or real-time presentation</td><td>glTF / GLB</td><td>Coordinate convention, scale, materials, mesh budget, metadata</td></tr>
+          <tr><td>Long-term model-based definition</td><td>Governed native dataset plus an agreed archival/neutral representation</td><td>Identifiers, revision, validation properties, semantic PMI, documentation</td></tr>
+        </tbody>
+      </table></div></div>
+
+      <h2 id="validating-an-exchange">Validating an Exchange</h2>
+      <p>Opening without an error proves only that the receiver parsed something. A defensible exchange checks the delivered information against the intended downstream use.</p>
+      <ol class="roman-list">
+        <li><p>Agree on units, global coordinates, geometry tolerance, format version, and STEP application protocol before export.</p></li>
+        <li><p>Package referenced components, external references, textures, drawings, and manifests where the workflow requires them.</p></li>
+        <li><p>Open the delivered file in the receiving application, not merely back in the source application.</p></li>
+        <li><p>Compare body and component counts, bounding box, volume, area, mass properties, centroid, and assembly transforms.</p></li>
+        <li><p>Inspect holes, fillets, thin features, gaps, free edges, face normals, self-intersections, and watertightness.</p></li>
+        <li><p>Check names, identifiers, materials, colors, layers, configuration, PMI, datum systems, and annotation associations.</p></li>
+        <li><p>For meshes, record triangle count and chordal/angular tolerance; for drawings, inspect line types, fonts, scales, and layouts.</p></li>
+        <li><p>Retain the governed source model together with the derivative, export options, translator versions, warnings, and validation result.</p></li>
+      </ol>
+
+      <h2 id="summary">Summary</h2>
+      <p>CAD tools occupy different places in an engineering workflow. FreeCAD, SolveSpace, OpenSCAD, Inventor, Fusion, SOLIDWORKS, and CATIA author different kinds of design intent; AutoCAD emphasizes precise drawing and documentation; Gmsh prepares meshes; ParaView analyzes and visualizes simulation data. A useful comparison begins by classifying those roles.</p>
+      <p>Data exchange is a change of representation. Native data is rich but application-dependent. STEP and Parasolid can carry exact solids; IGES is still encountered for legacy surface exchange; STL and 3MF are mesh-oriented; DXF and DWG serve drawing workflows; JT and glTF serve lightweight visualization. The correct format is the one that preserves the information needed by the receiver—and every consequential transfer must be validated.</p>
+
+      <h2 id="references-and-further-reading">References and Further Reading</h2>
+      <p>Product capabilities and translator support evolve. The entries below point to the official sources used for the role descriptions; verify the documentation for the installed release.</p>
+      <ul class="reference-section-links">
+        <li>Open and specialist tools: FreeCAD <a href="../references/index.html#ref-19">[19]</a>, SolveSpace <a href="../references/index.html#ref-20">[20]</a>, OpenSCAD <a href="../references/index.html#ref-18">[18]</a>, ParaView <a href="../references/index.html#ref-21">[21]</a>, and Gmsh <a href="../references/index.html#ref-22">[22]</a>.</li>
+        <li>Commercial authoring systems: Autodesk <a href="../references/index.html#ref-23">[23]</a>, <a href="../references/index.html#ref-24">[24]</a>, <a href="../references/index.html#ref-25">[25]</a>; SOLIDWORKS <a href="../references/index.html#ref-26">[26]</a>; CATIA <a href="../references/index.html#ref-27">[27]</a>.</li>
+        <li>Neutral and delivery formats: STEP <a href="../references/index.html#ref-29">[29]</a>, IGES <a href="../references/index.html#ref-30">[30]</a>, 3MF <a href="../references/index.html#ref-31">[31]</a>, Parasolid/JT <a href="../references/index.html#ref-32">[32]</a>, and glTF <a href="../references/index.html#ref-33">[33]</a>.</li>
+      </ul>
+      <p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
+
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../solid-modeling/index.html"><span>Previous module</span><strong>Solid Modeling</strong></a><a class="notes-nav-link next" href="../cad-workflow/index.html"><span>Next module</span><strong>CAD Workflow</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · CAD Software and Data Exchange</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

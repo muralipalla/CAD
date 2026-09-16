@@ -1,0 +1,546 @@
+.professional-overview {
+  margin: 1.4rem 0 2rem;
+  padding: 1.15rem 1.25rem;
+  border-left: 5px solid var(--blue);
+  border-radius: 0 1rem 1rem 0;
+  background: var(--blue-light);
+}
+
+.professional-overview p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.workflow-path {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  margin: 1.4rem 0;
+  counter-reset: workflow-step;
+  list-style: none;
+}
+
+.workflow-path li {
+  position: relative;
+  min-height: 7.2rem;
+  padding: 1rem 1rem 1rem 3.15rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink-soft);
+}
+
+.workflow-path li::before {
+  position: absolute;
+  top: 0.9rem;
+  left: 0.9rem;
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--navy);
+  color: white;
+  content: counter(workflow-step);
+  counter-increment: workflow-step;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.workflow-path strong,
+.workflow-path span {
+  display: block;
+}
+
+.workflow-path strong {
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+}
+
+.workflow-path span {
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.software-profile {
+  margin: 1.2rem 0 1.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.software-profile h3 {
+  margin-top: 0;
+}
+
+.software-profile > :last-child {
+  margin-bottom: 0;
+}
+
+.software-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1rem 0 0;
+}
+
+.software-facts > div {
+  padding: 0.75rem;
+  border-left: 3px solid var(--lavender);
+  background: var(--lavender-light);
+}
+
+.software-facts dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.software-facts dd {
+  margin: 0.28rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.comparison-note {
+  margin: 0.7rem 0 1.15rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.cad-lab {
+  margin: 1.5rem 0 2.25rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1.15rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(238, 234, 248, 0.56));
+  box-shadow: var(--shadow-small);
+}
+
+.cad-lab * {
+  box-sizing: border-box;
+}
+
+.cad-lab-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem 1.1rem 0.95rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.cad-lab-heading h3,
+.cad-lab-heading p {
+  margin: 0;
+}
+
+.cad-lab-heading h3 {
+  color: var(--navy);
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.25;
+}
+
+.cad-lab-heading > p {
+  max-width: 24rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.cad-lab-kicker {
+  margin-bottom: 0.2rem !important;
+  color: var(--coral);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cad-lab-workspace {
+  display: grid;
+  grid-template-columns: minmax(14.5rem, 17.5rem) minmax(0, 1fr);
+  min-height: 31rem;
+}
+
+.cad-lab-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 1.15rem;
+  border-right: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.cad-lab-field {
+  display: grid;
+  gap: 0.42rem;
+  color: var(--ink);
+}
+
+.cad-lab-field > span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.86rem;
+  font-weight: 780;
+}
+
+.cad-lab-field select,
+.cad-lab-field input[type="range"] {
+  width: 100%;
+}
+
+.cad-lab-field select {
+  min-height: 2.65rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.65rem;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.cad-lab-field input[type="range"] {
+  margin: 0;
+  accent-color: var(--coral);
+  cursor: pointer;
+}
+
+.cad-lab-field output {
+  min-width: 3.6rem;
+  padding: 0.12rem 0.38rem;
+  border-radius: 0.35rem;
+  background: var(--lavender-light);
+  color: var(--lavender);
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+  text-align: right;
+}
+
+.cad-lab-field small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.cad-lab-step {
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line);
+}
+
+.cad-lab-step p,
+.cad-lab-step strong {
+  margin: 0;
+}
+
+.cad-lab-step p {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.cad-lab-step strong {
+  color: var(--navy);
+  font-size: 0.9rem;
+}
+
+.cad-lab-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.cad-lab-nav .button {
+  min-height: 2.55rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.cad-lab-readouts {
+  display: grid;
+  gap: 0;
+  margin: auto 0 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: rgba(238, 234, 248, 0.7);
+}
+
+.cad-lab-readouts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.cad-lab-readouts > div + div {
+  border-top: 1px solid var(--line);
+}
+
+.cad-lab-readouts dt {
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+}
+
+.cad-lab-readouts dd {
+  margin: 0;
+  color: var(--navy);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+  text-align: right;
+}
+
+.cad-lab-figure {
+  display: grid;
+  grid-template-rows: minmax(25rem, 1fr) auto;
+  min-width: 0;
+  margin: 0;
+  background: #10182d;
+}
+
+.cad-lab-canvas-wrap {
+  position: relative;
+  min-width: 0;
+  min-height: 25rem;
+}
+
+.cad-lab-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 25rem;
+  cursor: grab;
+  touch-action: none;
+}
+
+.cad-lab-canvas-wrap canvas:active {
+  cursor: grabbing;
+}
+
+.cad-lab-canvas-wrap canvas:focus-visible {
+  outline: 3px solid #ffd76a;
+  outline-offset: -3px;
+}
+
+.cad-lab-fallback {
+  position: absolute;
+  inset: 1rem;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 0.75rem;
+  background: rgba(16, 24, 45, 0.96);
+  color: #f7f8ff;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.cad-lab-fallback[hidden] {
+  display: none;
+}
+
+.cad-lab-overlay {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  max-width: min(22rem, calc(100% - 1.7rem));
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.6rem;
+  background: rgba(12, 20, 38, 0.84);
+  color: #f7f8ff;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.cad-lab-overlay strong,
+.cad-lab-overlay span {
+  display: block;
+}
+
+.cad-lab-overlay span {
+  margin-top: 0.15rem;
+  color: #b9c7dc;
+}
+
+.feature-control-frame {
+  display: inline-flex !important;
+  width: max-content;
+  max-width: 100%;
+  margin-top: 0.45rem !important;
+  overflow: hidden;
+  border: 1px solid #f7f8ff;
+  color: #f7f8ff !important;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.feature-control-frame[hidden] {
+  display: none !important;
+}
+
+.cad-lab-figure figcaption {
+  padding: 0.75rem 0.85rem 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: #17223c;
+  color: #dbe4f5;
+}
+
+.cad-lab-figure figcaption p {
+  margin: 0.55rem 0 0;
+  color: #aebbd0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.cad-lab-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.cad-lab-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  color: #f7f8ff;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.cad-lab-swatch {
+  width: 0.72rem;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: #64d7ff;
+}
+
+.cad-lab-swatch.secondary { background: #ffd76a; }
+.cad-lab-swatch.datum { background: #7ce8b2; }
+.cad-lab-swatch.actual { background: #ff7868; }
+.cad-lab-swatch.pmi { background: #bba5ff; }
+
+.cad-lab-status {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.cad-lab-status[data-result="pass"] {
+  border-left: 5px solid var(--green);
+}
+
+.cad-lab-status[data-result="fail"] {
+  border-left: 5px solid var(--coral);
+}
+
+.retention-scale {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.retention-scale > div {
+  min-width: 0;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.retention-scale dt {
+  color: var(--muted);
+  font-size: 0.67rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.retention-scale dd {
+  margin: 0.2rem 0 0;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+@media (max-width: 58rem) {
+  .workflow-path,
+  .software-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .cad-lab-heading {
+    align-items: start;
+  }
+
+  .cad-lab-heading > p {
+    display: none;
+  }
+
+  .cad-lab-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .cad-lab-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cad-lab-step,
+  .cad-lab-readouts,
+  .retention-scale {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 38rem) {
+  .cad-lab-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .cad-lab-step,
+  .cad-lab-readouts,
+  .retention-scale {
+    grid-column: auto;
+  }
+
+  .cad-lab-figure,
+  .cad-lab-canvas-wrap,
+  .cad-lab-canvas-wrap canvas {
+    min-height: 22rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cad-lab-canvas-wrap canvas {
+    scroll-behavior: auto;
+  }
+}

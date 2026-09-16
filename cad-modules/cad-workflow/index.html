@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A practical CAD workflow from requirements and parametric modeling through verification, release, GD&T, PMI, model-based definition, manufacturing, inspection, and lifecycle feedback.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · CAD Workflow</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/notes.css">
+  <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
+  <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="../../assets/css/cad-professional.css?v=1">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="mbd-lab.js?v=1" defer></script>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"]], processEscapes: true, processEnvironments: true },
+      options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="notes-page theory-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+    <div class="page-hero notes-hero">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li aria-current="page">CAD Workflow</li></ol>
+      <p class="eyebrow">Computer Aided Design</p>
+      <h1>CAD Workflow</h1>
+      <p class="page-lead">Build a traceable product definition from requirements, geometry, tolerances, verification evidence, and controlled release data.</p>
+      <p class="notes-author">Murali Palla</p>
+    </div>
+  </header>
+
+  <main class="notes-shell" id="main-content">
+    <nav class="notes-toc" aria-label="In this module">
+      <p>In this module</p>
+      <ol>
+        <li class="toc-section"><a href="#workflow-overview">Workflow overview</a></li>
+        <li class="toc-section"><a href="#requirements-and-concepts">Requirements and concepts</a></li>
+        <li class="toc-section"><a href="#parametric-master-model">Parametric master model</a></li>
+        <li class="toc-section"><a href="#verification-and-validation">Verification and validation</a></li>
+        <li class="toc-section"><a href="#gd-and-t">GD&amp;T</a></li>
+        <li class="toc-subsection"><a href="#datums-and-reference-frames">Datums and reference frames</a></li>
+        <li class="toc-subsection"><a href="#feature-control-frame">Feature control frame</a></li>
+        <li class="toc-section"><a href="#pmi">Product and Manufacturing Information</a></li>
+        <li class="toc-section"><a href="#model-based-definition">Model-Based Definition</a></li>
+        <li class="toc-section"><a href="#interactive-mbd-inspection">Interactive MBD and inspection</a></li>
+        <li class="toc-section"><a href="#release-and-revision">Release and revision</a></li>
+        <li class="toc-section"><a href="#downstream-handoff">Manufacturing and CAE handoff</a></li>
+        <li class="toc-section"><a href="#exchange-validation">Exchange-data validation</a></li>
+        <li class="toc-section"><a href="#digital-thread">Digital thread</a></li>
+        <li class="toc-section"><a href="#summary">Summary</a></li>
+        <li class="toc-section"><a href="#references-and-further-reading">References</a></li>
+      </ol>
+    </nav>
+
+    <article class="notes-article">
+      <div class="professional-overview"><p>A reliable CAD workflow is not a sequence of file exports. It is a controlled chain of decisions and evidence that connects the product need to an approved definition, a manufactured result, and measured feedback.</p></div>
+
+      <h2 id="workflow-overview">Workflow Overview</h2>
+      <p>Design activities are iterative and interdependent. Requirements influence geometry; analysis reveals changes; manufacturing and inspection expose assumptions; controlled revisions feed the learning back into the product definition. The sequence below is an organizing model rather than a one-way waterfall.</p>
+      <ol class="workflow-path">
+        <li><strong>Need and requirements</strong><span>Define functions, interfaces, constraints, risks, and measurable acceptance criteria.</span></li>
+        <li><strong>Concepts</strong><span>Explore alternatives, document assumptions, and select an architecture using explicit criteria.</span></li>
+        <li><strong>Master model</strong><span>Build stable references, constraints, parameters, configurations, and product structure.</span></li>
+        <li><strong>Verify and validate</strong><span>Check geometry, performance, manufacturability, and evidence against requirements and intended use.</span></li>
+        <li><strong>Define variation</strong><span>Use dimensions, GD&amp;T, materials, finishes, and other PMI to communicate permissible variation.</span></li>
+        <li><strong>Review and release</strong><span>Approve an identified product-definition baseline with dependencies and revision state.</span></li>
+        <li><strong>Exchange and validate</strong><span>Translate only what the receiving process needs and verify the delivered result.</span></li>
+        <li><strong>Manufacture and inspect</strong><span>Derive CAM, CAE, work instructions, and measurement plans from controlled data.</span></li>
+        <li><strong>Learn and revise</strong><span>Connect nonconformance, test, service, and as-built evidence to controlled change.</span></li>
+      </ol>
+      <p class="topic-citation">Systems-design processes are iterative and mutually dependent; see NASA’s systems-engineering guidance <a href="../references/index.html#ref-34">[34]</a>.</p>
+
+      <h2 id="requirements-and-concepts">Requirements and Concept Development</h2>
+      <p>CAD begins before the first sketch. Capture stakeholder needs, functions, interfaces, operating environment, loads, materials, manufacturing limits, safety constraints, cost targets, and acceptance criteria. Rewrite qualitative wishes as measurable technical requirements where possible, and assign identifiers so that geometry, analysis, and verification evidence can refer back to them.</p>
+      <p>Concept development should keep multiple solutions alive long enough for meaningful comparison. Record simplifying assumptions and compare alternatives against the same functional criteria. A concept is not mature merely because it has a detailed model; model detail can conceal an unresolved architecture.</p>
+      <aside class="notes-box keybox"><p class="notes-box-title">Key idea</p><div class="notes-box-body"><p>Traceability begins when a design decision can answer two questions: “Which requirement caused this?” and “What evidence will show that it is satisfied?”</p></div></aside>
+
+      <h2 id="parametric-master-model">Parametric Master Model and Design Intent</h2>
+      <p>Begin with stable reference geometry: the origin, principal planes, coordinate systems, interfaces, envelope, skeleton curves or surfaces, and functionally important datums. Then add constrained sketches and features whose dimensions, equations, and relationships state how the product should change.</p>
+      <p>A parametric model is a dependency graph. A dimension is useful only when downstream features regenerate predictably after it changes. Place stable, function-defining geometry before dependent details. Add fillets, cosmetic features, and manufacturing details after the references they depend upon are mature. Test representative parameter changes and configurations rather than assuming that a model that rebuilds once is robust.</p>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Weak modeling choice</th><th scope="col">Stronger expression of intent</th></tr></thead>
+        <tbody>
+          <tr><td>Repeated unrelated dimensions</td><td>Named parameter or equation connected to the governing requirement</td></tr>
+          <tr><td>Feature positioned from a temporary edge</td><td>Feature positioned from a stable datum or skeleton reference</td></tr>
+          <tr><td>Pattern created by copying bodies</td><td>Pattern controlled by count, spacing, and functional boundary</td></tr>
+          <tr><td>Imported body edited without provenance</td><td>Managed reference or derived part linked to its source and revision</td></tr>
+          <tr><td>All variants saved as unrelated files</td><td>Governed configurations or product options with explicit effectivity</td></tr>
+        </tbody>
+      </table></div></div>
+
+      <h2 id="verification-and-validation">Verification and Validation</h2>
+      <p><strong>Verification</strong> asks whether the design satisfies specified requirements. Evidence may come from analysis, inspection, test, or demonstration. <strong>Validation</strong> asks whether the product will accomplish its intended purpose in the intended environment. A model can satisfy every written requirement and still fail validation if the requirements did not describe the real need.</p>
+      <p>CAD-stage verification may include units and coordinate systems, sketch constraint state, geometry health, mass and centroid, clearances, assembly interference, motion, wall thickness, manufacturing limits, FEA or CFD evidence, drawing consistency, and completeness of GD&amp;T and PMI. Record assumptions, software version, model revision, boundary conditions, material models, mesh convergence, and acceptance criteria with the result.</p>
+      <aside class="notes-box remarkbox"><p class="notes-box-title">Derived models</p><div class="notes-box-body"><p>A CAE model is usually an idealization of the design—not merely another export. Suppressed details, midsurfaces, beam elements, contacts, loads, constraints, and material assumptions must remain traceable to the product definition.</p></div></aside>
+
+      <h2 id="gd-and-t">Geometric Dimensioning and Tolerancing</h2>
+      <p>Nominal CAD geometry is mathematically exact; manufactured parts are not. Geometric Dimensioning and Tolerancing (GD&amp;T) communicates permissible variation according to function, assembly, and verification. It controls characteristics of form, orientation, location, profile, and runout without prescribing a manufacturing method.</p>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Control family</th><th scope="col">Functional question</th><th scope="col">Typical examples</th></tr></thead>
+        <tbody>
+          <tr><td>Form</td><td>Is one feature acceptably shaped by itself?</td><td>Straightness, flatness, circularity, cylindricity</td></tr>
+          <tr><td>Orientation</td><td>Is a feature acceptably directed relative to a datum?</td><td>Parallelism, perpendicularity, angularity</td></tr>
+          <tr><td>Location</td><td>Is a feature acceptably located relative to basic dimensions and datums?</td><td>Position, concentric relationships where applicable</td></tr>
+          <tr><td>Profile</td><td>Does a line or surface remain within the specified boundary?</td><td>Profile of a line, profile of a surface</td></tr>
+          <tr><td>Runout</td><td>How does a surface vary while the part rotates about a datum axis?</td><td>Circular runout, total runout</td></tr>
+        </tbody>
+      </table></div></div>
+      <p>This module uses a simplified ASME-style position example for teaching. ASME Y14.5 and the ISO GPS system have different terminology, defaults, and interpretation rules; they must not be mixed casually. Consult the governing standard for production work <a href="../references/index.html#ref-36">[36]</a>, <a href="../references/index.html#ref-37">[37]</a>.</p>
+
+      <h3 id="datums-and-reference-frames">Datum Features, Datums, and Datum Reference Frames</h3>
+      <p>A <strong>datum feature</strong> is a physical feature of the part selected for establishing a reference. A <strong>datum</strong> is the theoretically exact reference derived from that imperfect feature. Ordered datums establish a <strong>datum reference frame</strong> that constrains the part for orientation and location.</p>
+      <p>For the plate used below, the broad face is datum feature A, a side face establishes B, and an end face establishes C. The order matters: the primary datum is established first, the secondary datum constrains the remaining motion next, and the tertiary datum completes the frame.</p>
+
+      <h3 id="feature-control-frame">Feature Control Frame and Tolerance Zone</h3>
+      <p>A feature control frame states the controlled characteristic, tolerance-zone value and shape, applicable modifiers, and datum-reference order. Basic dimensions locate or orient the theoretically exact zone. For a simplified position control on a hole axis, the allowed region is a cylinder whose diameter is the stated positional tolerance.</p>
+      <p>In the simplified two-coordinate example below, let \(\Delta x\) and \(\Delta y\) be measured offsets of the axis. The diametrical deviation displayed by the lab is</p>
+      <div class="math-display">\[
+        D=2\sqrt{(\Delta x)^2+(\Delta y)^2}.
+      \]</div>
+      <p>The example passes when \(D \le T\), where \(T\) is the displayed diameter tolerance. Real datum establishment, material-condition modifiers, feature size, axis orientation, sampling, uncertainty, and standards-specific evaluation require a complete metrology method.</p>
+
+      <h2 id="pmi">Product and Manufacturing Information</h2>
+      <p>Product and Manufacturing Information (PMI) can include dimensions and tolerances, datum definitions, surface texture, material requirements, weld symbols, process notes, and other information needed to manufacture or inspect the product.</p>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">PMI form</th><th scope="col">What is stored</th><th scope="col">Main consumer</th><th scope="col">Risk</th></tr></thead>
+        <tbody>
+          <tr><td>Graphic PMI / presentation</td><td>Visible text, symbols, leaders, orientation, color, and layout</td><td>Human reader and review viewer</td><td>Looks correct but may be unassociated or machine-inaccessible</td></tr>
+          <tr><td>Semantic PMI / representation</td><td>Structured characteristic, value, modifiers, datum references, and controlled-feature association</td><td>CAM, CMM, validation, and other software</td><td>Association or interpretation can be lost during translation</td></tr>
+        </tbody>
+      </table></div></div>
+      <p>Both forms may coexist and should agree. A screenshot, label, or 3D annotation is not automatically semantic PMI. NIST publishes test models and validation work specifically because visible fidelity alone does not prove that machine-readable meaning survived <a href="../references/index.html#ref-38">[38]</a>.</p>
+
+      <h2 id="model-based-definition">Model-Based Definition</h2>
+      <p>Model-Based Definition (MBD) makes the controlled 3D product model and its associated information the central product-definition artifact. An MBD dataset should contain or govern the information required to manufacture, inspect, assemble, and support the product. Adding several annotations to a model does not by itself create a complete MBD.</p>
+      <p>The applicable standard and contract determine whether the authority is model-only or a combination of model and controlled drawing. The dataset needs defined model views, units, coordinate systems, geometry, product structure, GD&amp;T/PMI, materials, finishes, notes, metadata, identifiers, revision, and validation rules appropriate to the use case.</p>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Term</th><th scope="col">Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>MBD</td><td>The authoritative 3D product-definition dataset or practice.</td></tr>
+          <tr><td>Model-Based Enterprise (MBE)</td><td>Enterprise processes that consume and reuse model-based information across functions.</td></tr>
+          <tr><td>Digital thread</td><td>Traceable relationships among requirements, configurations, analyses, process plans, manufacturing, inspection, and lifecycle evidence.</td></tr>
+          <tr><td>Digital twin</td><td>A purpose-specific digital representation connected to information about a real asset or process; not a synonym for MBD.</td></tr>
+        </tbody>
+      </table></div></div>
+      <p class="topic-citation">Digital product-definition practices: ASME Y14.41, ISO 16792, and NIST MBD guidance <a href="../references/index.html#ref-39">[39]</a>.</p>
+
+      <h2 id="interactive-mbd-inspection">Interactive MBD and Inspection</h2>
+      <p>Step from nominal geometry to selected physical datum features, derived ideal datums and a reference frame, semantic PMI association, a tolerance zone, and a simplified inspection result. The geometric deviations and zone are visually enlarged so that their relationship can be seen.</p>
+      <section class="cad-lab" data-mbd-lab aria-labelledby="mbd-lab-title">
+        <div class="cad-lab-heading">
+          <div><p class="cad-lab-kicker">Interactive product definition</p><h3 id="mbd-lab-title">From nominal geometry to inspection</h3></div>
+          <p>Use Previous and Next to follow the information added to the model.</p>
+        </div>
+        <div class="cad-lab-workspace">
+          <form class="cad-lab-controls" aria-label="MBD and inspection controls">
+            <div class="cad-lab-step">
+              <p><output data-workflow-step-count>Step 1 of 6</output></p>
+              <strong data-workflow-step-title>Nominal model</strong>
+              <p data-workflow-step-description>Begin with the theoretically exact plate and hole.</p>
+              <div class="cad-lab-nav"><button class="button secondary" type="button" data-workflow-prev>Previous</button><button class="button secondary" type="button" data-workflow-next>Next</button></div>
+            </div>
+            <label class="cad-lab-field"><span>Measured offset Δx <output data-offset-x-output for="offset-x">0.080 mm</output></span><input id="offset-x" data-offset-x type="range" min="-0.30" max="0.30" step="0.01" value="0.08"><small>Offset is magnified in the figure.</small></label>
+            <label class="cad-lab-field"><span>Measured offset Δy <output data-offset-y-output for="offset-y">0.050 mm</output></span><input id="offset-y" data-offset-y type="range" min="-0.30" max="0.30" step="0.01" value="0.05"><small>The measured axis remains parallel in this simplified example.</small></label>
+            <label class="cad-lab-field"><span>Position tolerance <output data-position-tolerance-output for="position-tolerance">⌀0.40 mm</output></span><input id="position-tolerance" data-position-tolerance type="range" min="0.10" max="1.00" step="0.05" value="0.40"><small>Diameter of the cylindrical tolerance zone.</small></label>
+            <dl class="cad-lab-readouts" aria-label="Simplified inspection measurements">
+              <div><dt>Radial offset</dt><dd data-radial-offset>—</dd></div>
+              <div><dt>Diametrical deviation</dt><dd data-diametrical-deviation>—</dd></div>
+              <div><dt>Result</dt><dd data-inspection-result>—</dd></div>
+            </dl>
+          </form>
+          <figure class="cad-lab-figure">
+            <div class="cad-lab-canvas-wrap">
+              <canvas data-mbd-canvas tabindex="0" role="img" aria-label="Interactive model-based definition and position tolerance example" aria-describedby="mbd-instructions mbd-status"></canvas>
+              <p class="cad-lab-fallback" data-mbd-fallback role="status" hidden>The Three.js MBD viewer could not be loaded. The GD&amp;T and workflow explanation remains available.</p>
+              <div class="cad-lab-overlay" aria-hidden="true"><strong data-mbd-overlay-title>Nominal model</strong><span data-mbd-overlay-text>Begin with the theoretically exact plate and hole.</span><span class="feature-control-frame" data-feature-control-frame hidden>⌖ | ⌀0.40 | A | B | C</span></div>
+            </div>
+            <figcaption><ul class="cad-lab-legend" aria-label="Graphic legend"><li><span class="cad-lab-swatch"></span>nominal part</li><li><span class="cad-lab-swatch datum"></span>datum feature / derived datum</li><li><span class="cad-lab-swatch pmi"></span>PMI association</li><li><span class="cad-lab-swatch actual"></span>measured axis</li></ul><p id="mbd-instructions">Drag to orbit. Scroll or pinch to zoom. Use the arrow keys, +, −, and Home from the keyboard.</p></figcaption>
+          </figure>
+        </div>
+        <p class="cad-lab-status" id="mbd-status" data-mbd-status></p>
+        <p class="visually-hidden" data-mbd-live aria-live="polite"></p>
+      </section>
+      <aside class="notes-box remarkbox"><p class="notes-box-title">Teaching simplification</p><div class="notes-box-body"><p>The interactive result is not a standards-complete metrology engine. Its purpose is to show how physical datum features, derived ideal datums, a datum reference frame, feature control frame, semantic association, tolerance zone, and measured feature relate.</p></div></aside>
+
+      <h2 id="release-and-revision">Release, Baselines, and Revisions</h2>
+      <p>A release identifies an exact approved baseline rather than a mutable working file. The release record should identify the item, revision, lifecycle state, ownership, units, approvals, dependencies, applicable standards, and the authoritative product-definition dataset. Depending on the contract and workflow, the package can include native/MBD data, neutral derivatives, drawings, a bill of materials, material and process requirements, and linked verification evidence.</p>
+      <p>A later engineering change creates a controlled revision with a reason, impact assessment, approval, and effectivity. It should not silently overwrite the released baseline. In this course, a <em>version</em> means a working state and a <em>revision</em> means an approved configuration change; organizations and PDM/PLM systems may use different terms, so the governing procedure controls. ISO 10007 provides configuration-management guidance across the lifecycle <a href="../references/index.html#ref-35">[35]</a>.</p>
+
+      <h2 id="downstream-handoff">Manufacturing and CAE Handoff</h2>
+      <p>Choose the handoff content from the receiving process:</p>
+      <ul>
+        <li><strong>CAM:</strong> precise geometry, stock, work coordinate systems, tolerances, surface requirements, and tool-access intent.</li>
+        <li><strong>Inspection and CMM:</strong> datum system, controlled features, semantic GD&amp;T where supported, tolerance zones, units, and measurement requirements.</li>
+        <li><strong>CAE:</strong> a traceable idealization with materials, contacts, loads, boundary conditions, mesh assumptions, and documented simplifications.</li>
+        <li><strong>Supplier exchange:</strong> agreed geometry, assembly structure, identifiers, attributes, revision, PMI, and validation criteria.</li>
+        <li><strong>Review:</strong> a lightweight derivative with the required structure, appearance, sections, viewpoints, and annotations.</li>
+      </ul>
+      <p>Do not send every available representation and make the receiver guess which one is authoritative. Define the governed source, the purpose of each derivative, and the rule for resolving a conflict.</p>
+
+      <h2 id="exchange-validation">Exchange-Data Validation</h2>
+      <p>Validation should be layered:</p>
+      <ol class="roman-list">
+        <li><p><strong>Syntax and conformance:</strong> Can the receiving system parse the file, and does it follow the intended schema and implementation practice?</p></li>
+        <li><p><strong>Completeness:</strong> Are all expected parts, instances, attributes, model views, and PMI elements present?</p></li>
+        <li><p><strong>Association:</strong> Are tolerances, datums, notes, and attributes attached to the intended features?</p></li>
+        <li><p><strong>Geometric equivalence:</strong> Compare volume, area, centroid, bounding box, body count, topology, and assembly placement where applicable.</p></li>
+        <li><p><strong>PMI equivalence:</strong> Compare characteristic types, values, modifiers, datum references, controlled geometry, and presentation.</p></li>
+        <li><p><strong>Use-case test:</strong> Execute a critical receiving operation in CAM, CAE, review, or inspection software.</p></li>
+      </ol>
+      <p>Record source and target identifiers, revisions, translator versions, options, warnings, and validation results. Validation properties are useful reference checks but do not prove that every downstream interpretation is correct. Recommended practices and benchmark models are available from the MBx Interoperability Forum and NIST <a href="../references/index.html#ref-41">[41]</a>.</p>
+
+      <h2 id="digital-thread">Digital Thread</h2>
+      <p>A digital thread is maintained through relationships, identifiers, revisions, provenance, and feedback—not by placing every file in one folder. It connects the requirement that motivated a feature, the model revision that defines it, the analysis that verified it, the process plan that produced it, the inspection result that measured it, and the as-built or as-maintained configuration.</p>
+      <p>The thread becomes useful when a change can be evaluated across those relationships. If the positional tolerance in the example changes, affected analysis, manufacturing, supplier, measurement-plan, inspection, and service records should be discoverable. NIST’s manufacturing work describes digital-thread infrastructure for exchanging and reusing lifecycle information <a href="../references/index.html#ref-40">[40]</a>.</p>
+
+      <h2 id="summary">Summary</h2>
+      <p>A professional CAD workflow connects requirements, concepts, a robust parametric master model, verification evidence, permissible variation, controlled release, manufacturing, inspection, and lifecycle feedback. It distinguishes working versions from approved revisions and treats every derivative as a purpose-specific representation of a governed source.</p>
+      <p>GD&amp;T defines acceptable geometric variation relative to function. PMI carries the visible and/or semantic manufacturing information. MBD makes the governed 3D dataset central, while an MBE and digital thread reuse and connect that information across the lifecycle. These ideas depend on explicit associations and validation—not on appearance alone.</p>
+
+      <h2 id="references-and-further-reading">References and Further Reading</h2>
+      <ul class="reference-section-links">
+        <li>Systems design, verification, and configuration: NASA <a href="../references/index.html#ref-34">[34]</a> and ISO 10007 <a href="../references/index.html#ref-35">[35]</a>.</li>
+        <li>Geometric tolerancing and datum systems: ASME Y14.5 <a href="../references/index.html#ref-36">[36]</a>, ISO 1101 and ISO 5459 <a href="../references/index.html#ref-37">[37]</a>.</li>
+        <li>PMI, MBD, and digital-thread resources: NIST <a href="../references/index.html#ref-38">[38]</a>, ASME/ISO/NIST <a href="../references/index.html#ref-39">[39]</a>, and NIST digital thread <a href="../references/index.html#ref-40">[40]</a>.</li>
+        <li>Exchange validation: MBx-IF and NIST recommended practices and test models <a href="../references/index.html#ref-41">[41]</a>.</li>
+      </ul>
+      <p><a href="../references/index.html">Open the full references and chapter guide</a>.</p>
+
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../cad-software-data-exchange/index.html"><span>Previous module</span><strong>CAD Software and Data Exchange</strong></a><a class="notes-nav-link next" href="../index.html"><span>Module library</span><strong>Theory</strong></a></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · CAD Workflow</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../../programming-modules/index.html">Programming Modules</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>

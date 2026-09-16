@@ -4,13 +4,13 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory and Interactive Modules** — seven course-note modules on geometric transformations, curves, Bezier curves, Hermite curves, B-splines, surfaces, and solid modeling, followed by standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations.
+- **Theory and Interactive Modules** — nine course-note modules on geometric transformations, curves, Bezier curves, Hermite curves, B-splines, surfaces, solid modeling, CAD software and data exchange, and CAD workflow, followed by standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, B-spline surfaces, and Coons patches.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 
 The site includes:
 
-- seven teaching modules organized from the course notes;
+- nine teaching modules organized from the course notes;
 - standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations;
 - seven interactive curve and surface laboratories with Python/MATLAB code views;
 - the Sketch Constraints and Parametric Circular Patterns activities; and
@@ -59,6 +59,18 @@ starts a new flat grid and reduces the order if needed.
 `surface-three.js` owns the independent Three.js view;
 `surface-math.js` evaluates tensor-product B-spline surfaces and manages editable 4×4, 5×5 and 6×6 grids, with orders 2 through the control count per direction.
 Run the numerical and editing tests with `node --test tests/*.test.js`.
+
+The CAD Software and Data Exchange module at
+`cad-modules/cad-software-data-exchange/` compares mainstream parametric,
+direct, programmatic, meshing, and visualization systems. Its interactive
+exchange lab contrasts exact B-Rep, surface, tessellated, drawing, and
+lightweight representations while varying mesh detail. The CAD Workflow module
+at `cad-modules/cad-workflow/` connects requirements, parametric modeling,
+verification, release, manufacturing, inspection, and revision control. Its
+staged Three.js lab builds from nominal geometry through datums, a datum
+reference frame, PMI, a positional tolerance zone, and a simplified inspection
+result. Both labs use the locally bundled Three.js runtime and keep explanatory
+content separate from their control panels.
 
 The Rational Bézier Curves module at `cad-modules/rational-bezier-curves/`
 shows a quadratic parabola cut from a cone and its central projection onto `w=1`.
@@ -111,7 +123,7 @@ WebGL. `rotations-math.js` provides the matrix and sequence calculations;
 
 ## Accessibility and compatibility
 
-The site uses semantic landmarks, keyboard-visible focus states, skip links, labelled controls, live regions for activity feedback, responsive layouts, and reduced-motion support. Teaching-module equations are rendered by a pinned MathJax script from jsDelivr; the curve laboratories use Canvas 2D JavaScript, and the home-page surface and B-spline surface lab use a locally bundled Three.js runtime.
+The site uses semantic landmarks, keyboard-visible focus states, skip links, labelled controls, live regions for activity feedback, responsive layouts, and reduced-motion support. Teaching-module equations are rendered by a pinned MathJax script from jsDelivr; the curve laboratories use Canvas 2D JavaScript, and the home-page surface, B-spline surface lab, exchange lab, and model-based-definition lab use a locally bundled Three.js runtime.
 
 ## License
 
