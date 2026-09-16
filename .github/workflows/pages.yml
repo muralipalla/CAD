@@ -31,8 +31,16 @@ jobs:
           mkdir _site
           cp index.html 404.html .nojekyll LICENSE _site/
           cp -r assets cad-modules programming-modules self-assessment-quizzes _site/
-          # Keep this draft offline while the visualization is being revised.
-          rm -r -- _site/cad-modules/intrinsic-extrinsic-rotations
+          # Keep this draft page offline while retaining the two shared engines
+          # used by the Euler-angle visualization in geometric-transformations.
+          rm -- _site/cad-modules/intrinsic-extrinsic-rotations/index.html
+          rm -- _site/cad-modules/intrinsic-extrinsic-rotations/app.css
+          rm -- _site/cad-modules/intrinsic-extrinsic-rotations/app.js
+      - name: Verify Euler viewer dependencies
+        shell: bash
+        run: |
+          test -f _site/cad-modules/intrinsic-extrinsic-rotations/rotations-math.js
+          test -f _site/cad-modules/intrinsic-extrinsic-rotations/rotations-three.js
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
