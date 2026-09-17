@@ -70,7 +70,9 @@ test("new modules are wired into the course sequence and local Three.js runtime"
   const workflowPage = read("cad-modules", "cad-workflow", "index.html");
   const references = read("cad-modules", "references", "index.html");
 
-  assert.match(home, /id="learning-outcomes-title"/);
+  assert.doesNotMatch(home, /id="learning-outcomes-title"/);
+  assert.match(home, /cad-modules\/index\.html#learning-outcomes/);
+  assert.match(hub, /id="learning-outcomes-title"/);
   assert.ok(hub.indexOf("cad-software-data-exchange/index.html") < hub.indexOf("cad-workflow/index.html"));
   assert.match(solids, /\.\.\/cad-software-data-exchange\/index\.html/);
 
