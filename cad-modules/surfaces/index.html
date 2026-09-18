@@ -10,7 +10,12 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="surface-geometry.css?v=4">
   <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="surface-geometry-math.js?v=3" defer></script>
+  <script src="surface-geometry-three.js?v=6" defer></script>
+  <script src="surface-geometry-app.js?v=2" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -55,6 +60,7 @@
 <li class="toc-subsection"><a href="#derivative-of-the-normal-and-gaussian-curvature">Derivative of the Normal and Gaussian Curvature</a></li>
 <li class="toc-subsection"><a href="#gauss-map">Gauss Map</a></li>
 <li class="toc-subsection"><a href="#classification-of-surface-points">Classification of Surface Points</a></li>
+<li class="toc-subsection"><a href="#interactive-torus-curvature">Interactive Torus Curvature</a></li>
 <li class="toc-subsection"><a href="#gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</a></li>
 <li class="toc-section"><a href="#coons-surface-patch">Coons Surface Patch</a></li>
 <li class="toc-section"><a href="#surface-continuity">Surface Continuity</a></li>
@@ -463,7 +469,24 @@ g:S\rightarrow S^2,
 \qquad
 g(P)=\hat{\mathbf n}(P).
 \]</div>
-<figure class="notes-figure" id="fig:gauss-map" style="--figure-width: 50%"><img src="../../assets/images/caad-notes/GaussMap2.png" alt="Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere." loading="lazy" decoding="async"><figcaption>Gauss map: each point on the surface is mapped to its corresponding unit normal on the unit sphere. <span class="figure-credit">Drawing by Murali Palla.</span></figcaption></figure>
+<figure class="surface-interactive gauss-map-lab" id="fig:gauss-map">
+  <div class="surface-lab-heading"><div><span class="surface-lab-kicker">Interactive Gauss map</span><strong>Map a complete surface region to the unit sphere</strong></div><span class="surface-scene-status" data-gauss-status>Elliptic paraboloid · positive curvature · 100% mapped</span></div>
+  <div class="surface-canvas-frame">
+    <canvas data-gauss-map-canvas tabindex="0" aria-label="Interactive Gauss map with a colored patch on a paraboloid and its mapped normal area on the unit sphere" aria-describedby="gauss-map-help"></canvas>
+    <p class="surface-view-fallback" data-gauss-map-fallback hidden>The Three.js view needs WebGL. The Gauss-map definition and equations remain available.</p>
+    <div class="gauss-view-labels" aria-hidden="true"><span><i class="source-patch-swatch"></i>source neighborhood <b>→</b> <i class="mapped-patch-swatch"></i>mapped normal area on S²</span></div>
+  </div>
+  <div class="surface-lab-controls gauss-controls" aria-label="Gauss map controls">
+    <label><span>Surface patch</span><select id="gauss-surface"><option value="elliptic">Elliptic paraboloid (K &gt; 0)</option><option value="cylindrical">Parabolic cylinder (K = 0)</option><option value="saddle">Hyperbolic paraboloid (K &lt; 0)</option><option value="wave">Sinusoidal patch (mixed K)</option></select></label>
+    <label><span>Mapped parameter area <output id="gauss-area-output">100%</output></span><input id="gauss-area" type="range" min="4" max="100" step="1" value="100"></label>
+    <label><span>Surface coordinate u <output id="gauss-u-output">0.68</output></span><input id="gauss-u" type="range" min="0.08" max="0.92" step="0.005" value="0.68"></label>
+    <label><span>Surface coordinate v <output id="gauss-v-output">0.34</output></span><input id="gauss-v" type="range" min="0.08" max="0.92" step="0.005" value="0.34"></label>
+    <div class="surface-action-row"><button type="button" class="surface-button primary" data-animate-gauss>Animate point</button><button type="button" class="surface-button" data-reset-gauss-view>Reset view</button></div>
+  </div>
+  <dl class="surface-readout gauss-readout"><div><dt>Point P on S</dt><dd data-gauss-point></dd></div><div><dt>Unit normal n(P)</dt><dd data-gauss-normal></dd></div><div><dt>Gauss-map image N(P)</dt><dd data-gauss-image></dd></div></dl>
+  <p class="surface-interaction-help" id="gauss-map-help">At 100%, the entire displayed orange patch is mapped. Reduce the area to study a local region around (u, v). Change the surface to compare positive, zero, negative, and mixed curvature. Drag to orbit, scroll to zoom, or press Home to reset.</p>
+  <figcaption>The Gauss map sends every point of the orange region on <em>S</em> to its unit-normal direction in the green region on <em>S</em>². At 100%, the whole displayed surface patch is mapped. For a zero-curvature cylinder, its two-dimensional region collapses to a curve on the sphere.</figcaption>
+</figure>
 <p>Gaussian curvature measures the local area distortion produced by the Gauss map. Informally,</p>
 <div class="math-display">\[
 \boxed{
@@ -487,6 +510,31 @@ K
 <p>At a regular point, the tangent plane and unit normal are well defined.</p>
 <p>Surface points may be classified using Gaussian curvature:</p>
 <div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Condition</strong></th><th scope="col"><strong>Type of Point</strong></th></tr></thead><tbody><tr><td>\(K&gt;0\)</td><td>Elliptic point. The surface is locally dome-like, as on a sphere.</td></tr><tr><td>\(K=0\)</td><td>Parabolic point. The surface is locally developable in one direction, as on a cylinder.</td></tr><tr><td>\(K&lt;0\)</td><td>Hyperbolic point. The surface is locally saddle-like.</td></tr></tbody></table></div></div>
+<h3 id="interactive-torus-curvature">Interactive Gaussian Curvature on a Torus</h3>
+<p>For a torus with major radius (R), tube radius (r), and tube angle (phi=2\pi v), the Gaussian curvature is</p>
+<div class="math-display">\[
+K(v)=\frac{\cos\phi}{r\bigl(R+r\cos\phi\bigr)}.
+\]</div>
+<p>The outer region has positive curvature, the inner region has negative curvature, and the top and bottom isoparametric circles have zero curvature.</p>
+<figure class="surface-interactive torus-curvature-lab">
+  <div class="surface-lab-heading"><div><span class="surface-lab-kicker">Curvature field</span><strong>Move a tangent plane across the torus</strong></div><span class="curvature-badge" data-curvature-kind="positive"><span data-curvature-sign>Positive</span> curvature</span></div>
+  <div class="surface-canvas-frame torus-frame">
+    <canvas data-torus-curvature-canvas tabindex="0" aria-label="Torus colored by Gaussian curvature with a movable point, normal, tangent plane, and two crossing isoparametric curves" aria-describedby="torus-curvature-help"></canvas>
+    <p class="surface-view-fallback" data-torus-curvature-fallback hidden>The Three.js curvature view needs WebGL. The curvature equation and classification remain available.</p>
+    <div class="curvature-legend" aria-label="Gaussian curvature colors"><span><i class="positive"></i>K &gt; 0</span><span><i class="zero"></i>K = 0</span><span><i class="negative"></i>K &lt; 0</span></div>
+  </div>
+  <div class="surface-lab-controls torus-controls" aria-label="Torus point controls">
+    <label><span>u coordinate <small>moves along v = constant</small><output id="torus-u-output">0.08</output></span><input id="torus-u" type="range" min="0" max="1" step="0.0025" value="0.08"></label>
+    <label><span>v coordinate <small>moves along u = constant</small><output id="torus-v-output">0.08</output></span><input id="torus-v" type="range" min="0" max="1" step="0.0025" value="0.08"></label>
+    <fieldset class="surface-motion-options"><legend>Animate along an isoparametric curve</legend><label><input type="radio" name="torus-motion" value="u" checked> vary u, hold v</label><label><input type="radio" name="torus-motion" value="v"> vary v, hold u</label></fieldset>
+    <div class="surface-action-row"><button type="button" class="surface-button primary" data-animate-torus>Animate point</button><button type="button" class="surface-button" data-reset-torus-view>Reset view</button></div>
+    <div class="curvature-presets" role="group" aria-label="Move to a curvature region"><button type="button" class="surface-button" data-curvature-preset="positive">Positive K</button><button type="button" class="surface-button" data-curvature-preset="zero">Zero K</button><button type="button" class="surface-button" data-curvature-preset="negative">Negative K</button></div>
+    <div class="surface-view-options"><label><input type="checkbox" data-torus-option="showPlane" checked> tangent plane</label><label><input type="checkbox" data-torus-option="showIsolines" checked> selected isoparametric lines</label></div>
+  </div>
+  <dl class="surface-readout torus-readout"><div><dt>Gaussian curvature K</dt><dd data-gaussian-curvature></dd></div><div><dt>Tube angle φ</dt><dd data-torus-phi></dd></div><div><dt>Surface point P</dt><dd data-torus-point></dd></div><div><dt>Unit normal n</dt><dd data-torus-normal></dd></div></dl>
+  <p class="surface-interaction-help" id="torus-curvature-help"><span class="line-key u-line"></span>The pink curve holds u constant. <span class="line-key v-line"></span>The cyan curve holds v constant. Drag to orbit; scroll to zoom; press Home to reset.</p>
+  <figcaption>Gaussian curvature on a torus with (R=2.4) and (r=0.9). The gold isoparametric circles at φ = 90° and 270° mark (K=0).</figcaption>
+</figure>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A surface can be developed onto a plane without stretching if its Gaussian curvature is zero everywhere. Cylinders and cones are developable surfaces; spheres are not.</p></div></aside>
 <h3 id="gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</h3>
 <p class="topic-citation">For fuller statements, hypotheses and proofs, see Pressley <a href="../references/index.html#ref-4">[4]</a>, §10.2 and Chapter 13.</p>

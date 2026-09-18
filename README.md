@@ -98,6 +98,17 @@ curves, while odd counts give a non-orientable strip with one boundary curve.
 `mobius-three.js` renders the views. Run its mathematical checks with
 `node --test tests/mobius-surface.test.js`.
 
+The Surfaces theory module now replaces its static Gauss-map diagram with an
+interactive Three.js surface-to-sphere construction that maps a highlighted
+surface region—up to the entire displayed patch—to its colored normal-image
+area on the unit sphere. An area slider and positive-, zero-, negative-, and
+mixed-curvature surface choices make the area distortion directly comparable. Its Gaussian-curvature
+section includes a second Three.js scene that colors a torus by the sign of
+curvature, marks both zero-curvature isoparametric circles, and moves a point,
+normal, and tangent plane along either parameter family. The shared
+`surface-geometry-math.js` file supplies the torus parameterization,
+derivatives, normals, curvature classification, and color field.
+
 The General Sweep Surfaces module at `cad-modules/sweep-surface/` constructs a
 surface from editable parametric path and profile curves. Presets, transported
 or fixed profile frames, twist, taper from 0.1 to 5, and animation help explain
