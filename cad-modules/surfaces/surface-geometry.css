@@ -18,9 +18,15 @@
 .gauss-view-labels span { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .6rem; border-radius: 999px; background: rgba(16, 24, 45, .78); }
 .gauss-view-labels i { width: .85rem; height: .38rem; border-radius: 999px; }.gauss-view-labels b { color: #8f9ab0; }
 .gauss-view-labels .source-patch-swatch { background: #ff721c; }.gauss-view-labels .mapped-patch-swatch { background: #83ff5b; }
+.sphere-vector-legend { position: absolute; inset: .75rem auto auto .75rem; display: grid; grid-template-columns: repeat(2, auto); gap: .35rem .7rem; padding: .5rem .65rem; border-radius: .7rem; background: rgba(16, 24, 45, .84); color: #eef7ff; font-size: .68rem; font-weight: 780; pointer-events: none; }
+.sphere-vector-legend span { display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; }
+.sphere-vector-legend i { width: 1rem; height: .22rem; border-radius: 999px; }
+.sphere-vector-legend sub { font-size: .72em; }.sphere-vector-legend .total-vector { background: #ff725e; }.sphere-vector-legend .normal-vector { background: #59d9ff; }.sphere-vector-legend .geodesic-vector { background: #b9f35b; }.sphere-vector-legend .intersection-curve { height: .3rem; background: #f4ff67; }.sphere-vector-legend .full-intersection { height: .1rem; background: #8fc3df; }
+.sphere-vector-legend .sphere-center, .sphere-vector-legend .arc-center { width: .48rem; height: .48rem; margin-inline: .26rem; border-radius: 50%; }.sphere-vector-legend .sphere-center { background: #ff7bd6; }.sphere-vector-legend .arc-center { background: #ffdf8a; }
 .surface-lab-controls { display: grid; gap: .85rem 1rem; padding: 1rem 1.1rem; border-top: 1px solid var(--line); background: #fbfaff; }
 .gauss-controls { grid-template-columns: repeat(2, minmax(12rem, 1fr)); align-items: end; }
 .gauss-controls .surface-action-row { grid-column: 1 / -1; }
+.sphere-controls { grid-template-columns: minmax(14rem, 1fr) auto; align-items: end; }
 .torus-controls { grid-template-columns: repeat(2, minmax(12rem, 1fr)); }
 .surface-lab-controls > label { display: grid; gap: .35rem; }
 .surface-lab-controls > label > span { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .55rem; color: var(--ink-soft); font-size: .78rem; font-weight: 820; }
@@ -44,6 +50,7 @@
 .surface-readout div { min-width: 0; padding: .8rem 1rem; border-right: 1px solid var(--line); }
 .surface-readout div:last-child { border-right: 0; }
 .torus-readout { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.sphere-readout { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .surface-readout dt { color: var(--muted); font-size: .7rem; }
 .surface-readout dd { margin: .18rem 0 0; color: var(--ink); font: 750 .76rem/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
 .surface-interaction-help { max-width: none !important; margin: 0 !important; padding: .75rem 1rem; border-top: 1px solid var(--line); background: #f6f4fb; color: var(--ink-soft) !important; font-size: .74rem; }
@@ -58,12 +65,12 @@
   .gauss-controls { grid-template-columns: 1fr 1fr; }
   .gauss-controls .surface-action-row { grid-column: 1 / -1; }
   .surface-canvas-frame canvas { height: 31rem; }
-  .torus-readout { grid-template-columns: repeat(2, 1fr); }
-  .torus-readout div:nth-child(2) { border-right: 0; }
-  .torus-readout div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .torus-readout, .sphere-readout { grid-template-columns: repeat(2, 1fr); }
+  .torus-readout div:nth-child(2), .sphere-readout div:nth-child(2) { border-right: 0; }
+  .torus-readout div:nth-child(-n+2), .sphere-readout div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
 }
 @media (max-width: 620px) {
-  .gauss-controls, .torus-controls { grid-template-columns: 1fr; }
+  .gauss-controls, .sphere-controls, .torus-controls { grid-template-columns: 1fr; }
   .gauss-controls .surface-action-row, .surface-motion-options, .surface-view-options { grid-column: auto; }
   .surface-canvas-frame canvas { height: 26rem; }
   .surface-readout, .torus-readout { grid-template-columns: 1fr; }
@@ -71,6 +78,7 @@
   .surface-readout div:last-child, .torus-readout div:last-child { border-bottom: 0; }
   .curvature-presets { justify-content: flex-start; }
   .gauss-view-labels { justify-content: center; }
+  .sphere-vector-legend { inset: .55rem .55rem auto; grid-template-columns: repeat(2, minmax(0, 1fr)); font-size: .62rem; }
 }
 @media print {
   .surface-lab-controls, .surface-action-row, .surface-interaction-help { display: none; }

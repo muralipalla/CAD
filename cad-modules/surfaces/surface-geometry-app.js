@@ -10,12 +10,34 @@
 
   const gaussU = find("#gauss-u"), gaussV = find("#gauss-v"), gaussArea = find("#gauss-area"), gaussSurface = find("#gauss-surface");
   const torusU = find("#torus-u"), torusV = find("#torus-v");
-  if (!M || !gaussU || !gaussV || !gaussArea || !gaussSurface || !torusU) return;
+  const sphereAngle = find("#sphere-plane-angle");
+  if (!M || !gaussU || !gaussV || !gaussArea || !gaussSurface || !torusU || !sphereAngle) return;
 
+  const sphereView = window.SphereCurveCurvatureThree(find("[data-sphere-curvature-canvas]"), find("[data-sphere-curvature-fallback]"));
   const gaussView = window.GaussMapThree(find("[data-gauss-map-canvas]"), find("[data-gauss-map-fallback]"));
   const torusView = window.TorusCurvatureThree(find("[data-torus-curvature-canvas]"), find("[data-torus-curvature-fallback]"));
   const torusOptions = { u: Number(torusU.value), v: Number(torusV.value), showPlane: true, showIsolines: true };
   let gaussFrame = 0, torusFrame = 0;
+
+  function renderSphereCurvature() {
+    const angle = Number(sphereAngle.value), data = M.spherePlaneCurvature(angle);
+    write("#sphere-plane-angle-output", `${angle.toFixed(0)}°`);
+    write("[data-sphere-circle-radius]", number(data.circleRadius));
+    write("[data-sphere-kappa-n]", number(data.normalCurvatureMagnitude));
+    write("[data-sphere-kappa]", data.singular ? "∞ (limiting)" : number(data.curvatureMagnitude));
+    write("[data-sphere-kappa-g]", data.singular ? "∞ (limiting)" : number(data.geodesicCurvatureMagnitude));
+    const status = data.circleType === "great"
+      ? "Great circle · κg = 0"
+      : data.circleType === "tangent"
+        ? "Tangent plane · point contact"
+        : `Small circle · κg = ${number(data.geodesicCurvatureMagnitude)}`;
+    write("[data-sphere-curvature-status]", status);
+    sphereView.update({ angle });
+  }
+  sphereAngle.addEventListener("input", renderSphereCurvature);
+  find("[data-reset-sphere-view]").addEventListener("click", () => sphereView.reset());
+  find("[data-zoom-in-sphere]").addEventListener("click", () => sphereView.zoomIn());
+  find("[data-zoom-out-sphere]").addEventListener("click", () => sphereView.zoomOut());
 
   function renderGauss() {
     const u = Number(gaussU.value), v = Number(gaussV.value), areaFraction = Number(gaussArea.value) / 100;
@@ -89,7 +111,7 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) { stopGauss(); stopTorus(); } });
   window.addEventListener("pagehide", event => {
     stopGauss(); stopTorus();
-    if (!event.persisted) { gaussView.dispose(); torusView.dispose(); }
+    if (!event.persisted) { sphereView.dispose(); gaussView.dispose(); torusView.dispose(); }
   });
-  renderGauss(); renderTorus();
+  renderSphereCurvature(); renderGauss(); renderTorus();
 })();

@@ -10,12 +10,12 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
-  <link rel="stylesheet" href="surface-geometry.css?v=4">
+  <link rel="stylesheet" href="surface-geometry.css?v=7">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
-  <script src="surface-geometry-math.js?v=3" defer></script>
-  <script src="surface-geometry-three.js?v=6" defer></script>
-  <script src="surface-geometry-app.js?v=2" defer></script>
+  <script src="surface-geometry-math.js?v=7" defer></script>
+  <script src="surface-geometry-three.js?v=14" defer></script>
+  <script src="surface-geometry-app.js?v=5" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -56,6 +56,7 @@
 <li class="toc-subsection"><a href="#surface-normal-and-area-element">Surface Normal and Area Element</a></li>
 <li class="toc-subsection"><a href="#second-fundamental-form">Second Fundamental Form</a></li>
 <li class="toc-subsection"><a href="#normal-curvature">Normal Curvature</a></li>
+<li class="toc-subsection"><a href="#curve-curvature-decomposition">Curve Curvature Decomposition</a></li>
 <li class="toc-subsection"><a href="#principal-curvatures">Principal Curvatures</a></li>
 <li class="toc-subsection"><a href="#derivative-of-the-normal-and-gaussian-curvature">Derivative of the Normal and Gaussian Curvature</a></li>
 <li class="toc-subsection"><a href="#gauss-map">Gauss Map</a></li>
@@ -358,6 +359,38 @@ E\,du^2+2F\,du\,dv+G\,dv^2
 }
 \]</div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Normal curvature depends on the direction in which one moves on the surface. At a given point, different tangent directions generally have different normal curvatures.</p></div></aside>
+<h3 id="curve-curvature-decomposition">Curve Curvature Decomposition</h3>
+<p>Consider a sphere of radius \(R\) cut by a plane. Their intersection is a circle of radius \(\rho\) and center \(\mathbf C\). At a point \(\mathbf P\) on this circle, the circle's curvature vector points inward toward \(\mathbf C\):</p>
+<div class="math-display">\[
+\boldsymbol{\kappa}
+=
+\frac{\mathbf C-\mathbf P}{\rho^2}.
+\]</div>
+<p>Resolve this vector into a component normal to the sphere and a component tangent to the sphere:</p>
+<div class="math-display">\[
+\boldsymbol{\kappa}_n
+=
+(\boldsymbol{\kappa}\cdot\hat{\mathbf n})\hat{\mathbf n},
+\qquad
+\boldsymbol{\kappa}_g
+=
+\boldsymbol{\kappa}-\boldsymbol{\kappa}_n.
+\]</div>
+<figure class="surface-interactive sphere-curvature-lab" id="fig:sphere-curve-curvature">
+  <div class="surface-lab-heading"><div><span class="surface-lab-kicker">Interactive curvature decomposition</span><strong>Rotate a cutting plane about the curve tangent</strong></div><span class="surface-scene-status" data-sphere-curvature-status>Small circle · κg = 0.455</span></div>
+  <div class="surface-canvas-frame sphere-frame">
+    <canvas data-sphere-curvature-canvas tabindex="0" aria-label="Sphere cut by a rotating plane, with a circular intersection arc, sphere and arc centers, construction lines, and curvature vectors" aria-describedby="sphere-curvature-help"></canvas>
+    <p class="surface-view-fallback" data-sphere-curvature-fallback hidden>The Three.js view needs WebGL. The curvature decomposition and equations remain available.</p>
+    <div class="sphere-vector-legend" aria-hidden="true"><span><i class="total-vector"></i>κ total curvature</span><span><i class="normal-vector"></i>κ<sub>n</sub> normal</span><span><i class="geodesic-vector"></i>κ<sub>g</sub> geodesic</span><span><i class="intersection-curve"></i>highlighted arc</span><span><i class="full-intersection"></i>full circle</span><span><i class="sphere-center"></i>O sphere center</span><span><i class="arc-center"></i>C arc center</span></div>
+  </div>
+  <div class="surface-lab-controls sphere-controls" aria-label="Sphere cutting-plane controls">
+    <label><span>Plane rotation <output id="sphere-plane-angle-output">45°</output></span><input id="sphere-plane-angle" type="range" min="0" max="85" step="1" value="45"></label>
+    <div class="surface-action-row"><button type="button" class="surface-button" data-zoom-out-sphere>Zoom out</button><button type="button" class="surface-button" data-zoom-in-sphere>Zoom in</button><button type="button" class="surface-button" data-reset-sphere-view>Reset view</button></div>
+  </div>
+  <dl class="surface-readout sphere-readout"><div><dt>Circle radius ρ</dt><dd data-sphere-circle-radius></dd></div><div><dt>Total curvature |κ|</dt><dd data-sphere-kappa></dd></div><div><dt>Normal curvature |κ<sub>n</sub>|</dt><dd data-sphere-kappa-n></dd></div><div><dt>Geodesic curvature |κ<sub>g</sub>|</dt><dd data-sphere-kappa-g></dd></div></dl>
+  <p class="surface-interaction-help" id="sphere-curvature-help">The dashed hinge is tangent to the circular arc at the point of interest \(P\). Move the slider to rotate the amber plane about this fixed tangent. The thin blue line shows the complete intersection circle; its bright 120° arc is symmetric about \(P\). Dotted lines join \(P\) to the sphere center \(O\) and the arc center \(C\). Every curvature arrow uses the same fixed scale at every angle, so its displayed length is directly proportional to its magnitude; at 0° the total-curvature arrow is \(R/4\) long. The figure does not rescale or cap growing arrows, so they may leave the viewport near 85°. Use Zoom out to follow them. The dashed parallelogram shows <strong>κ = κ<sub>n</sub> + κ<sub>g</sub></strong>. Drag to orbit, scroll to zoom, or press Home to reset the camera.</p>
+  <figcaption>At 0° the plane contains \(O\), so the intersection is a great circle and \(\boldsymbol{\kappa}_g=\mathbf 0\). The circle shrinks as the plane rotates. The slider stops at 85°, where the intersection is already a very small circle, avoiding the singular point-contact configuration at 90°.</figcaption>
+</figure>
 <h3 id="principal-curvatures">Principal Curvatures</h3>
 <p>The principal curvatures are the maximum and minimum values of the normal curvature at a point on the surface.</p>
 <p>Let</p>

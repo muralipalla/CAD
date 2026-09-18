@@ -2,7 +2,7 @@
   "use strict";
 
   const T = window.THREE, M = window.SurfaceGeometryMath;
-  const unavailable = { available: false, update() {}, reset() {}, dispose() {} };
+  const unavailable = { available: false, update() {}, reset() {}, zoomIn() {}, zoomOut() {}, dispose() {} };
   const vector = values => new T.Vector3(values[0], values[1], values[2]);
 
   function clear(group) {
@@ -41,6 +41,7 @@
     }
     function requestRender() { if (!pending) { pending = true; requestAnimationFrame(render); } }
     function reset() { azimuth = settings.azimuth || 0.75; elevation = settings.elevation || 0.38; distance = settings.distance || 11; requestRender(); }
+    function zoom(factor) { distance = M.clamp(distance * factor, settings.minDistance || 5, settings.maxDistance || 22); requestRender(); }
     listen(canvas, "pointerdown", event => { pointer = { id: event.pointerId, x: event.clientX, y: event.clientY }; canvas.setPointerCapture(event.pointerId); });
     listen(canvas, "pointermove", event => {
       if (!pointer || pointer.id !== event.pointerId) return;
@@ -67,6 +68,8 @@
       scene,
       requestRender,
       reset,
+      zoomIn() { zoom(0.82); },
+      zoomOut() { zoom(1.22); },
       dispose(groups) { disposed = true; events.forEach(([target, name, handler, options]) => target.removeEventListener(name, handler, options)); groups.forEach(clear); renderer.dispose(); }
     };
   }
@@ -105,6 +108,105 @@
     head.position.copy(start).addScaledVector(axis, shaftLength + headLength / 2); head.quaternion.copy(rotation); head.renderOrder = 10;
     group.add(shaft, head); return group;
   }
+
+  window.SphereCurveCurvatureThree = function (canvas, fallback) {
+    if (!T || !M) return unavailable;
+    const base = createBase(canvas, fallback, { center: [0, 0, 0.25], distance: 9.7, minDistance: 6.5, maxDistance: 16, azimuth: 0.78, elevation: 0.38 });
+    if (!base) return unavailable;
+    const staticGroup = new T.Group(), movingGroup = new T.Group(); base.scene.add(staticGroup, movingGroup);
+    const radius = M.DEFAULT_SPHERE_RADIUS;
+    const sphere = new T.Mesh(
+      new T.SphereGeometry(radius, 64, 40),
+      new T.MeshPhongMaterial({ color: 0x3879d9, emissive: 0x07172f, specular: 0x82c8ff, shininess: 32, transparent: true, opacity: 0.31, depthWrite: false, side: T.DoubleSide })
+    );
+    staticGroup.add(sphere);
+    const sphereWire = new T.LineSegments(
+      new T.WireframeGeometry(new T.SphereGeometry(radius * 1.002, 24, 16)),
+      new T.LineBasicMaterial({ color: 0x8ecbff, transparent: true, opacity: 0.2 })
+    );
+    staticGroup.add(sphereWire);
+
+    function sum(a, b, scale = 1) { return a.map((value, index) => value + scale * b[index]); }
+    function addVectorArrow(data, values, color, scale) {
+      const magnitude = M.norm(values);
+      if (magnitude < 1e-7) return;
+      movingGroup.add(thickArrow(data.point, values, magnitude * scale, color));
+    }
+
+    function update(options) {
+      clear(movingGroup);
+      const data = M.spherePlaneCurvature(options.angle, radius);
+      const planeSize = 3.15;
+      const planeCenter = data.planeNormal.map(value => data.planeConstant * value);
+      const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(pair => planeCenter.map((value, index) => (
+        value + planeSize * pair[0] * data.planeBasisX[index] + planeSize * pair[1] * data.planeBasisY[index]
+      )));
+      const planeGeometry = new T.BufferGeometry();
+      planeGeometry.setAttribute("position", new T.Float32BufferAttribute([...corners[0], ...corners[1], ...corners[3], ...corners[1], ...corners[2], ...corners[3]], 3));
+      planeGeometry.computeVertexNormals();
+      const plane = new T.Mesh(planeGeometry, new T.MeshBasicMaterial({ color: 0xffb34d, side: T.DoubleSide, transparent: true, opacity: 0.24, depthWrite: false }));
+      plane.renderOrder = 2; movingGroup.add(plane);
+      const border = new T.LineLoop(new T.BufferGeometry().setFromPoints(corners.map(vector)), new T.LineBasicMaterial({ color: 0xffcf87, transparent: true, opacity: 0.82, depthTest: false }));
+      border.renderOrder = 7; movingGroup.add(border);
+
+      const hinge = [-planeSize, planeSize].map(offset => data.point.map((value, index) => value + offset * data.tangentAxis[index]));
+      const hingeLine = line(hinge, 0xffdf8a, { dashed: true, dashSize: 0.16, gapSize: 0.09, depthTest: false });
+      hingeLine.renderOrder = 8; movingGroup.add(hingeLine);
+
+      const fullCirclePoints = Array.from({ length: 193 }, (_, index) => {
+        const parameter = M.TAU * index / 192;
+        return data.center.map((value, axis) => value + data.circleRadius * (
+          Math.cos(parameter) * data.planeBasisX[axis] + Math.sin(parameter) * data.planeBasisY[axis]
+        ));
+      });
+      const fullCircle = line(fullCirclePoints, 0x8fc3df, { depthTest: false, transparent: true, opacity: 0.42 });
+      fullCircle.renderOrder = 8; movingGroup.add(fullCircle);
+
+      const arcHalfSpan = Math.PI / 3;
+      const arcPoints = Array.from({ length: 129 }, (_, index) => {
+        const parameter = data.curveParameter - arcHalfSpan + 2 * arcHalfSpan * index / 128;
+        return data.center.map((value, axis) => value + data.circleRadius * (
+          Math.cos(parameter) * data.planeBasisX[axis] + Math.sin(parameter) * data.planeBasisY[axis]
+        ));
+      });
+      if (data.singular) {
+        const tangentContact = new T.Mesh(new T.SphereGeometry(0.15, 24, 16), new T.MeshBasicMaterial({ color: 0xf4ff67, depthTest: false }));
+        tangentContact.position.copy(vector(data.point)); tangentContact.renderOrder = 11; movingGroup.add(tangentContact);
+      } else {
+        const arcPath = new T.CatmullRomCurve3(arcPoints.map(vector), false, "centripetal");
+        const arc = new T.Mesh(
+          new T.TubeGeometry(arcPath, 128, 0.027, 8, false),
+          new T.MeshBasicMaterial({ color: 0xf4ff67, depthTest: false })
+        );
+        arc.renderOrder = 11; movingGroup.add(arc);
+      }
+      const sphereCenterMarker = new T.Mesh(new T.SphereGeometry(0.095, 18, 12), new T.MeshBasicMaterial({ color: 0xff7bd6, depthTest: false }));
+      sphereCenterMarker.position.set(0, 0, 0); sphereCenterMarker.renderOrder = 10; movingGroup.add(sphereCenterMarker);
+      const centerMarker = new T.Mesh(new T.SphereGeometry(0.075, 16, 10), new T.MeshBasicMaterial({ color: 0xffdf8a, depthTest: false }));
+      centerMarker.position.copy(vector(data.center)); centerMarker.renderOrder = 10; movingGroup.add(centerMarker);
+      const pointMarker = new T.Mesh(new T.SphereGeometry(0.105, 20, 14), new T.MeshBasicMaterial({ color: 0xffffff, depthTest: false }));
+      pointMarker.position.copy(vector(data.point)); pointMarker.renderOrder = 12; movingGroup.add(pointMarker);
+      const sphereRadiusGuide = line([[0, 0, 0], data.point], 0xff7bd6, { dashed: true, dashSize: 0.025, gapSize: 0.07, depthTest: false, transparent: true, opacity: 0.78 });
+      const arcRadiusGuide = line([data.center, data.point], 0xffdf8a, { dashed: true, dashSize: 0.025, gapSize: 0.07, depthTest: false, transparent: true, opacity: 0.9 });
+      sphereRadiusGuide.renderOrder = arcRadiusGuide.renderOrder = 8; movingGroup.add(sphereRadiusGuide, arcRadiusGuide);
+
+      const vectorScale = data.singular ? 0 : data.radius * data.radius / 4;
+      addVectorArrow(data, data.curvature, 0xff725e, vectorScale);
+      addVectorArrow(data, data.normalCurvature, 0x59d9ff, vectorScale);
+      addVectorArrow(data, data.geodesicCurvature, 0xb9f35b, vectorScale);
+      const curvatureTip = sum(data.point, data.curvature, vectorScale);
+      const normalTip = sum(data.point, data.normalCurvature, vectorScale);
+      const geodesicTip = sum(data.point, data.geodesicCurvature, vectorScale);
+      if (!data.singular && data.geodesicCurvatureMagnitude > 1e-7) {
+        const parallelToGeodesic = line([normalTip, curvatureTip], 0xb9f35b, { dashed: true, dashSize: 0.1, gapSize: 0.07, depthTest: false, transparent: true, opacity: 0.82 });
+        const parallelToNormal = line([geodesicTip, curvatureTip], 0x59d9ff, { dashed: true, dashSize: 0.1, gapSize: 0.07, depthTest: false, transparent: true, opacity: 0.82 });
+        parallelToGeodesic.renderOrder = parallelToNormal.renderOrder = 11; movingGroup.add(parallelToGeodesic, parallelToNormal);
+      }
+      base.requestRender();
+    }
+    base.requestRender();
+    return { available: true, update, reset: base.reset, zoomIn: base.zoomIn, zoomOut: base.zoomOut, dispose() { base.dispose([staticGroup, movingGroup]); } };
+  };
 
   window.GaussMapThree = function (canvas, fallback) {
     if (!T || !M) return unavailable;

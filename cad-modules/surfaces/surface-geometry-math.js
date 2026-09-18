@@ -8,6 +8,7 @@
   const TAU = Math.PI * 2;
   const DEFAULT_MAJOR_RADIUS = 2.4;
   const DEFAULT_MINOR_RADIUS = 0.9;
+  const DEFAULT_SPHERE_RADIUS = 2.2;
   const GAUSS_SURFACE_TYPES = Object.freeze({
     elliptic: Object.freeze({ label: "Elliptic paraboloid", curvature: "positive" }),
     cylindrical: Object.freeze({ label: "Parabolic cylinder", curvature: "zero" }),
@@ -28,10 +29,59 @@
     return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   }
   function norm(vector) { return Math.hypot(...vector); }
+  function dot(a, b) { return a.reduce((sum, value, index) => sum + value * b[index], 0); }
   function unit(vector) {
     const length = norm(vector);
     if (!length) throw new RangeError("Cannot normalize a zero vector.");
     return vector.map(value => value / length);
+  }
+
+  function spherePlaneCurvature(angleDegrees, radius = DEFAULT_SPHERE_RADIUS) {
+    if (!Number.isFinite(angleDegrees) || angleDegrees < 0 || angleDegrees > 85) {
+      throw new RangeError("angleDegrees must be between 0 and 85.");
+    }
+    if (!Number.isFinite(radius) || radius <= 0) throw new RangeError("The sphere radius must be positive.");
+    const angle = angleDegrees * Math.PI / 180;
+    const sine = Math.sin(angle), cosine = Math.cos(angle);
+    const point = [radius, 0, 0], tangentAxis = [0, 1, 0];
+    const planeNormal = [sine, 0, cosine];
+    const planeConstant = radius * sine;
+    const center = planeNormal.map(value => planeConstant * value);
+    const rawCircleRadius = radius * Math.abs(cosine);
+    const singular = rawCircleRadius < 1e-8;
+    const circleRadius = singular ? 0 : rawCircleRadius;
+    const radialAtPoint = singular
+      ? [0, 0, -1]
+      : point.map((value, index) => (value - center[index]) / circleRadius);
+    const planeBasisX = radialAtPoint, planeBasisY = tangentAxis;
+    const sphereNormal = point.map(value => value / radius);
+    const curvature = singular ? [0, 0, 0] : center.map((value, index) => (value - point[index]) / (circleRadius * circleRadius));
+    const signedNormalCurvature = singular ? -1 / radius : dot(curvature, sphereNormal);
+    const normalCurvature = singular ? [0, 0, 0] : sphereNormal.map(value => signedNormalCurvature * value);
+    const geodesicCurvature = singular ? [0, 0, 0] : curvature.map((value, index) => value - normalCurvature[index]);
+    return {
+      angle,
+      angleDegrees,
+      radius,
+      curveParameter: 0,
+      singular,
+      tangentAxis,
+      planeNormal,
+      planeBasisX,
+      planeBasisY,
+      planeConstant,
+      center,
+      circleRadius,
+      point,
+      sphereNormal,
+      curvature,
+      normalCurvature,
+      geodesicCurvature,
+      curvatureMagnitude: singular ? Infinity : norm(curvature),
+      normalCurvatureMagnitude: 1 / radius,
+      geodesicCurvatureMagnitude: singular ? Infinity : norm(geodesicCurvature),
+      circleType: singular ? "tangent" : Math.abs(planeConstant) < 1e-9 ? "great" : "small"
+    };
   }
 
   function assertGaussSurfaceType(surfaceType) {
@@ -108,11 +158,14 @@
     TAU,
     DEFAULT_MAJOR_RADIUS,
     DEFAULT_MINOR_RADIUS,
+    DEFAULT_SPHERE_RADIUS,
     GAUSS_SURFACE_TYPES,
     clamp,
     cross,
+    dot,
     norm,
     unit,
+    spherePlaneCurvature,
     gaussSurfaceGeometry,
     gaussSurfacePoint,
     gaussSurfaceDerivatives,
