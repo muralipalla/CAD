@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7VVFX9X21"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-V7VVFX9X21');
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Bezier curve properties, derivatives, subdivision, degree elevation and rational curves with a link to the standalone rational Bezier simulation.">
@@ -10,6 +19,7 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="rational-conics.css?v=1">
   <script src="../../assets/js/main.js" defer></script>
   <script>
     window.MathJax = {
@@ -53,6 +63,9 @@
 <li class="toc-subsection"><a href="#rational-bezier-simulation">Interactive visualization</a></li>
 <li class="toc-section"><a href="#homogeneous-coordinates-and-rational-curves">Homogeneous Coordinates and Rational Curves</a></li>
 <li class="toc-section"><a href="#rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</a></li>
+<li class="toc-subsection"><a href="#symmetric-circular-arc">Symmetric Circular Arc</a></li>
+<li class="toc-subsection"><a href="#affine-invariance-of-rational-bezier-curves">Affine Invariance</a></li>
+<li class="toc-subsection"><a href="#quarter-circle-and-ellipse-examples">Quarter Circle and Ellipse</a></li>
 <li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
@@ -185,23 +198,30 @@ n\sum_{i=0}^{n-1}B_{i,n-1}(u)(\mathbf P_{i+1}-\mathbf P_i).
 <h2 id="rational-representation-of-circle-and-ellipse">Rational Representation of Circle and Ellipse</h2>
 <p class="topic-citation">For exact conic and circular-arc representations, see Piegl and Tiller <a href="../references/index.html#ref-6">[6]</a>, pp. 281–331, and Shene’s conic-section and circular-arc notes <a href="../references/index.html#ref-7">[7]</a>.</p>
 <p>Polynomial Bezier curves cannot exactly represent a circle. Rational Bezier curves can.</p>
-<p>A quarter circle of radius $R$ from $(R,0)$ to $(0,R)$ can be represented using a quadratic rational Bezier curve with</p>
+
+<h3 id="symmetric-circular-arc">Symmetric Circular Arc</h3>
+<p>Consider the circular arc of radius \(R\), centred at the origin and symmetric about the positive \(x\)-axis:</p>
 <div class="math-display">\[
-\mathbf P_0=(R,0),
-\qquad
-\mathbf P_1=(R,R),
-\qquad
-\mathbf P_2=(0,R),
+\mathbf c(\phi)=(R\cos\phi,R\sin\phi),
+\qquad -\theta\leq\phi\leq\theta.
 \]</div>
-<p>and weights</p>
+<p>The arc subtends the central angle \(2\theta\). For \(0&lt;\theta&lt;\pi/2\), its exact quadratic rational Bezier representation has control points</p>
+<div class="math-display">\[
+\mathbf P_0=(R\cos\theta,-R\sin\theta),
+\qquad
+\mathbf P_1=(R\sec\theta,0),
+\qquad
+\mathbf P_2=(R\cos\theta,R\sin\theta),
+\]</div>
+<p>with weights</p>
 <div class="math-display">\[
 w_0=1,
 \qquad
-w_1=\frac{1}{\sqrt{2}},
+w_1=\cos\theta,
 \qquad
 w_2=1.
 \]</div>
-<p>The corresponding curve is</p>
+<p>The middle control point is the intersection of the tangent lines at the two endpoints. The rational curve is</p>
 <div class="math-display">\[
 \mathbf r(u)=
 \frac{
@@ -210,10 +230,125 @@ w_2=1.
 +u^2w_2\mathbf P_2
 }{
 (1-u)^2w_0+2u(1-u)w_1+u^2w_2
-}.
+},
+\qquad 0\leq u\leq1.
 \]</div>
-<p>An ellipse can be obtained by applying non-uniform scaling to a circle.</p>
-<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Conic sections such as circles, ellipses, parabolas and hyperbolas require rational representations for exact CAD modeling.</p></div></aside>
+<p>Its image is exactly the stated circular arc. At \(\theta=\pi/2\), the arc is a semicircle: \(w_1=0\) and the middle control is a point at infinity, so it must be treated in homogeneous coordinates. Longer arcs are normally represented with multiple rational quadratic spans.</p>
+
+<h3 id="affine-invariance-of-rational-bezier-curves">Affine Invariance of Rational Bezier Curves</h3>
+<p>Let an affine transformation be</p>
+<div class="math-display">\[
+T(\mathbf x)=A\mathbf x+\mathbf b.
+\]</div>
+<p>Apply it to every control point while leaving the weights unchanged:</p>
+<div class="math-display">\[
+\widetilde{\mathbf P}_i=A\mathbf P_i+\mathbf b,
+\qquad
+\widetilde w_i=w_i.
+\]</div>
+<p>Because the rational basis functions sum to one,</p>
+<div class="math-display">\[
+\frac{\sum_i w_iB_{i,2}(u)\widetilde{\mathbf P}_i}
+{\sum_i w_iB_{i,2}(u)}
+=A\mathbf r(u)+\mathbf b
+=T(\mathbf r(u)).
+\]</div>
+<p>Thus an affine image of the circular arc is obtained simply by applying the same affine transformation to its control points. The weights do not change. Rotations and translations reposition the circle; uniform scaling changes its radius; non-uniform scaling converts it into an ellipse.</p>
+
+<h3 id="quarter-circle-and-ellipse-examples">Quarter-Circle and Ellipse Examples</h3>
+<h4>Quarter circle by rotation</h4>
+<p>Choose \(\theta=\pi/4\). The symmetric construction initially describes the arc from \(-45^\circ\) to \(+45^\circ\):</p>
+<div class="math-display">\[
+\mathbf P_0=\left(\frac{R}{\sqrt2},-\frac{R}{\sqrt2}\right),
+\quad
+\mathbf P_1=(\sqrt2R,0),
+\quad
+\mathbf P_2=\left(\frac{R}{\sqrt2},\frac{R}{\sqrt2}\right),
+\]</div>
+<div class="math-display">\[
+(w_0,w_1,w_2)=\left(1,\frac{1}{\sqrt2},1\right).
+\]</div>
+<p>Rotate every control point counterclockwise through \(45^\circ\) using</p>
+<div class="math-display">\[
+Q_{45}=\frac{1}{\sqrt2}
+\begin{bmatrix}1&amp;-1\\1&amp;1\end{bmatrix}.
+\]</div>
+<p>The transformed controls are</p>
+<div class="math-display">\[
+Q_{45}\mathbf P_0=(R,0),
+\qquad
+Q_{45}\mathbf P_1=(R,R),
+\qquad
+Q_{45}\mathbf P_2=(0,R),
+\]</div>
+<p>with the same weights \((1,1/\sqrt2,1)\). They represent the exact first-quadrant quarter circle.</p>
+
+<h4>Quarter ellipse by non-uniform scaling</h4>
+<p>Starting from that quarter circle, apply</p>
+<div class="math-display">\[
+S=
+\begin{bmatrix}
+a/R&amp;0\\
+0&amp;b/R
+\end{bmatrix}.
+\]</div>
+<p>The circle \(x^2+y^2=R^2\) becomes the ellipse \(x^2/a^2+y^2/b^2=1\), and the control points become</p>
+<div class="math-display">\[
+\widehat{\mathbf P}_0=(a,0),
+\qquad
+\widehat{\mathbf P}_1=(a,b),
+\qquad
+\widehat{\mathbf P}_2=(0,b),
+\]</div>
+<p>again with weights \((1,1/\sqrt2,1)\). Four rotated quarter-circle spans give a complete circle; applying the same non-uniform scale to all their control points gives a complete ellipse.</p>
+
+<figure class="conic-affine-figure" aria-labelledby="conic-affine-caption">
+  <div class="conic-affine-grid">
+    <section class="conic-diagram-panel" aria-labelledby="symmetric-arc-title">
+      <h4 id="symmetric-arc-title">1. Symmetric 90° arc</h4>
+      <svg viewBox="0 0 320 250" role="img" aria-labelledby="symmetric-svg-title symmetric-svg-desc">
+        <title id="symmetric-svg-title">Symmetric circular arc and its rational Bezier control triangle</title>
+        <desc id="symmetric-svg-desc">A circular arc from minus 45 to plus 45 degrees with endpoint controls P0 and P2, tangent-intersection control P1, and the centre O.</desc>
+        <line class="conic-axis" x1="28" y1="145" x2="286" y2="145"/><line class="conic-axis" x1="115" y1="224" x2="115" y2="30"/>
+        <line class="conic-radius" x1="115" y1="145" x2="171.6" y2="201.6"/><line class="conic-radius" x1="115" y1="145" x2="171.6" y2="88.4"/>
+        <polyline class="conic-control" points="171.6,201.6 228.1,145 171.6,88.4"/>
+        <path class="conic-curve" d="M171.6 201.6 A80 80 0 0 0 171.6 88.4"/>
+        <circle class="conic-origin" cx="115" cy="145" r="3.5"/><circle class="conic-point" cx="171.6" cy="201.6" r="4.5"/><circle class="conic-point middle" cx="228.1" cy="145" r="4.5"/><circle class="conic-point" cx="171.6" cy="88.4" r="4.5"/>
+        <text class="conic-label" x="99" y="162">O</text><text class="conic-label" x="176" y="218">P₀</text><text class="conic-label" x="235" y="140">P₁</text><text class="conic-label" x="176" y="82">P₂</text>
+        <text class="conic-transform-label" x="160" y="238">θ = 45°, weights 1, 1/√2, 1</text>
+      </svg>
+    </section>
+    <section class="conic-diagram-panel" aria-labelledby="quarter-circle-title">
+      <h4 id="quarter-circle-title">2. Rotate by +45°</h4>
+      <svg viewBox="0 0 320 250" role="img" aria-labelledby="quarter-svg-title quarter-svg-desc">
+        <title id="quarter-svg-title">First-quadrant quarter circle obtained by rotation</title>
+        <desc id="quarter-svg-desc">A quarter circle from R comma zero to zero comma R with middle control R comma R and unchanged weights.</desc>
+        <line class="conic-axis" x1="32" y1="190" x2="286" y2="190"/><line class="conic-axis" x1="90" y1="224" x2="90" y2="28"/>
+        <polyline class="conic-control" points="200,190 200,80 90,80"/>
+        <path class="conic-curve" d="M200 190 A110 110 0 0 0 90 80"/>
+        <circle class="conic-origin" cx="90" cy="190" r="3.5"/><circle class="conic-point" cx="200" cy="190" r="4.5"/><circle class="conic-point middle" cx="200" cy="80" r="4.5"/><circle class="conic-point" cx="90" cy="80" r="4.5"/>
+        <text class="conic-label" x="74" y="207">O</text><text class="conic-label" x="205" y="207">(R,0)</text><text class="conic-label" x="205" y="75">(R,R)</text><text class="conic-label" x="37" y="75">(0,R)</text>
+        <text class="conic-transform-label" x="160" y="238">Q₄₅ Pᵢ · weights unchanged</text>
+      </svg>
+    </section>
+    <section class="conic-diagram-panel" aria-labelledby="quarter-ellipse-title">
+      <h4 id="quarter-ellipse-title">3. Scale to an ellipse</h4>
+      <svg viewBox="0 0 320 250" role="img" aria-labelledby="ellipse-svg-title ellipse-svg-desc">
+        <title id="ellipse-svg-title">Quarter ellipse obtained by non-uniform scaling</title>
+        <desc id="ellipse-svg-desc">A quarter ellipse from a comma zero to zero comma b with middle control a comma b and unchanged weights.</desc>
+        <line class="conic-axis" x1="32" y1="190" x2="290" y2="190"/><line class="conic-axis" x1="90" y1="224" x2="90" y2="28"/>
+        <polyline class="conic-control" points="235,190 235,100 90,100"/>
+        <path class="conic-curve ellipse" d="M235 190 A145 90 0 0 0 90 100"/>
+        <circle class="conic-origin" cx="90" cy="190" r="3.5"/><circle class="conic-point" cx="235" cy="190" r="4.5"/><circle class="conic-point middle" cx="235" cy="100" r="4.5"/><circle class="conic-point" cx="90" cy="100" r="4.5"/>
+        <text class="conic-label" x="74" y="207">O</text><text class="conic-label" x="240" y="207">(a,0)</text><text class="conic-label" x="240" y="95">(a,b)</text><text class="conic-label" x="37" y="95">(0,b)</text>
+        <text class="conic-transform-label" x="160" y="238">diag(a/R, b/R) Q₄₅ Pᵢ</text>
+      </svg>
+    </section>
+  </div>
+  <figcaption id="conic-affine-caption">The control polygon is dashed. A rotation and then a non-uniform scale transform the control points, while the rational weights remain \(1,1/\sqrt2,1\).</figcaption>
+</figure>
+
+<aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Rational Bezier curves are affine invariant: transform the control points and retain the weights. This gives exact rotated circular arcs and exact elliptical arcs without deriving a new rational curve formula.</p></div></aside>
 <h2 id="references-and-further-reading">References and Further Reading</h2>
 <p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
 <ul class="reference-section-links"><li>Core course reading: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 4.</li>

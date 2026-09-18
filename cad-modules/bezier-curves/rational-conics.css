@@ -1,0 +1,107 @@
+.conic-affine-figure {
+  margin: 1.8rem 0;
+}
+
+.conic-affine-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.conic-diagram-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--paper);
+  box-shadow: var(--shadow-small);
+}
+
+.conic-diagram-panel h4 {
+  margin: 0;
+  padding: 0.8rem 0.9rem 0;
+  color: var(--ink);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.conic-diagram-panel svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.conic-axis {
+  stroke: var(--line-strong);
+  stroke-width: 1.3;
+}
+
+.conic-radius {
+  stroke: var(--blue);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 4;
+  opacity: 0.7;
+}
+
+.conic-control {
+  fill: none;
+  stroke: var(--lavender);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+
+.conic-curve {
+  fill: none;
+  stroke: var(--coral-bright);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.conic-curve.ellipse {
+  stroke: var(--green);
+}
+
+.conic-origin {
+  fill: var(--ink);
+}
+
+.conic-point {
+  fill: var(--paper);
+  stroke: var(--coral);
+  stroke-width: 2.5;
+}
+
+.conic-point.middle {
+  stroke: var(--lavender);
+}
+
+.conic-label,
+.conic-transform-label {
+  fill: var(--ink);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.conic-transform-label {
+  fill: var(--ink-soft);
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.conic-affine-figure figcaption {
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .conic-affine-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .conic-diagram-panel {
+    width: min(100%, 28rem);
+    margin-inline: auto;
+  }
+}

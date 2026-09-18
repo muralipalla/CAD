@@ -93,6 +93,25 @@ test("new modules are wired into the course sequence and local Three.js runtime"
   assert.match(references, /id="ref-41"/);
 });
 
+test("solid modeling separates kernel representations from feature history", () => {
+  const solids = read("cad-modules", "solid-modeling", "index.html");
+  assert.match(solids, /Solid Representations and Modeling Layers/);
+  assert.match(solids, /Feature-based modeling is not normally a separate geometric representation/);
+  assert.match(solids, /CSG belongs to the geometric representation or construction layer/);
+  assert.match(solids, /Parametric features belong to the design-history layer/);
+  assert.match(solids, /Intersection generally has no direct manufacturing analogue/);
+  assert.doesNotMatch(solids, /Boolean operations correspond to manufacturing-like operations/);
+});
+
+test("solid modeling presents Euler checks as necessary but not sufficient", () => {
+  const solids = read("cad-modules", "solid-modeling", "index.html");
+  assert.match(solids, /Necessary, Not Sufficient/);
+  assert.match(solids, /Passing the applicable Euler check is not proof that a model is valid/);
+  assert.match(solids, /face–face self-intersection/);
+  assert.match(solids, /passing them is not a validity proof/);
+  assert.match(solids, /separate topological and geometric tests are still required/);
+});
+
 test("changed course pages resolve their local links, assets, and fragments", () => {
   const pages = [
     "index.html",

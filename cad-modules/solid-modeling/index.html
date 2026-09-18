@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7VVFX9X21"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-V7VVFX9X21');
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Solid modeling is the branch of CAD concerned with the representation, construction, manipulation and analysis of three-dimensional solid objects.">
@@ -52,7 +61,9 @@
 <li class="toc-section"><a href="#definition-of-homeomorphism">Definition of Homeomorphism</a></li>
 <li class="toc-section"><a href="#euler-characteristic">Euler Characteristic</a></li>
 <li class="toc-section"><a href="#concept-of-genus">Concept of Genus</a></li>
-<li class="toc-section"><a href="#types-of-solid-modeling">Types of Solid Modeling</a></li>
+<li class="toc-section"><a href="#types-of-solid-modeling">Solid Representations and Modeling Layers</a></li>
+<li class="toc-subsection"><a href="#solid-representation-schemes">Representation Schemes</a></li>
+<li class="toc-subsection"><a href="#feature-based-modeling-layer">Feature-Based Modeling Layer</a></li>
 <li class="toc-section"><a href="#boundary-representation">Boundary Representation</a></li>
 <li class="toc-subsection"><a href="#advantages-of-b-rep">Advantages of B-Rep</a></li>
 <li class="toc-subsection"><a href="#limitations-of-b-rep">Limitations of B-Rep</a></li>
@@ -85,7 +96,7 @@
 <p>Engineering graphics and solid modeling are closely related, but they are not the same.</p>
 <p>Engineering graphics is mainly concerned with representing three-dimensional objects using two-dimensional drawings. Orthographic views, sectional views, dimensioning, tolerances and projection methods are important in engineering graphics.</p>
 <p>Solid modeling, on the other hand, represents the object itself in a computer. The model stores enough information to support operations such as sectioning, Boolean operations, mass-property calculation, meshing, tool-path generation and finite element analysis.</p>
-<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Aspect</strong></th><th scope="col"><strong>Engineering Graphics</strong></th><th scope="col"><strong>Solid Modeling</strong></th></tr></thead><tbody><tr><td>Main purpose</td><td>Communication through drawings</td><td>Mathematical and computational representation of solids</td></tr><tr><td>Primary output</td><td>2D views, sections, dimensions</td><td>3D solid model</td></tr><tr><td>Emphasis</td><td>Projection, visualization and standards</td><td>Geometry, topology and operations</td></tr><tr><td>Typical question</td><td>How does the object look from a direction?</td><td>What is the object, and how is it connected?</td></tr><tr><td>Examples</td><td>Orthographic drawing, sectional view</td><td>B-Rep model, CSG model, feature model</td></tr></tbody></table></div></div>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Aspect</strong></th><th scope="col"><strong>Engineering Graphics</strong></th><th scope="col"><strong>Solid Modeling</strong></th></tr></thead><tbody><tr><td>Main purpose</td><td>Communication through drawings</td><td>Mathematical and computational representation of solids</td></tr><tr><td>Primary output</td><td>2D views, sections, dimensions</td><td>3D solid model</td></tr><tr><td>Emphasis</td><td>Projection, visualization and standards</td><td>Geometry, topology and operations</td></tr><tr><td>Typical question</td><td>How does the object look from a direction?</td><td>What is the object, and how is it connected?</td></tr><tr><td>Examples</td><td>Orthographic drawing, sectional view</td><td>B-Rep or CSG geometry, optionally controlled by a feature history</td></tr></tbody></table></div></div>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>Engineering graphics is a language for communicating design intent. Solid modeling is a computational representation of the designed object. Modern CAD systems combine both: the user creates a solid model, and engineering drawings are generated from it.</p></div></aside>
 <h2 id="geometry-vs-topology">Geometry vs. Topology</h2>
 <p class="topic-citation">Main reference: Saxena and Sahay <a href="../references/index.html#ref-1">[1]</a>, Chapter 8. Further reading: Mäntylä <a href="../references/index.html#ref-14">[14]</a> and Requicha <a href="../references/index.html#ref-15">[15]</a> for solid representations and their topological foundations.</p>
@@ -199,15 +210,22 @@ g=1.
 \chi=2-2g=2-2=0.
 \]</div>
 <p>A torus has one handle.</p></div></aside>
-<aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>For more general boundary representations involving multiple shells, holes in faces and internal cavities, the Euler–Poincare formula contains additional terms. CAD systems use such extended formulas to check whether a B-Rep model is topologically valid.</p></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Necessary, Not Sufficient</p><div class="notes-box-body"><p>For a closed, connected, orientable polyhedral 2-manifold, the relation (V-E+F=2-2g) is a necessary topological consistency check. More general B-Reps with multiple shells, face loops or internal cavities require the corresponding extended Euler–Poincare relation. Passing the applicable Euler check is not proof that a model is valid: incorrect adjacency can sometimes preserve the same global counts, and the equation does not test geometric conditions such as face–face self-intersection, overlapping faces, gaps, degeneracy or inconsistent surface geometry.</p></div></aside>
 <h2 id="concept-of-genus">Concept of Genus</h2>
 <p>The genus of a closed orientable surface is the number of handles or through-holes in the object.</p>
 <div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Object</strong></th><th scope="col"><strong>Genus \(g\)</strong></th><th scope="col"><strong>Euler Characteristic \(\chi=2-2g\)</strong></th></tr></thead><tbody><tr><td>Sphere-like object</td><td>\(0\)</td><td>\(2\)</td></tr><tr><td>Torus</td><td>\(1\)</td><td>\(0\)</td></tr><tr><td>Double torus</td><td>\(2\)</td><td>\(-2\)</td></tr><tr><td>Triple torus</td><td>\(3\)</td><td>\(-4\)</td></tr></tbody></table></div></div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The genus is a topological quantity. Stretching or bending a solid does not change its genus. Cutting or creating a new through-hole changes its genus.</p></div></aside>
-<h2 id="types-of-solid-modeling">Types of Solid Modeling</h2>
-<p>There are several ways to represent solids in a CAD system. The most important are:</p>
-<ol class="roman-list"><li><p>Boundary Representation,</p></li><li><p>Constructive Solid Geometry,</p></li><li><p>Sweep Representation,</p></li><li><p>Feature-Based Modeling,</p></li><li><p>Spatial Decomposition.</p></li></ol>
-<p>In these notes, we focus mainly on Boundary Representation and Constructive Solid Geometry.</p>
+<h2 id="types-of-solid-modeling">Solid Representations and Modeling Layers</h2>
+<p>A CAD system may combine several ways of representing or constructing a solid. These must be distinguished from the higher-level machinery that records design intent and rebuild dependencies.</p>
+<h3 id="solid-representation-schemes">Solid Representation and Construction Schemes</h3>
+<ol class="roman-list"><li><p><strong>Boundary Representation (B-Rep)</strong> stores the solid through its bounding faces, edges and vertices.</p></li><li><p><strong>Constructive Solid Geometry (CSG)</strong> stores a set-theoretic expression that combines solid primitives, usually in a Boolean tree.</p></li><li><p><strong>Sweep representation</strong> constructs a volume by moving a profile along a path or through a prescribed motion.</p></li><li><p><strong>Spatial decomposition</strong> represents occupied space using cells such as voxels, octree cells or other volumetric elements.</p></li></ol>
+<p>These schemes are not mutually exclusive. A system can evaluate a sweep or CSG expression and store the resulting body as a B-Rep, while using spatial decomposition for analysis, collision detection or manufacturing calculations.</p>
+<h3 id="feature-based-modeling-layer">Feature-Based Modeling: A History and Dependency Layer</h3>
+<p>Feature-based modeling is not normally a separate geometric representation at the same level as B-Rep or CSG. In mainstream parametric CAD, it is a history and dependency graph built above the geometric kernel. Its nodes record design operations such as sketches, extrusions, revolves, holes, fillets, patterns, datum features and Boolean features, together with their parameters and references.</p>
+<p>During a rebuild, the CAD system evaluates this graph in dependency order. The nodes call geometric-kernel operations, and the current result is most often stored as one or more B-Rep bodies. A Boolean feature in the history may therefore invoke a B-Rep Boolean operation without making the entire feature history a CSG representation.</p>
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col">Aspect</th><th scope="col">CSG tree in the geometry layer</th><th scope="col">Parametric feature graph</th></tr></thead><tbody><tr><td>Primary purpose</td><td>Represent a solid as a Boolean expression</td><td>Record design intent, parameters and dependencies</td></tr><tr><td>Typical nodes</td><td>Primitive solids and union, intersection or difference</td><td>Sketches, dimensions, extrusions, fillets, patterns, datums and Boolean features</td></tr><tr><td>Evaluation result</td><td>A regularized solid, often converted to B-Rep for downstream work</td><td>A rebuilt model whose current bodies are usually B-Reps</td></tr><tr><td>Meaning of the tree or graph</td><td>Set-theoretic construction of geometry</td><td>Ordered and dependent history of design operations</td></tr></tbody></table></div></div>
+<aside class="notes-box keybox"><p class="notes-box-title">Key Distinction</p><div class="notes-box-body"><p>CSG belongs to the geometric representation or construction layer. Parametric features belong to the design-history layer and usually operate on B-Rep bodies through the kernel. Similar-looking trees do not make them the same model.</p></div></aside>
+<p>In these notes, the detailed geometric discussion focuses mainly on Boundary Representation and Constructive Solid Geometry.</p>
 <h2 id="boundary-representation">Boundary Representation</h2>
 <p>Boundary Representation, usually abbreviated as B-Rep, represents a solid through its boundary. The boundary is made of faces, edges and vertices.</p>
 <p>A B-Rep model stores both geometry and topology.</p>
@@ -356,7 +374,7 @@ A\cap B
 A-B
 \quad\text{difference}.
 \]</div>
-<p>A CSG model is commonly represented as a tree. The leaves of the tree are primitive solids, and the internal nodes are Boolean operations.</p>
+<p>A CSG model is commonly represented as a tree. The leaves of the tree are primitive solids, and the internal nodes are Boolean operations. This tree is a set-theoretic expression for the solid; it is not the same as a parametric feature-history graph, which may contain many non-Boolean operations and dependency references.</p>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>In CSG, a complex solid is built by combining simple primitive solids using Boolean operations.</p></div></aside>
 <h3 id="example">Example</h3>
 <p>A block with a cylindrical hole may be represented as</p>
@@ -369,7 +387,8 @@ A-B
 \]</div>
 <p>This representation directly captures the design intention: a cylinder has been removed from a block.</p>
 <h3 id="advantages-of-csg">Advantages of CSG</h3>
-<ol class="roman-list"><li><p>Simple and intuitive construction.</p></li><li><p>Compact representation.</p></li><li><p>Design history is naturally represented.</p></li><li><p>Boolean operations correspond to manufacturing-like operations.</p></li></ol>
+<ol class="roman-list"><li><p>Simple and intuitive construction from primitives.</p></li><li><p>Compact representation for suitable shapes.</p></li><li><p>The constructive Boolean expression is retained explicitly and can be reevaluated.</p></li></ol>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Boolean Operations and Manufacturing</p><div class="notes-box-body"><p>Boolean operations are set-theoretic geometric operations, not manufacturing processes. Difference can resemble idealized material removal, such as drilling a cylindrical hole, and union can sometimes resemble adding or joining material at the shape level. Intersection generally has no direct manufacturing analogue: it simply keeps the volume common to both operands. None of these operations, by itself, specifies tooling, access, sequence, tolerances or process physics.</p></div></aside>
 <h3 id="limitations-of-csg">Limitations of CSG</h3>
 <ol class="roman-list"><li><p>Rendering and meshing require conversion to boundary representation.</p></li><li><p>Local surface adjacency information is not directly available.</p></li><li><p>Complex freeform surfaces are harder to represent directly.</p></li></ol>
 <h2 id="introduction-to-openscad">Introduction to OpenSCAD</h2>
@@ -397,8 +416,8 @@ cube([10, 10, 10]);</code></pre>
 <aside class="notes-box remarkbox"><p class="notes-box-title">Remark</p><div class="notes-box-body"><p>OpenSCAD is especially useful for parametric modeling. Dimensions can be stored as variables, and changing a variable automatically changes the generated model.</p></div></aside>
 <h2 id="creation-of-half-edge-data-structure-using-euler-operators">Creation of Half-Edge Data Structure using Euler Operators</h2>
 <p class="topic-citation">Further reading on Euler operators: Mäntylä <a href="../references/index.html#ref-14">[14]</a>, Baumgart <a href="../references/index.html#ref-16">[16]</a>, §III.A, and CGAL’s Euler-operations reference <a href="../references/index.html#ref-17">[17]</a>.</p>
-<p>Euler operators are elementary topological operations used to construct and modify boundary representations while preserving topological validity.</p>
-<p>Instead of directly editing lists of vertices, edges and faces, a CAD kernel can use Euler operators to guarantee that the model remains consistent.</p>
+<p>Euler operators are elementary topological operations used to construct and modify boundary representations while preserving specified topological invariants when their preconditions are satisfied.</p>
+<p>Instead of directly editing lists of vertices, edges and faces, a CAD kernel can use Euler operators to maintain controlled incidence changes. This does not, by itself, guarantee complete topological or geometric validity.</p>
 <p>Common Euler operators include:</p>
 <div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Operator</strong></th><th scope="col"><strong>Meaning</strong></th></tr></thead><tbody><tr><td>MVFS</td><td>Make Vertex Face Solid. Creates a new solid with one vertex and one face.</td></tr><tr><td>MEV</td><td>Make Edge Vertex. Creates a new edge and a new vertex from an existing vertex.</td></tr><tr><td>MEF</td><td>Make Edge Face. Creates a new edge between two vertices and splits a face into two faces.</td></tr><tr><td>KEV</td><td>Kill Edge Vertex. Deletes an edge and a vertex. It is the inverse of MEV.</td></tr><tr><td>KEF</td><td>Kill Edge Face. Deletes an edge and merges two faces. It is the inverse of MEF.</td></tr><tr><td>KEMR</td><td>Kill Edge Make Ring. Deletes an edge and creates an inner loop or ring.</td></tr><tr><td>MEKR</td><td>Make Edge Kill Ring. Creates an edge and removes a ring.</td></tr></tbody></table></div></div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler operators are topology-preserving construction rules for B-Rep models. They modify the numbers of vertices, edges, faces, loops, shells and genus in a controlled way.</p></div></aside>
@@ -433,11 +452,11 @@ h_{30}\leftrightarrow h_{03}.
 \]</div></div></aside>
 <h2 id="uses-of-euler-operators">Uses of Euler Operators</h2>
 <p>Euler operators are used in solid modeling for several important purposes.</p>
-<ol class="roman-list"><li><p><strong>Construction of valid solids:</strong> They provide a systematic way to build B-Rep models while maintaining topological consistency.</p></li><li><p><strong>Editing of topology:</strong> They allow edges, faces, holes and loops to be added or removed in a controlled way.</p></li><li><p><strong>Implementation of CAD kernels:</strong> Many solid-modeling kernels use Euler operators internally to manage topological changes.</p></li><li><p><strong>Validation of models:</strong> Since Euler operators preserve Euler-type relations, they help detect invalid topology.</p></li><li><p><strong>Boolean operations:</strong> Boolean operations create and remove faces, edges and vertices. Euler operators provide the low-level topological tools needed for such updates.</p></li><li><p><strong>Mesh generation and repair:</strong> Euler operators are useful for splitting, merging and repairing mesh elements.</p></li></ol>
+<ol class="roman-list"><li><p><strong>Topology-controlled construction:</strong> They provide a systematic way to build B-Rep models while maintaining specified topological invariants.</p></li><li><p><strong>Editing of topology:</strong> They allow edges, faces, holes and loops to be added or removed in a controlled way.</p></li><li><p><strong>Implementation of CAD kernels:</strong> Many solid-modeling kernels use Euler operators internally to manage topological changes.</p></li><li><p><strong>Consistency checking:</strong> Euler-type relations provide necessary checks that can reveal some invalid topology, but passing them is not a validity proof.</p></li><li><p><strong>Boolean operations:</strong> Boolean operations create and remove faces, edges and vertices. Euler operators provide the low-level topological tools needed for such updates.</p></li><li><p><strong>Mesh generation and repair:</strong> Euler operators are useful for splitting, merging and repairing mesh elements.</p></li></ol>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>Euler operators provide the bridge between abstract topology and practical data-structure manipulation in solid modeling.</p></div></aside>
 <h2 id="summary">Summary</h2>
-<p>Solid modeling is concerned with representing complete three-dimensional objects, not merely their drawings. A valid solid model must clearly distinguish interior, boundary and exterior. B-Rep represents solids through vertices, edges and faces, while CSG represents solids through Boolean combinations of primitives.</p>
-<p>The distinction between geometry and topology is central to solid modeling. Geometry specifies coordinates, curves and surfaces. Topology specifies adjacency, connectivity and genus. Data structures such as winged-edge and half-edge representations are used to implement topological queries efficiently. Euler characteristic, genus, homeomorphism and Euler operators provide the mathematical foundation for checking and constructing valid solid models.</p>
+<p>Solid modeling is concerned with representing complete three-dimensional objects, not merely their drawings. A valid solid model must clearly distinguish interior, boundary and exterior. B-Rep represents solids through vertices, edges and faces, while CSG represents solids through Boolean combinations of primitives. Feature-based parametric modeling is a higher-level history and dependency graph that typically rebuilds B-Rep bodies; it is not a peer geometric representation.</p>
+<p>The distinction between geometry and topology is central to solid modeling. Geometry specifies coordinates, curves and surfaces. Topology specifies adjacency, connectivity and genus. Data structures such as winged-edge and half-edge representations are used to implement topological queries efficiently. Euler characteristic and Euler operators support necessary topological consistency checks and controlled edits; separate topological and geometric tests are still required to establish model validity.</p>
 <h2 id="references-and-further-reading">References and Further Reading</h2>
 <p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
 <ul class="reference-section-links">

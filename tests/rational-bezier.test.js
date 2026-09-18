@@ -1,7 +1,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const M = require("../cad-modules/rational-bezier-curves/rational-math.js");
 const Code = require("../cad-modules/rational-bezier-curves/rational-code.js");
+const root = path.resolve(__dirname, "..");
 const near = (a, b, tolerance = 1e-11) => assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 const nearPoint = (a, b) => a.forEach((value, i) => near(value, b[i]));
 
@@ -36,6 +39,29 @@ test("known quarter-circle controls, weights, tangent intersection and off-cone 
   near(model.c * p[0] + model.s * p[1], 1);
   near(model.c * p[0] - model.s * p[1], 1);
   assert.ok(model.controls[1][0] ** 2 - model.controls[1][2] ** 2 > 0);
+});
+
+test("rotation and non-uniform scaling carry the symmetric arc to a quarter circle and ellipse", () => {
+  const R = 3, a = 5, b = 2, h = Math.SQRT1_2;
+  const controls = [[R * h, -R * h], [R / h, 0], [R * h, R * h]];
+  const rotate45 = ([x, y]) => [h * (x - y), h * (x + y)];
+  const quarter = controls.map(rotate45);
+  nearPoint(quarter[0], [R, 0]); nearPoint(quarter[1], [R, R]); nearPoint(quarter[2], [0, R]);
+  const ellipse = quarter.map(([x, y]) => [a * x / R, b * y / R]);
+  nearPoint(ellipse[0], [a, 0]); nearPoint(ellipse[1], [a, b]); nearPoint(ellipse[2], [0, b]);
+});
+
+test("Bezier notes document affine conic construction and include accessible illustrations", () => {
+  const page = fs.readFileSync(path.join(root, "cad-modules", "bezier-curves", "index.html"), "utf8");
+  assert.ok(page.includes("\\mathbf c(\\phi)=(R\\cos\\phi,R\\sin\\phi)"));
+  assert.ok(page.includes("\\mathbf P_1=(R\\sec\\theta,0)"));
+  assert.ok(page.includes("w_1=\\cos\\theta"));
+  assert.match(page, /The weights do not change/);
+  assert.match(page, /id="quarter-circle-and-ellipse-examples"/);
+  assert.match(page, /class="conic-affine-grid"/);
+  assert.match(page, /aria-labelledby="symmetric-svg-title symmetric-svg-desc"/);
+  assert.match(page, /rational-conics\.css\?v=1/);
+  assert.equal(fs.existsSync(path.join(root, "cad-modules", "bezier-curves", "rational-conics.css")), true);
 });
 
 test("notes' 4x4 projection matrix agrees with divide by w", () => {

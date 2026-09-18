@@ -115,6 +115,16 @@ test("the Surfaces page uses all three Three.js graphics and no longer embeds th
   }
 });
 
+test("the Surfaces page distinguishes parametric and geometric continuity", () => {
+  const page = fs.readFileSync(path.join(root, "cad-modules", "surfaces", "index.html"), "utf8");
+  assert.ok(page.includes("Parametric Continuity: \\(C^0\\), \\(C^1\\), and \\(C^2\\)"));
+  assert.ok(page.includes("Geometric Continuity: \\(G^0\\), \\(G^1\\), and \\(G^2\\)"));
+  assert.ok(page.includes("Merely sharing a tangent plane is not sufficient for \\(C^1\\)"));
+  assert.match(page, /second-order contact/);
+  assert.ok(page.includes("C^2 \\Longrightarrow G^2, \\qquad C^1 \\Longrightarrow G^1"));
+  assert.match(page, /the converses are generally false/);
+});
+
 test("invalid surface parameters and radii are rejected", () => {
   assert.throws(() => math.torusPoint(-0.1, 0.2), RangeError);
   assert.throws(() => math.torusGeometry(0.2, 1.1), RangeError);

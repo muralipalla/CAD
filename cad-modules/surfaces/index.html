@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7VVFX9X21"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-V7VVFX9X21');
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Surfaces are two-parameter geometric objects.">
@@ -65,6 +74,8 @@
 <li class="toc-subsection"><a href="#gaussbonnet-theorem-and-theorema-egregium">Gauss–Bonnet Theorem and Theorema Egregium</a></li>
 <li class="toc-section"><a href="#coons-surface-patch">Coons Surface Patch</a></li>
 <li class="toc-section"><a href="#surface-continuity">Surface Continuity</a></li>
+<li class="toc-subsection"><a href="#parametric-continuity">Parametric Continuity</a></li>
+<li class="toc-subsection"><a href="#geometric-continuity">Geometric Continuity</a></li>
 <li class="toc-section"><a href="#references-and-further-reading">References and Further Reading</a></li></ol>
     </nav>
     <article class="notes-article">
@@ -625,9 +636,23 @@ uv\mathbf P_{11}.
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>A Coons patch interpolates four boundary curves. It is useful for constructing a surface when the boundary curves are known.</p></div></aside>
 <h2 id="surface-continuity">Surface Continuity</h2>
 <p class="topic-citation">Further reading: Farin <a href="../references/index.html#ref-5">[5]</a>, Chapter 20, and Coons <a href="../references/index.html#ref-8">[8]</a>, §5.2, discuss compatibility and continuity between surface patches.</p>
-<p>When two surface patches meet, continuity conditions are important.</p>
-<ol class="roman-list"><li><p><strong>Position continuity</strong> $C^0$: the patches meet without a gap.</p></li><li><p><strong>Tangent continuity</strong> $C^1$: tangent vectors also match across the boundary.</p></li><li><p><strong>Curvature continuity</strong> $C^2$: curvature information matches across the boundary.</p></li></ol>
-<p>In aesthetic surface design, $C^2$ continuity is often desirable because it gives visually smooth reflection lines.</p>
+<p>When two surface patches meet, it is essential to distinguish <em>parametric continuity</em> from <em>geometric continuity</em>. Parametric continuity compares derivatives of the chosen parameterizations; geometric continuity compares the shape of the resulting surface and allows a regular reparameterization. The two notions are therefore not interchangeable.</p>
+
+<h3 id="parametric-continuity">Parametric Continuity: \(C^0\), \(C^1\), and \(C^2\)</h3>
+<p>Suppose two regular patches meet along corresponding boundary curves, with compatible parameter directions and orientations.</p>
+<ol class="roman-list"><li><p><strong>\(C^0\) continuity:</strong> corresponding points on the two boundaries coincide, so there is no gap.</p></li><li><p><strong>\(C^1\) continuity:</strong> the corresponding first partial derivatives agree along the boundary. Thus the patches have the same tangent plane, but they must also have compatible derivative magnitudes and parameter speeds. Merely sharing a tangent plane is not sufficient for \(C^1\).</p></li><li><p><strong>\(C^2\) continuity:</strong> the corresponding first and second partial derivatives agree along the boundary. This is a condition on the parameterizations, not just a statement that the visible curvatures appear equal.</p></li></ol>
+
+<h3 id="geometric-continuity">Geometric Continuity: \(G^0\), \(G^1\), and \(G^2\)</h3>
+<p>Two patches have geometric continuity of order \(k\) if one patch can be reparameterized regularly near the join so that the combined parameterization has \(C^k\) continuity.</p>
+<ol class="roman-list"><li><p><strong>\(G^0\) continuity:</strong> the patches meet along the same boundary curve. With corresponding boundary points, this is the usual positional condition \(C^0\).</p></li><li><p><strong>\(G^1\) continuity:</strong> the patches share a tangent plane, or equivalently have parallel, consistently oriented surface normals, along the join. Their derivative magnitudes and parameter speeds may differ. This removes a visible crease.</p></li><li><p><strong>\(G^2\) continuity:</strong> after a suitable smooth reparameterization, the patches have second-order contact. Their curvature behavior agrees across the join even though their raw second partial derivatives need not be equal. Matching only one scalar curvature is not, by itself, enough to establish \(G^2\).</p></li></ol>
+
+<div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col">Condition</th><th scope="col">What must agree?</th><th scope="col">Depends on parameterization?</th></tr></thead><tbody><tr><td>\(C^1\)</td><td>First partial derivatives</td><td>Yes</td></tr><tr><td>\(G^1\)</td><td>Tangent plane and consistent normal direction</td><td>No</td></tr><tr><td>\(C^2\)</td><td>First and second partial derivatives</td><td>Yes</td></tr><tr><td>\(G^2\)</td><td>Second-order contact after reparameterization</td><td>No</td></tr></tbody></table></div></div>
+
+<div class="math-display">\[
+C^2 \Longrightarrow G^2, \qquad C^1 \Longrightarrow G^1,
+\]</div>
+<p>but the converses are generally false. Reparameterizing a patch can change whether a join is \(C^1\) or \(C^2\) without changing its geometric shape or its \(G^1\) or \(G^2\) continuity.</p>
+<aside class="notes-box keybox"><p class="notes-box-title">CAD Interpretation</p><div class="notes-box-body"><p>For aesthetic or class-A surface design, \(G^1\) gives a crease-free join, while \(G^2\) generally produces smoother curvature and reflection-line flow. \(C^2\) is sufficient for \(G^2\), but it is a stronger, parameterization-dependent requirement and is not necessary for a visually curvature-continuous join.</p></div></aside>
 
 <h2 id="references-and-further-reading">References and Further Reading</h2>
 <p>Numbered citations link to the full bibliography in Theory. Supporting references offer further explanations and are not all claimed as original sources for these notes.</p>
