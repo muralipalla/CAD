@@ -97,13 +97,18 @@ test("the browser adapter uses the documented optional data selectors", () => {
   assert.doesNotMatch(source, /removeAndFlatten/);
 });
 
-test("the sphere uses uniform opaque yellow faces with solid red edges", () => {
+test("the sphere uses opaque yellow exterior faces, orange interior faces, and solid red edges", () => {
   const source = fs.readFileSync(path.join(root, "cad-modules", "euler-characteristic", "sphere-lab.js"), "utf8");
-  assert.match(source, /const sphereFaceMaterial = \{[\s\S]*?color:\s*0xf2c94c/);
+  assert.match(source, /const exteriorFaceMaterial = \{[\s\S]*?color:\s*0xf2c94c/);
+  assert.match(source, /const interiorFaceMaterial = Object\.assign\(\{\}, exteriorFaceMaterial, \{[\s\S]*?color:\s*0xf28c28/);
+  assert.match(source, /side:\s*T\.FrontSide/);
+  assert.match(source, /side:\s*T\.BackSide/);
   assert.match(source, /transparent:\s*false/);
   assert.match(source, /opacity:\s*1/);
   assert.match(source, /depthWrite:\s*true/);
-  assert.match(source, /new T\.MeshPhongMaterial\(sphereFaceMaterial\)/);
-  assert.match(source, /new T\.MeshPhongMaterial\(Object\.assign\(\{\}, sphereFaceMaterial,/);
+  assert.match(source, /new T\.MeshPhongMaterial\(exteriorFaceMaterial\)/);
+  assert.match(source, /new T\.MeshPhongMaterial\(interiorFaceMaterial\)/);
+  assert.match(source, /removableExterior\.visible = !removed/);
+  assert.match(source, /removableInterior\.visible = !removed/);
   assert.match(source, /LineBasicMaterial\(\{ color:\s*0xc91f37, transparent:\s*false, opacity:\s*1 \}\)/);
 });

@@ -241,12 +241,12 @@
     if (surfacePosition.setUsage && T.DynamicDrawUsage) surfacePosition.setUsage(T.DynamicDrawUsage);
     surfaceGeometry.setAttribute("position", surfacePosition);
     surfaceGeometry.setIndex(activeIndices);
-    const sphereFaceMaterial = {
+    const exteriorFaceMaterial = {
       color: 0xf2c94c,
       emissive: 0x3a2700,
       specular: 0xffedaa,
       shininess: 32,
-      side: T.DoubleSide,
+      side: T.FrontSide,
       flatShading: true,
       transparent: false,
       opacity: 1,
@@ -255,20 +255,35 @@
       polygonOffsetFactor: 1,
       polygonOffsetUnits: 1
     };
-    const surface = new T.Mesh(surfaceGeometry, new T.MeshPhongMaterial(sphereFaceMaterial));
-    model.add(surface);
+    const interiorFaceMaterial = Object.assign({}, exteriorFaceMaterial, {
+      color: 0xf28c28,
+      emissive: 0x4d1b00,
+      specular: 0xffc27a,
+      side: T.BackSide,
+      polygonOffsetFactor: 2
+    });
+    const surfaceExterior = new T.Mesh(surfaceGeometry, new T.MeshPhongMaterial(exteriorFaceMaterial));
+    const surfaceInterior = new T.Mesh(surfaceGeometry, new T.MeshPhongMaterial(interiorFaceMaterial));
+    model.add(surfaceInterior);
+    model.add(surfaceExterior);
 
     const removableGeometry = new T.BufferGeometry();
     const removablePosition = new T.BufferAttribute(new Float32Array(9), 3);
     if (removablePosition.setUsage && T.DynamicDrawUsage) removablePosition.setUsage(T.DynamicDrawUsage);
     removableGeometry.setAttribute("position", removablePosition);
     removableGeometry.setIndex([0, 1, 2]);
-    const removableFace = new T.Mesh(removableGeometry, new T.MeshPhongMaterial(Object.assign({}, sphereFaceMaterial, {
+    const removableExterior = new T.Mesh(removableGeometry, new T.MeshPhongMaterial(Object.assign({}, exteriorFaceMaterial, {
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1
     })));
-    removableFace.renderOrder = 4;
-    model.add(removableFace);
+    const removableInterior = new T.Mesh(removableGeometry, new T.MeshPhongMaterial(Object.assign({}, interiorFaceMaterial, {
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1
+    })));
+    removableExterior.renderOrder = 4;
+    removableInterior.renderOrder = 3;
+    model.add(removableInterior);
+    model.add(removableExterior);
 
     function lineGeometry(edgePairs) {
       const geometry = new T.BufferGeometry();
@@ -360,7 +375,8 @@
       writeEdges(tessellationGeometry.getAttribute("position"), plan.activeEdges, values);
       writeEdges(boundaryGeometry.getAttribute("position"), plan.boundaryEdges, values);
       writeVertices(nodePosition, values);
-      removableFace.visible = !removed;
+      removableExterior.visible = !removed;
+      removableInterior.visible = !removed;
       boundary.visible = removed;
       nodes.visible = showNodes;
       tessellation.visible = showTessellation;
@@ -440,7 +456,7 @@
           else entry[0].removeEventListener(entry[1], entry[2], entry[3]);
         });
         [surfaceGeometry, removableGeometry, tessellationGeometry, boundaryGeometry, nodeGeometry].forEach(function (geometry) { geometry.dispose(); });
-        [surface.material, removableFace.material, tessellation.material, boundary.material, nodes.material].forEach(function (material) { material.dispose(); });
+        [surfaceExterior.material, surfaceInterior.material, removableExterior.material, removableInterior.material, tessellation.material, boundary.material, nodes.material].forEach(function (material) { material.dispose(); });
         renderer.dispose();
       }
     };
