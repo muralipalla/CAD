@@ -99,6 +99,67 @@ body.theory-page {
   gap: 1rem 1.5rem;
 }
 
+.learning-outcomes-disclosure {
+  padding: 0;
+}
+
+.learning-outcomes-disclosure > summary {
+  position: relative;
+  padding: clamp(1.35rem, 4vw, 2.25rem);
+  padding-right: clamp(4rem, 9vw, 5.5rem);
+  list-style: none;
+  cursor: pointer;
+}
+
+.learning-outcomes-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.learning-outcomes-disclosure > summary::after {
+  position: absolute;
+  top: 50%;
+  right: clamp(1.5rem, 4vw, 2.5rem);
+  width: .75rem;
+  height: .75rem;
+  border-right: .18rem solid var(--lavender);
+  border-bottom: .18rem solid var(--lavender);
+  content: "";
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.learning-outcomes-disclosure[open] > summary::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+
+.learning-outcomes-disclosure > summary:focus-visible {
+  outline: 3px solid var(--coral-bright);
+  outline-offset: 4px;
+}
+
+.learning-outcomes-disclosure > summary h2 {
+  margin: 0;
+}
+
+.learning-outcomes-disclosure > summary .section-kicker {
+  display: block;
+}
+
+.learning-outcomes-body {
+  padding: 0 clamp(1.35rem, 4vw, 2.25rem) clamp(1.35rem, 4vw, 2.25rem);
+}
+
+.learning-outcomes-body > p {
+  margin-top: 0;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-outcomes-disclosure > summary::after {
+    transition: none;
+  }
+}
+
 @media (max-width: 560px) {
   #learning-outcomes .concept-list {
     grid-template-columns: 1fr;
