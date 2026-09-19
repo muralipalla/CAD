@@ -345,7 +345,7 @@
     nodes.renderOrder = 9;
     model.add(nodes);
 
-    let azimuth = 0.55, elevation = 0.27, distance = 5.1;
+    let azimuth = 0, elevation = 0, distance = 5.1;
     let viewCenter = new T.Vector3(0, 0, -0.4);
     let pointer = null, pending = false, disposed = false;
     const events = [];
@@ -434,7 +434,7 @@
       requestRender();
     }
     function resetCamera() {
-      azimuth = 0.55; elevation = 0.27; distance = 5.1; requestRender();
+      azimuth = 0; elevation = 0; distance = 5.1; requestRender();
     }
 
     listen(canvas, "pointerdown", function (event) {

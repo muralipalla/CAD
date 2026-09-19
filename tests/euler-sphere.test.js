@@ -121,4 +121,6 @@ test("the sphere uses opaque yellow exterior faces, orange interior faces, and s
   assert.match(source, /removableExterior\.visible = !removed/);
   assert.match(source, /removableInterior\.visible = !removed/);
   assert.match(source, /LineBasicMaterial\(\{ color:\s*0xc91f37, transparent:\s*false, opacity:\s*1 \}\)/);
+  assert.match(source, /let azimuth = 0, elevation = 0, distance = 5\.1/);
+  assert.match(source, /azimuth = 0; elevation = 0; distance = 5\.1; requestRender\(\)/);
 });
