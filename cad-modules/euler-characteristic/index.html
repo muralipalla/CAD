@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7VVFX9X21"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-V7VVFX9X21');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive proofs of the Euler characteristic for triangulated planar disks, a sphere, and a torus, with editable partitions and Three.js surface constructions.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Euler Characteristic Proof Lab</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="../../assets/css/curve-labs.css">
+  <link rel="stylesheet" href="app.css?v=3">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="square-lab.js?v=6" defer></script>
+  <script src="sphere-lab.js?v=2" defer></script>
+  <script src="torus-lab.js?v=1" defer></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["\\(", "\\)"], ["$", "$"]],
+        displayMath: [["\\[", "\\]"]],
+        processEscapes: true
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" defer></script>
+</head>
+<body class="euler-module">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../index.html" aria-current="page">Theory</a><a href="../../programming-modules/index.html">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="euler-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../solid-modeling/index.html">Solid Modeling</a></li><li aria-current="page">Euler Characteristic Proof Lab</li></ol>
+      <p class="eyebrow">Solid Modeling · Topology detour</p>
+      <h1>Euler characteristic: from a planar disk to a torus</h1>
+      <p class="activity-lead">Follow the same quantity, \(\chi=V-E+F\), through a triangulated disk, a sphere, and a torus. The controls distinguish a geometric deformation from a topological edit or boundary identification.</p>
+      <nav class="lesson-links" aria-label="Proofs on this page"><a href="#square-proof">Planar partitions</a><a href="#sphere-proof">Sphere</a><a href="#torus-proof">Torus</a></nav>
+      <p class="source-line">Proof sequence adapted into original interactive figures from Ueno, Shiga, and Morita <a href="../references/index.html#ref-42">[42]</a>, Chapter 1, especially §§1.1–1.4.</p>
+    </header>
+
+    <section class="lesson-panel proof-section" id="square-proof" aria-labelledby="square-proof-title">
+      <div class="proof-heading"><div><p class="section-kicker">Figure 1 · A disk</p><h2 id="square-proof-title">Partition a planar region into triangles</h2></div><p class="proof-result">\(\chi=1\)</p></div>
+      <div class="proof-copy two-column-copy">
+        <div>
+          <h3>The attachment rule</h3>
+          <p>A single triangle has \(V=3\), \(E=3\), and \(F=1\), so \(V-E+F=1\). Attach a new triangle along exactly one complete boundary edge. The attachment introduces one vertex, two edges, and one face:</p>
+          <div class="equation">\[\Delta(V,E,F)=(1,2,1),\qquad \Delta\chi=1-2+1=0.\]</div>
+          <p>For a square or rectangle cut by one diagonal, \((V,E,F)=(4,5,2)\), hence \(4-5+2=1\). A circle or ellipse can use eight curved boundary edges and five interior diagonals, with no special center vertex: \((V,E,F)=(8,13,6)\), so \(8-13+6=1\).</p>
+        </div>
+        <div>
+          <h3>Why the random partitions still work</h3>
+          <p>The selected boundary starts with a conforming triangulation. Each random refinement places a vertex inside one triangle, then joins it to that triangle’s three corners. This replaces one triangle by three smaller triangles—three arise simply because a triangle has three corners. The change is \(\Delta(V,E,F)=(1,3,2)\), so \(\Delta\chi=0\).</p>
+          <p>Triangle, rectangle, circle, and ellipse are all disks topologically. Drag a gold vertex or a violet diamond handle: straight or curved geometry changes, but the incidence data does not. One shared handle controls an interior edge for both neighboring faces.</p>
+        </div>
+      </div>
+
+      <div class="partition-grid">
+        <article class="euler-lab square-host" data-square-lab data-title="Editable planar partition" data-shape="rectangle" data-splits="4" data-seed="planar-disk"><p class="lab-loading">Preparing the partition lab…</p></article>
+      </div>
+      <aside class="proof-note" aria-label="How triangle removal is counted"><strong>Remove and restore triangles.</strong> Click a triangle to remove it; click the same empty region again to restore it. An edge disappears only when no remaining triangle uses it, and a vertex disappears only when no remaining face contains it. Shared edges and vertices stay visible. The live \(V\), \(E\), and \(F\) counts therefore describe exactly the remaining triangular complex.</aside>
+    </section>
+
+    <section class="lesson-panel proof-section" id="sphere-proof" aria-labelledby="sphere-proof-title">
+      <div class="proof-heading"><div><p class="section-kicker">Figure 2 · A closed surface</p><h2 id="sphere-proof-title">Open a sphere and flatten it</h2></div><p class="proof-result">\(\chi=2\)</p></div>
+      <div class="proof-copy">
+        <p>The indexed icosphere below has \(V=42\), \(E=120\), and \(F=80\), so \(42-120+80=2\). Remove the <em>interior</em> of one highlighted triangle but retain its three boundary edges. The remaining triangulated surface is a disk with \(F=79\), and therefore \(42-120+79=1\).</p>
+        <p>The controls separate the topological edit from the geometric deformation. First remove one triangle; then apply a Schlegel projection so the punctured sphere opens through that missing face and becomes a crossing-free planar triangulation. No vertex, edge, or remaining face is created or deleted during flattening. Replacing the missing face adds one to \(F\), giving the closed sphere \(\chi=2\).</p>
+      </div>
+
+      <article class="euler-lab surface-lab" data-sphere-lab>
+        <div class="window-heading"><h3>Sphere → punctured sphere → planar disk</h3><span class="scene-tag" data-sphere-stage-label>Closed sphere</span></div>
+        <div class="surface-layout">
+          <div>
+            <div class="scene-frame"><canvas data-sphere-canvas tabindex="0" aria-label="Interactive triangulated sphere. Drag or use arrow keys to rotate, use plus and minus to zoom, and Home to reset the view." aria-describedby="sphere-help"></canvas><p class="view-fallback" data-sphere-fallback hidden>WebGL is unavailable. The proof and exact cell counts remain available beside this view.</p></div>
+            <p class="interaction-hint" id="sphere-help">Gold points are vertices; pale lines are the 120 unique topological edges. The coral triangle is the face that will be removed.</p>
+          </div>
+          <div class="lab-controls">
+            <div class="count-strip" aria-label="Sphere cell counts"><span><small>V</small><strong data-sphere-v>42</strong></span><span><small>E</small><strong data-sphere-e>120</strong></span><span><small>F</small><strong data-sphere-f>80</strong></span><span><small>χ</small><strong data-sphere-chi>2</strong></span></div>
+            <fieldset class="visibility-options"><legend>Show</legend><label><input type="checkbox" data-sphere-option="nodes" checked> Vertices</label><label><input type="checkbox" data-sphere-option="tessellation" checked> Tessellation edges</label></fieldset>
+            <label class="slider-control" for="sphere-progress"><span>Flattening progress <output id="sphere-progress-output" for="sphere-progress">0%</output></span><input id="sphere-progress" data-sphere-progress type="range" min="0" max="1" step="0.005" value="0" disabled><small>Available after Step 1. The triangular boundary of the removed face stays fixed.</small></label>
+            <div class="action-row"><button class="button primary" type="button" data-sphere-action="remove">Step 1 · Remove one triangle</button><button class="button secondary" type="button" data-sphere-action="flatten" disabled>Step 2 · Flatten punctured sphere</button><button class="mini-button" type="button" data-sphere-action="pause" disabled>Pause</button><button class="mini-button" type="button" data-sphere-action="restore" disabled>Restore closed sphere</button></div>
+            <p class="construction-status" aria-live="polite" data-sphere-live>Closed surface: all 80 triangular faces are present.</p>
+          </div>
+        </div>
+      </article>
+      <div class="proof-equation"><span>Punctured sphere</span><strong>\(42-120+79=1\)</strong><span>restore one face</span><strong>\(42-120+80=2\)</strong></div>
+    </section>
+
+    <section class="lesson-panel proof-section" id="torus-proof" aria-labelledby="torus-proof-title">
+      <div class="proof-heading"><div><p class="section-kicker">Figure 3 · A quotient surface</p><h2 id="torus-proof-title">Roll a rectangle into a torus</h2></div><p class="proof-result">\(\chi=0\)</p></div>
+      <div class="proof-copy two-column-copy">
+        <div>
+          <h3>The planar diagram</h3>
+          <p>The rectangle carries a \(2\times2\) grid with one diagonal in every cell. Before any boundary is identified it has \((V,E,F)=(9,16,8)\), so it is a disk with \(\chi=1\). Matching colors, labels, and arrow directions show which opposite sides will be identified.</p>
+        </div>
+        <div>
+          <h3>The two identifications</h3>
+          <p>Join the first edge pair to make a cylinder: \((6,14,8)\), so \(\chi=0\). Bend the cylinder and join the remaining pair: \((4,12,8)\), so the torus has \(\chi=0\). In boundary notation the fundamental polygon is \(aba^{-1}b^{-1}\).</p>
+        </div>
+      </div>
+
+      <article class="euler-lab surface-lab" data-torus-lab>
+        <div class="window-heading"><h3>Fundamental rectangle → cylinder → torus</h3><span class="scene-tag" data-torus-stage-label>Rectangle</span></div>
+        <div class="surface-layout">
+          <div>
+            <div class="scene-frame"><canvas data-torus-canvas tabindex="0" aria-label="Interactive construction of a torus from a labeled rectangle. Drag or use arrow keys to rotate, plus and minus to zoom, and Home to reset." aria-describedby="torus-help"></canvas><p class="view-fallback" data-torus-fallback hidden>WebGL is unavailable. Use the exact stages and counts beside this view to follow the boundary-identification proof.</p></div>
+            <div class="edge-pair-legend" aria-label="Paired boundary legend"><span><i class="edge-swatch pair-a" aria-hidden="true"></i>Pair a: first join</span><span><i class="edge-swatch pair-b" aria-hidden="true"></i>Pair b: second join</span></div>
+            <p class="interaction-hint" id="torus-help">The arrows give the matching direction on each paired edge. The planar rectangle is a fundamental-polygon diagram; after gluing, its graph is embedded on the torus.</p>
+          </div>
+          <div class="lab-controls">
+            <div class="count-strip" aria-label="Torus construction cell counts"><span><small>V</small><strong data-torus-v>9</strong></span><span><small>E</small><strong data-torus-e>16</strong></span><span><small>F</small><strong data-torus-f>8</strong></span><span><small>χ</small><strong data-torus-chi>1</strong></span></div>
+            <fieldset class="visibility-options"><legend>Show</legend><label><input type="checkbox" data-torus-option="nodes" checked> Vertices</label><label><input type="checkbox" data-torus-option="tessellation" checked> Tessellation</label><label><input type="checkbox" data-torus-option="labels" checked> Edge labels</label></fieldset>
+            <label class="slider-control" for="torus-progress"><span>Construction progress <output id="torus-progress-output" for="torus-progress">Rectangle</output></span><input id="torus-progress" data-torus-progress type="range" min="0" max="2" step="0.005" value="0"><small>0–1: identify pair a. 1–2: identify pair b.</small></label>
+            <div class="stage-buttons" role="group" aria-label="Exact torus construction stages"><button class="mini-button" type="button" data-torus-stage="rectangle">Rectangle</button><button class="mini-button" type="button" data-torus-stage="cylinder">Cylinder</button><button class="mini-button" type="button" data-torus-stage="torus">Torus</button></div>
+            <div class="action-row"><button class="button primary" type="button" data-torus-play>Roll and join</button><button class="mini-button" type="button" data-torus-view-reset>Reset view</button></div>
+            <p class="construction-status" aria-live="polite" data-torus-live>Rectangle: no paired boundary edges have been identified.</p>
+          </div>
+        </div>
+      </article>
+      <div class="stage-counts" aria-label="Counts at the exact construction stages"><span><strong>Rectangle</strong> \(9-16+8=1\)</span><span><strong>Cylinder</strong> \(6-14+8=0\)</span><span><strong>Torus</strong> \(4-12+8=0\)</span></div>
+      <aside class="proof-note"><strong>Planar-graph viewpoint.</strong> The initial rectangle is a planar cell diagram. The identifications are quotient operations, not continuous deformations of a free sheet. After gluing, the same 1-skeleton is a graph embedded on the torus; it is not a planar embedding of the torus itself.</aside>
+    </section>
+
+    <section class="lesson-panel compact-panel" aria-labelledby="what-counts-title">
+      <h2 id="what-counts-title">What these counts mean in CAD</h2>
+      <p>Here \(V\), \(E\), and \(F\) count the cells of the displayed triangulation or cell decomposition. They are not automatically the raw vertex, edge, and face totals reported by every CAD kernel: trimmed faces, inner loops, multiple shells, and non-manifold entities require the appropriate extended Euler–Poincaré relation.</p>
+      <p class="further-reading">Source and further reading: Kenji Ueno, Koji Shiga, and Shigeyuki Morita, <cite>A Mathematical Gift, I: The Interplay between Topology, Functions, Geometry, and Algebra</cite> <a href="../references/index.html#ref-42">[42]</a>. The prose, counts, code, and interactive figures here are an original teaching adaptation.</p>
+      <nav class="notes-module-nav" aria-label="Module navigation"><a class="notes-nav-link previous" href="../solid-modeling/index.html"><span>Back to module</span><strong>Solid Modeling</strong></a></nav>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Euler Characteristic Proof Lab</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../solid-modeling/index.html">Solid Modeling</a></li></ul><p><a href="../references/index.html#licensing">Licensing and Attributions</a> · Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>
