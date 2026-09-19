@@ -43,9 +43,9 @@ test("removing one open triangle preserves its three boundary edges and changes 
   assert.equal(3 * counts.F, 2 * counts.E - boundary.length);
 });
 
-test("the Schlegel family starts at the punctured sphere, fixes the boundary, and ends in a plane", () => {
+test("the Schlegel family starts at the punctured sphere and ends in a centered equilateral planar boundary", () => {
   const mesh = sphere.buildIcosphere(1);
-  const plan = sphere.prepareSchlegel(mesh, 0);
+  const plan = sphere.prepareSchlegel(mesh, 3);
   assert.equal(plan.boundaryEdges.length, 3);
   assert.deepEqual(plan.closedCounts, { V: 42, E: 120, F: 80, chi: 2 });
   assert.deepEqual(plan.openCounts, { V: 42, E: 120, F: 79, chi: 1 });
@@ -56,17 +56,27 @@ test("the Schlegel family starts at the punctured sphere, fixes the boundary, an
   const flat = sphere.schlegelPositions(plan, 1);
   start.forEach((point, index) => point.forEach((value, coordinate) => close(value, plan.localVertices[index][coordinate])));
   flat.forEach(point => close(point[2], 0, 1e-12));
-  for (const index of plan.boundary) {
-    for (let coordinate = 0; coordinate < 3; coordinate += 1) {
-      close(start[index][coordinate], middle[index][coordinate]);
-      close(start[index][coordinate], flat[index][coordinate]);
-    }
+  assert.ok(middle.every(point => point.every(Number.isFinite)));
+  const boundary = plan.boundary.map(index => flat[index]);
+  const lengths = boundary.map((point, index) => {
+    const next = boundary[(index + 1) % boundary.length];
+    return Math.hypot(next[0] - point[0], next[1] - point[1]);
+  });
+  close(lengths[0], lengths[1]);
+  close(lengths[1], lengths[2]);
+  close(boundary.reduce((sum, point) => sum + point[0], 0) / 3, 0);
+  close(boundary.reduce((sum, point) => sum + point[1], 0) / 3, 0);
+
+  const cosine = -0.5, sine = Math.sqrt(3) / 2;
+  for (const point of flat) {
+    const rotated = [cosine * point[0] - sine * point[1], sine * point[0] + cosine * point[1]];
+    assert.ok(flat.some(candidate => Math.hypot(candidate[0] - rotated[0], candidate[1] - rotated[1]) < 1e-9));
   }
 });
 
 test("the flattened Schlegel diagram has nondegenerate consistently oriented active triangles", () => {
   const mesh = sphere.buildIcosphere(1);
-  const plan = sphere.prepareSchlegel(mesh, 0);
+  const plan = sphere.prepareSchlegel(mesh, 3);
   const flat = sphere.schlegelPositions(plan, 1);
   let orientation = 0;
   for (const faceIndex of plan.activeFaceIndices) {

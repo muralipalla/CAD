@@ -161,6 +161,17 @@
     if (!Number.isFinite(maximumHeight) || maximumHeight <= EPSILON) maximumHeight = mesh.radius * 0.18;
     const height = Math.max(mesh.radius * 1e-5, maximumHeight * 0.45);
     const incidence = collectEdges(mesh.faces, faceIndex);
+    const flatBoundarySource = boundary.map(function (index) { return localVertices[index].slice(); });
+    const sideLength = flatBoundarySource.reduce(function (sum, point, index) {
+      const next = flatBoundarySource[(index + 1) % flatBoundarySource.length];
+      return sum + Math.hypot(next[0] - point[0], next[1] - point[1]);
+    }, 0) / 3;
+    const equilateralHeight = Math.sqrt(3) * sideLength / 2;
+    const flatBoundaryTarget = [
+      [-sideLength / 2, -equilateralHeight / 3, 0],
+      [sideLength / 2, -equilateralHeight / 3, 0],
+      [0, 2 * equilateralHeight / 3, 0]
+    ];
 
     return {
       mesh: mesh,
@@ -170,6 +181,8 @@
       basis: { u: axisU, v: axisV, n: normal },
       localVertices: localVertices,
       height: height,
+      flatBoundarySource: flatBoundarySource,
+      flatBoundaryTarget: flatBoundaryTarget,
       activeFaceIndices: mesh.faces.map(function (_, index) { return index; }).filter(function (index) { return index !== faceIndex; }),
       activeEdges: incidence.map(function (edge) { return [edge.a, edge.b]; }),
       boundaryEdges: incidence.filter(function (edge) { return edge.count === 1; }).map(function (edge) { return [edge.a, edge.b]; }),
@@ -187,9 +200,32 @@
     return [height * x / denominator, height * y / denominator, height * (1 - t) * z / denominator];
   }
 
+  function mapTriangle2D(point, source, target) {
+    const ux = source[1][0] - source[0][0], uy = source[1][1] - source[0][1];
+    const vx = source[2][0] - source[0][0], vy = source[2][1] - source[0][1];
+    const dx = point[0] - source[0][0], dy = point[1] - source[0][1];
+    const determinant = ux * vy - uy * vx;
+    if (Math.abs(determinant) <= EPSILON) throw new RangeError("The source triangle must be nondegenerate.");
+    const u = (dx * vy - dy * vx) / determinant;
+    const v = (ux * dy - uy * dx) / determinant;
+    return [
+      target[0][0] + u * (target[1][0] - target[0][0]) + v * (target[2][0] - target[0][0]),
+      target[0][1] + u * (target[1][1] - target[0][1]) + v * (target[2][1] - target[0][1])
+    ];
+  }
+
   function schlegelPositions(plan, progress) {
     if (!plan || !Array.isArray(plan.localVertices)) throw new TypeError("A Schlegel plan is required.");
-    return plan.localVertices.map(function (point) { return schlegelPosition(point, progress, plan.height); });
+    const t = clamp(Number(progress), 0, 1);
+    return plan.localVertices.map(function (point) {
+      const projected = schlegelPosition(point, t, plan.height);
+      const equilateral = mapTriangle2D(projected, plan.flatBoundarySource, plan.flatBoundaryTarget);
+      return [
+        projected[0] + t * (equilateral[0] - projected[0]),
+        projected[1] + t * (equilateral[1] - projected[1]),
+        projected[2]
+      ];
+    });
   }
 
   function setText(node, value) {
@@ -485,7 +521,7 @@
     const stageLabel = lab.querySelector("[data-sphere-stage-label]");
     const live = lab.querySelector("[data-sphere-live]");
     const mesh = buildIcosphere(1, 1);
-    const plan = prepareSchlegel(mesh, 0);
+    const plan = prepareSchlegel(mesh, 3);
     const view = createView(lab, canvas, fallback, mesh, plan);
     const reducedMotionQuery = typeof root.matchMedia === "function" ? root.matchMedia("(prefers-reduced-motion: reduce)") : null;
     const state = {
