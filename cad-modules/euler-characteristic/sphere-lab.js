@@ -241,17 +241,21 @@
     if (surfacePosition.setUsage && T.DynamicDrawUsage) surfacePosition.setUsage(T.DynamicDrawUsage);
     surfaceGeometry.setAttribute("position", surfacePosition);
     surfaceGeometry.setIndex(activeIndices);
-    const surface = new T.Mesh(surfaceGeometry, new T.MeshPhongMaterial({
-      color: 0x39aeb8,
-      emissive: 0x071c2b,
-      specular: 0x7899aa,
+    const sphereFaceMaterial = {
+      color: 0xf2c94c,
+      emissive: 0x3a2700,
+      specular: 0xffedaa,
       shininess: 32,
       side: T.DoubleSide,
       flatShading: true,
+      transparent: false,
+      opacity: 1,
+      depthWrite: true,
       polygonOffset: true,
       polygonOffsetFactor: 1,
       polygonOffsetUnits: 1
-    }));
+    };
+    const surface = new T.Mesh(surfaceGeometry, new T.MeshPhongMaterial(sphereFaceMaterial));
     model.add(surface);
 
     const removableGeometry = new T.BufferGeometry();
@@ -259,16 +263,10 @@
     if (removablePosition.setUsage && T.DynamicDrawUsage) removablePosition.setUsage(T.DynamicDrawUsage);
     removableGeometry.setAttribute("position", removablePosition);
     removableGeometry.setIndex([0, 1, 2]);
-    const removableFace = new T.Mesh(removableGeometry, new T.MeshPhongMaterial({
-      color: 0xffa552,
-      emissive: 0x4a1d08,
-      specular: 0xffd7a7,
-      shininess: 42,
-      side: T.DoubleSide,
-      polygonOffset: true,
+    const removableFace = new T.Mesh(removableGeometry, new T.MeshPhongMaterial(Object.assign({}, sphereFaceMaterial, {
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1
-    }));
+    })));
     removableFace.renderOrder = 4;
     model.add(removableFace);
 
@@ -280,11 +278,11 @@
       return geometry;
     }
     const tessellationGeometry = lineGeometry(plan.activeEdges);
-    const tessellation = new T.LineSegments(tessellationGeometry, new T.LineBasicMaterial({ color: 0xc6edff, transparent: true, opacity: 0.62 }));
+    const tessellation = new T.LineSegments(tessellationGeometry, new T.LineBasicMaterial({ color: 0xc91f37, transparent: false, opacity: 1 }));
     tessellation.renderOrder = 6;
     model.add(tessellation);
     const boundaryGeometry = lineGeometry(plan.boundaryEdges);
-    const boundary = new T.LineSegments(boundaryGeometry, new T.LineBasicMaterial({ color: 0xffca68, transparent: true, opacity: 1 }));
+    const boundary = new T.LineSegments(boundaryGeometry, new T.LineBasicMaterial({ color: 0xff334f, transparent: false, opacity: 1 }));
     boundary.renderOrder = 8;
     model.add(boundary);
 
