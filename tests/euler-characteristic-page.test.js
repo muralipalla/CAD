@@ -25,7 +25,7 @@ test("the proof is a standalone module linked from Solid Modeling", () => {
   const page = read("cad-modules", "euler-characteristic", "index.html");
   assert.match(solids, /href="\.\.\/euler-characteristic\/index\.html"/);
   assert.doesNotMatch(solids, /data-square-lab|data-sphere-lab|data-torus-lab/);
-  assert.match(page, /Euler characteristic: from a planar disk to a torus/);
+  assert.match(page, /Euler characteristic: from a planar disk to genus/);
   assert.match(page, /href="\.\.\/solid-modeling\/index\.html"/);
 });
 
@@ -49,14 +49,16 @@ test("the planar proof provides one editable partition with four shape choices",
   assert.match(page, /with no special center vertex/);
   assert.match(page, /Figure 2 · A closed surface/);
   assert.match(page, /Figure 3 · A quotient surface/);
+  assert.match(page, /Figure 4 · Handles and punctures/);
 });
 
-test("Three.js loads before both closed-surface labs", () => {
+test("Three.js loads before all closed-surface labs", () => {
   const page = read("cad-modules", "euler-characteristic", "index.html");
   const three = page.indexOf("assets/vendor/three.min.js");
   const sphere = page.indexOf("sphere-lab.js");
   const torus = page.indexOf("torus-lab.js");
-  assert.ok(three >= 0 && sphere > three && torus > three);
+  const genus = page.indexOf("genus-lab.js");
+  assert.ok(three >= 0 && sphere > three && torus > three && genus > three);
   assert.match(page, /data-sphere-option="nodes"/);
   assert.match(page, /data-sphere-option="tessellation"/);
   assert.match(page, /data-sphere-action="remove"/);
@@ -69,6 +71,9 @@ test("Three.js loads before both closed-surface labs", () => {
   assert.match(page, /data-torus-stage="cylinder"/);
   assert.match(page, /data-torus-stage="torus"/);
   assert.match(page, /data-torus-option="labels"/);
+  assert.match(page, /data-genus-input/);
+  assert.match(page, /data-boundary-input/);
+  assert.match(page, /data-genus-action="add-handle"/);
 });
 
 test("the proofs state the exact cell counts and distinguish gluing from deformation", () => {
@@ -82,6 +87,10 @@ test("the proofs state the exact cell counts and distinguish gluing from deforma
   assert.match(page, /\(4,12,8\)/);
   assert.match(page, /quotient operations, not continuous deformations/);
   assert.match(page, /not a planar embedding of the torus itself/);
+  assert.match(page, /\\chi\(\\Sigma_\{g,b\}\)=2-2g-b/);
+  assert.match(page, /\\chi\(M\\#N\)=\\chi\(M\)\+\\chi\(N\)-2/);
+  assert.match(page, /linear_extrude\(height = 120, center = true\)/);
+  assert.match(page, /prefixing the sphere with <code>%<\/code>/);
 });
 
 test("the cited source is present in the shared bibliography", () => {

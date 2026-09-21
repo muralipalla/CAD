@@ -582,6 +582,86 @@
   line-height: 1.45;
 }
 
+.topology-readout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45rem;
+  margin-bottom: .75rem;
+}
+
+.topology-readout span {
+  padding: .65rem;
+  border-radius: .6rem;
+  background: #fff;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.topology-readout strong {
+  display: block;
+  margin-top: .1rem;
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.formula-banner {
+  display: grid;
+  gap: .35rem;
+  margin-top: .75rem;
+  padding: .75rem;
+  border-radius: .6rem;
+  background: #edf8f3;
+  text-align: center;
+}
+
+.formula-banner strong,
+.formula-banner b {
+  color: var(--ink);
+}
+
+.formula-banner span {
+  color: var(--ink-soft);
+}
+
+.openscad-example {
+  margin-top: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: .8rem;
+  background: #fff;
+}
+
+.openscad-example summary {
+  padding: 1rem 1.15rem;
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.openscad-example > p,
+.openscad-example > pre {
+  margin-right: 1.15rem;
+  margin-left: 1.15rem;
+}
+
+.openscad-example pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: .65rem;
+  background: #10182d;
+  color: #f8f3e8;
+  font-size: .84rem;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
+.openscad-example .code-note {
+  margin-bottom: 1.15rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+
 .edge-pair-legend {
   display: flex;
   flex-wrap: wrap;
