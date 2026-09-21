@@ -73,6 +73,7 @@ test("Three.js loads before all closed-surface labs", () => {
   assert.match(page, /data-torus-option="labels"/);
   assert.match(page, /data-genus-input/);
   assert.match(page, /data-boundary-input/);
+  assert.match(page, /data-genus-transparency/);
   assert.match(page, /data-genus-action="add-handle"/);
 });
 

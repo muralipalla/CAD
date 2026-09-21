@@ -17,6 +17,15 @@ test("implicit Boolean models are closed orientable meshes with chi = 2 - 2g", (
   }
 });
 
+test("the denser display meshes remain closed and preserve genus", () => {
+  for (let handles = 0; handles <= 3; handles += 1) {
+    const mesh = genus.buildGenusMesh(handles, 36);
+    const counts = genus.topologyCounts(mesh, []);
+    assert.equal(counts.chi, 2 - 2 * handles);
+    assert.ok(genus.collectEdges(mesh.faces, []).every(edge => edge.count === 2));
+  }
+});
+
 test("removing disjoint triangular disks creates the requested boundary loops", () => {
   for (let handles = 0; handles <= 3; handles += 1) {
     const mesh = genus.buildGenusMesh(handles, 20);
@@ -53,6 +62,7 @@ test("the browser adapter exposes genus, boundary, and accessibility controls", 
   const page = fs.readFileSync(path.join(root, "cad-modules", "euler-characteristic", "index.html"), "utf8");
   for (const selector of [
     "data-genus-lab", "data-genus-canvas", "data-genus-input", "data-boundary-input",
+    "data-genus-transparency", "data-genus-transparency-value",
     "data-genus-v", "data-genus-e", "data-genus-f", "data-genus-chi",
     "data-genus-live", "data-connected-sum"
   ]) assert.match(source, new RegExp(selector));
@@ -61,9 +71,17 @@ test("the browser adapter exposes genus, boundary, and accessibility controls", 
   assert.match(source, /color:\s*0xf28c28/);
   assert.match(source, /color:\s*0x54e3ff/);
   assert.match(source, /transparent:\s*true/);
-  assert.match(source, /opacity:\s*0\.38/);
+  assert.match(source, /opacity:\s*1\s*-\s*shellTransparency/);
   assert.match(source, /depthWrite:\s*false/);
+  assert.match(source, /flatShading:\s*false/);
+  assert.match(source, /buildGenusMesh\(state\.genus,\s*36\)/);
+  assert.match(source, /Math\.max\(sphere,\s*-cutter\)/);
+  assert.match(source, /new T\.TubeGeometry\(curve,\s*96,\s*0\.022,\s*8,\s*true\)/);
+  assert.match(source, /setExteriorTransparency/);
+  assert.match(source, /vGenusPosition/);
+  assert.match(source, /discard/);
   assert.match(page, /data-genus-option="edges"(?![^>]*checked)/);
+  assert.match(page, /id="genus-transparency"[^>]*min="0"[^>]*max="90"[^>]*value="62"/);
   assert.match(source, /ArrowLeft/);
   assert.match(source, /Home/);
 });

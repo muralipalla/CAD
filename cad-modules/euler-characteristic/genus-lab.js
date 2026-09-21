@@ -31,6 +31,10 @@
   function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
   function dot(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
   function centroid(a, b, c) { return [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3]; }
+  function unit(vector) {
+    const length = Math.hypot(vector[0], vector[1], vector[2]) || 1;
+    return [vector[0] / length, vector[1] / length, vector[2] / length];
+  }
 
   function tunnelCenters(genus) {
     const count = clamp(Math.round(Number(genus) || 0), 0, 3);
@@ -156,7 +160,8 @@
       }
     }
 
-    const mesh = { genus: handles, resolution: divisions, vertices: vertices, faces: faces, faceKinds: faceKinds };
+    const normals = vertices.map(function (point) { return unit(fieldGradient(point, handles)); });
+    const mesh = { genus: handles, resolution: divisions, vertices: vertices, normals: normals, faces: faces, faceKinds: faceKinds };
     cache.set(key, mesh);
     return mesh;
   }
@@ -266,7 +271,7 @@
     const rim = new T.DirectionalLight(0xff9f43, 0.45); rim.position.set(-4, 1, -5); scene.add(rim);
     const model = new T.Group(); scene.add(model);
     let azimuth = 0.72, elevation = 0.35, distance = 5.5, pending = false, disposed = false, pointer = null;
-    let objects = [];
+    let objects = [], exteriorMaterial = null;
     const listeners = [];
     const listen = function (target, name, handler, options) { target.addEventListener(name, handler, options); listeners.push([target, name, handler, options]); };
 
@@ -288,15 +293,22 @@
         if (object.material) object.material.dispose();
       });
       objects = [];
+      exteriorMaterial = null;
     }
     function geometryFor(mesh, faceIndices) {
       const positions = new Float32Array(mesh.vertices.length * 3);
       mesh.vertices.forEach(function (point, index) { positions[index * 3] = point[0]; positions[index * 3 + 1] = point[1]; positions[index * 3 + 2] = point[2]; });
       const geometry = new T.BufferGeometry();
       geometry.setAttribute("position", new T.BufferAttribute(positions, 3));
+      if (mesh.normals) {
+        const normals = new Float32Array(mesh.normals.length * 3);
+        mesh.normals.forEach(function (normal, index) { normals[index * 3] = normal[0]; normals[index * 3 + 1] = normal[1]; normals[index * 3 + 2] = normal[2]; });
+        geometry.setAttribute("normal", new T.BufferAttribute(normals, 3));
+      }
       const indices = [];
       faceIndices.forEach(function (index) { indices.push.apply(indices, mesh.faces[index]); });
-      geometry.setIndex(indices); geometry.computeVertexNormals();
+      geometry.setIndex(indices);
+      if (!mesh.normals) geometry.computeVertexNormals();
       return geometry;
     }
     function lineGeometry(mesh, edges) {
@@ -308,31 +320,102 @@
       });
       const geometry = new T.BufferGeometry(); geometry.setAttribute("position", new T.BufferAttribute(values, 3)); return geometry;
     }
-    function update(mesh, omittedFaces, showEdges) {
-      disposeObjects();
-      const omitted = new Set(omittedFaces);
-      const exterior = [], tunnels = [];
-      mesh.faces.forEach(function (_, index) {
-        if (omitted.has(index)) return;
-        (mesh.faceKinds[index] === "tunnel" ? tunnels : exterior).push(index);
+    function tunnelGeometry(genus) {
+      const parameters = fieldParameters(genus);
+      const around = 96, along = 16;
+      const positions = [], normals = [], indices = [];
+      parameters.centers.forEach(function (center) {
+        const base = positions.length / 3;
+        for (let row = 0; row <= along; row += 1) {
+          const vertical = -1 + 2 * row / along;
+          for (let column = 0; column <= around; column += 1) {
+            const angle = 2 * Math.PI * column / around;
+            const cosine = Math.cos(angle), sine = Math.sin(angle);
+            const x = center + parameters.tunnelRadius * cosine;
+            const z = parameters.tunnelRadius * sine;
+            const limit = Math.sqrt(Math.max(0, parameters.sphereRadius * parameters.sphereRadius - x * x - z * z));
+            positions.push(x, vertical * limit, z);
+            normals.push(-cosine, 0, -sine);
+          }
+        }
+        for (let row = 0; row < along; row += 1) {
+          for (let column = 0; column < around; column += 1) {
+            const a = base + row * (around + 1) + column;
+            const b = a + around + 1;
+            indices.push(a, b, a + 1, a + 1, b, b + 1);
+          }
+        }
       });
-      const exteriorObject = new T.Mesh(geometryFor(mesh, exterior), new T.MeshPhongMaterial({
+      const geometry = new T.BufferGeometry();
+      geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute("normal", new T.Float32BufferAttribute(normals, 3));
+      geometry.setIndex(indices);
+      return geometry;
+    }
+    function makeExteriorMaterial(genus, shellTransparency) {
+      const parameters = fieldParameters(genus);
+      const material = new T.MeshPhongMaterial({
         color: 0x8fd3ff,
         emissive: 0x10293d,
         specular: 0xd9f3ff,
         shininess: 30,
         side: T.DoubleSide,
-        flatShading: true,
+        flatShading: false,
         transparent: true,
-        opacity: 0.38,
+        opacity: 1 - shellTransparency,
         depthWrite: false
-      }));
+      });
+      const openingRadius = parameters.tunnelRadius + 0.012;
+      const cuts = parameters.centers.map(function (center) {
+        return "if (distance(vGenusPosition.xz, vec2(" + center.toFixed(6) + ", 0.0)) < " + openingRadius.toFixed(6) + ") discard;";
+      }).join("\n");
+      material.onBeforeCompile = function (shader) {
+        shader.vertexShader = shader.vertexShader
+          .replace("#include <common>", "#include <common>\nvarying vec3 vGenusPosition;")
+          .replace("#include <begin_vertex>", "#include <begin_vertex>\nvGenusPosition = position;");
+        shader.fragmentShader = shader.fragmentShader
+          .replace("#include <common>", "#include <common>\nvarying vec3 vGenusPosition;")
+          .replace("#include <clipping_planes_fragment>", "#include <clipping_planes_fragment>\n" + cuts);
+      };
+      material.customProgramCacheKey = function () { return "genus-exterior-" + genus; };
+      return material;
+    }
+    function update(mesh, omittedFaces, showEdges, exteriorTransparency) {
+      disposeObjects();
+      const omitted = new Set(omittedFaces);
+      const visibleFaces = [];
+      mesh.faces.forEach(function (_, index) {
+        if (omitted.has(index)) return;
+        visibleFaces.push(index);
+      });
+      const shellTransparency = clamp(Number(exteriorTransparency), 0, 0.9);
+      exteriorMaterial = makeExteriorMaterial(mesh.genus, shellTransparency);
+      const exteriorObject = new T.Mesh(geometryFor(mesh, visibleFaces), exteriorMaterial);
       exteriorObject.renderOrder = 1;
       model.add(exteriorObject); objects.push(exteriorObject);
-      if (tunnels.length) {
-        const tunnelObject = new T.Mesh(geometryFor(mesh, tunnels), new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 26, side: T.DoubleSide, flatShading: true }));
+      if (fieldParameters(mesh.genus).centers.length) {
+        const tunnelObject = new T.Mesh(tunnelGeometry(mesh.genus), new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 26, side: T.DoubleSide, flatShading: false }));
         tunnelObject.renderOrder = 2;
         model.add(tunnelObject); objects.push(tunnelObject);
+        const parameters = fieldParameters(mesh.genus);
+        parameters.centers.forEach(function (center) {
+          [-1, 1].forEach(function (side) {
+            const points = Array.from({ length: 96 }, function (_, index) {
+              const angle = 2 * Math.PI * index / 96;
+              const x = center + parameters.tunnelRadius * Math.cos(angle);
+              const z = parameters.tunnelRadius * Math.sin(angle);
+              const y = side * Math.sqrt(Math.max(0, parameters.sphereRadius * parameters.sphereRadius - x * x - z * z));
+              return new T.Vector3(x, y, z);
+            });
+            const curve = new T.CatmullRomCurve3(points, true, "centripetal");
+            const collar = new T.Mesh(
+              new T.TubeGeometry(curve, 96, 0.022, 8, true),
+              new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 26 })
+            );
+            collar.renderOrder = 3;
+            model.add(collar); objects.push(collar);
+          });
+        });
       }
       const edges = collectEdges(mesh.faces, omitted);
       const edgeObject = new T.LineSegments(lineGeometry(mesh, edges), new T.LineBasicMaterial({ color: 0xc91f37, transparent: true, opacity: showEdges ? 0.42 : 0 }));
@@ -342,6 +425,12 @@
         const boundaryObject = new T.LineSegments(lineGeometry(mesh, boundaryEdges), new T.LineBasicMaterial({ color: 0x54e3ff }));
         boundaryObject.renderOrder = 7; model.add(boundaryObject); objects.push(boundaryObject);
       }
+      requestRender();
+    }
+    function setExteriorTransparency(transparency) {
+      if (!exteriorMaterial) return;
+      exteriorMaterial.opacity = 1 - clamp(Number(transparency), 0, 0.9);
+      exteriorMaterial.needsUpdate = true;
       requestRender();
     }
     function resetCamera() { azimuth = 0.72; elevation = 0.35; distance = 5.5; requestRender(); }
@@ -370,6 +459,7 @@
     requestRender();
     return {
       update: update,
+      setExteriorTransparency: setExteriorTransparency,
       resetCamera: resetCamera,
       dispose: function () {
         disposed = true; disposeObjects();
@@ -386,10 +476,17 @@
     const fallback = lab.querySelector("[data-genus-fallback]");
     const genusInput = lab.querySelector("[data-genus-input]");
     const boundaryInput = lab.querySelector("[data-boundary-input]");
+    const transparencyInput = lab.querySelector("[data-genus-transparency]");
+    const transparencyOutput = lab.querySelector("[data-genus-transparency-value]");
     const edgeInput = lab.querySelector("[data-genus-option='edges']");
     const status = lab.querySelector("[data-genus-live]");
     const view = createView(lab, canvas, fallback);
-    const state = { genus: Number(genusInput && genusInput.value) || 0, boundaries: Number(boundaryInput && boundaryInput.value) || 0, showEdges: !edgeInput || edgeInput.checked };
+    const state = {
+      genus: Number(genusInput && genusInput.value) || 0,
+      boundaries: Number(boundaryInput && boundaryInput.value) || 0,
+      transparency: clamp(Number(transparencyInput && transparencyInput.value) / 100 || 0.62, 0, 0.9),
+      showEdges: !edgeInput || edgeInput.checked
+    };
     const removers = [];
     const on = function (target, name, handler) { if (!target) return; target.addEventListener(name, handler); removers.push(function () { target.removeEventListener(name, handler); }); };
     function connectedSumLabel(genus) {
@@ -397,7 +494,7 @@
       return Array.from({ length: genus }, function () { return "T²"; }).join(" # ");
     }
     function renderState() {
-      const mesh = buildGenusMesh(state.genus, 28);
+      const mesh = buildGenusMesh(state.genus, 36);
       const omitted = selectBoundaryFaces(mesh, state.boundaries);
       const counts = topologyCounts(mesh, omitted);
       const boundaryCount = boundaryComponentCount(mesh, omitted);
@@ -407,13 +504,20 @@
       setText(lab.querySelector("[data-genus-chi]"), counts.chi);
       Array.from(lab.querySelectorAll("[data-genus-value]")).forEach(function (node) { setText(node, state.genus); });
       Array.from(lab.querySelectorAll("[data-boundary-value]")).forEach(function (node) { setText(node, boundaryCount); });
+      setText(transparencyOutput, Math.round(state.transparency * 100) + "%");
       setText(lab.querySelector("[data-genus-formula]"), "χ = 2 − 2(" + state.genus + ") − " + boundaryCount + " = " + counts.chi);
       setText(lab.querySelector("[data-connected-sum]"), connectedSumLabel(state.genus));
       setText(status, "Genus " + state.genus + " with " + boundaryCount + " boundary component" + (boundaryCount === 1 ? "" : "s") + ". The mesh gives V − E + F = " + counts.chi + ", so g = (2 − b − χ)/2 = " + genusFromEuler(counts.chi, boundaryCount) + ".");
-      if (view) view.update(mesh, omitted, state.showEdges);
+      if (view) view.update(mesh, omitted, state.showEdges, state.transparency);
     }
     on(genusInput, "input", function () { state.genus = Number(genusInput.value); renderState(); });
     on(boundaryInput, "input", function () { state.boundaries = Number(boundaryInput.value); renderState(); });
+    on(transparencyInput, "input", function () {
+      state.transparency = clamp(Number(transparencyInput.value) / 100, 0, 0.9);
+      setText(transparencyOutput, Math.round(state.transparency * 100) + "%");
+      transparencyInput.setAttribute("aria-valuetext", Math.round(state.transparency * 100) + "% transparent");
+      if (view) view.setExteriorTransparency(state.transparency);
+    });
     on(edgeInput, "change", function () { state.showEdges = edgeInput.checked; renderState(); });
     Array.from(lab.querySelectorAll("[data-genus-action]")).forEach(function (button) {
       on(button, "click", function () {

@@ -22,7 +22,7 @@
   <script src="square-lab.js?v=6" defer></script>
   <script src="sphere-lab.js?v=2" defer></script>
   <script src="torus-lab.js?v=1" defer></script>
-  <script src="genus-lab.js?v=1" defer></script>
+  <script src="genus-lab.js?v=2" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -157,7 +157,7 @@
         <div class="window-heading"><h3>Sphere − through-tunnels → genus \(g\)</h3><span class="scene-tag">CAD Boolean model</span></div>
         <div class="surface-layout">
           <div>
-            <div class="scene-frame"><canvas data-genus-canvas tabindex="0" aria-label="Interactive triangulated surface with selectable handles and boundary components. Drag or use arrow keys to rotate, plus and minus to zoom, and Home to reset." aria-describedby="genus-help"></canvas><p class="view-fallback" data-genus-fallback hidden>WebGL is unavailable. Use the formula and live mesh counts beside this view.</p></div>
+            <div class="scene-frame"><canvas data-genus-canvas tabindex="0" aria-label="Interactive smooth surface with selectable handles and boundary components. Drag or use arrow keys to rotate, plus and minus to zoom, and Home to reset." aria-describedby="genus-help"></canvas><p class="view-fallback" data-genus-fallback hidden>WebGL is unavailable. Use the formula and live mesh counts beside this view.</p></div>
             <p class="interaction-hint" id="genus-help">The light-blue spherical exterior is translucent so the opaque orange Boolean-cut tunnel walls remain visible through it. Cyan loops mark surface boundaries made by removing triangular disks. Turn on triangulation edges when you want to inspect the generated mesh.</p>
           </div>
           <div class="lab-controls">
@@ -165,6 +165,7 @@
             <div class="topology-readout" aria-label="Surface classification"><span>Genus <strong data-genus-value>0</strong></span><span>Boundary loops <strong data-boundary-value>0</strong></span></div>
             <label class="slider-control" for="genus-input"><span>Handles \(g\) <output id="genus-output" for="genus-input" data-genus-value>0</output></span><input id="genus-input" data-genus-input type="range" min="0" max="3" step="1" value="0"><small>Each step subtracts another disjoint through-tunnel.</small></label>
             <label class="slider-control" for="boundary-input"><span>Boundary components \(b\) <output id="boundary-output" for="boundary-input" data-boundary-value>0</output></span><input id="boundary-input" data-boundary-input type="range" min="0" max="3" step="1" value="0"><small>Each step removes one open triangular disk; the cyan boundary remains.</small></label>
+            <label class="slider-control" for="genus-transparency"><span>Outer-sphere transparency <output id="genus-transparency-output" for="genus-transparency" data-genus-transparency-value>62%</output></span><input id="genus-transparency" data-genus-transparency type="range" min="0" max="90" step="1" value="62" aria-valuetext="62% transparent" aria-describedby="genus-transparency-help"><small id="genus-transparency-help">0% is opaque; increase it to reveal the orange tunnel geometry.</small></label>
             <fieldset class="visibility-options"><legend>Show</legend><label><input type="checkbox" data-genus-option="edges"> Triangulation edges</label></fieldset>
             <div class="action-row"><button class="button primary" type="button" data-genus-action="add-handle">Connected sum with \(T^2\)</button><button class="mini-button" type="button" data-genus-action="remove-handle">Remove one handle</button><button class="mini-button" type="button" data-genus-action="reset-view">Reset view</button></div>
             <div class="formula-banner"><strong data-genus-formula>χ = 2 − 2(0) − 0 = 2</strong><span>Surface: <b data-connected-sum>S²</b></span></div>
