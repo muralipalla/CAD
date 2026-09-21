@@ -22,7 +22,7 @@
   <script src="square-lab.js?v=6" defer></script>
   <script src="sphere-lab.js?v=2" defer></script>
   <script src="torus-lab.js?v=1" defer></script>
-  <script src="genus-lab.js?v=2" defer></script>
+  <script src="genus-lab.js?v=3" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -48,7 +48,7 @@
       <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Theory</a></li><li><a href="../solid-modeling/index.html">Solid Modeling</a></li><li aria-current="page">Euler Characteristic Proof Lab</li></ol>
       <p class="eyebrow">Solid Modeling · Topology detour</p>
       <h1>Euler characteristic: from a planar disk to genus</h1>
-      <p class="activity-lead">Follow the same quantity, \(\chi=V-E+F\), through a triangulated disk, a sphere, a torus, and connected sums. The controls distinguish geometric deformation, boundary identification, handles, and punctures.</p>
+      <p class="activity-lead">Follow the same quantity, \(\chi=V-E+F\), through a triangulated disk, a sphere, a torus, and connected sums. The controls distinguish geometric deformation, boundary identification, separate closed shells, and handle-forming connections.</p>
       <nav class="lesson-links" aria-label="Proofs on this page"><a href="#square-proof">Planar partitions</a><a href="#sphere-proof">Sphere</a><a href="#torus-proof">Torus</a><a href="#genus-proof">Genus and connected sum</a></nav>
       <p class="source-line">Proof sequence adapted into original interactive figures from Ueno, Shiga, and Morita <a href="../references/index.html#ref-42">[42]</a>, Chapter 1, especially §§1.1–1.4.</p>
     </header>
@@ -137,73 +137,81 @@
     </section>
 
     <section class="lesson-panel proof-section" id="genus-proof" aria-labelledby="genus-proof-title">
-      <div class="proof-heading"><div><p class="section-kicker">Figure 4 · Handles and punctures</p><h2 id="genus-proof-title">Determine genus with Euler characteristic</h2></div><p class="proof-result">\(\chi=2-2g-b\)</p></div>
+      <div class="proof-heading"><div><p class="section-kicker">Figure 4 · Boundary shells and connected sums</p><h2 id="genus-proof-title">Determine genus with Euler characteristic</h2></div><p class="proof-result">\(\chi=2c-2G\)</p></div>
       <div class="proof-copy two-column-copy">
         <div>
-          <h3>Genus and boundary components</h3>
-          <p>For a compact, connected, orientable surface \(\Sigma_{g,b}\), the <strong>genus</strong> \(g\) counts handles and \(b\) counts boundary loops. Its Euler characteristic is</p>
-          <div class="equation">\[\chi(\Sigma_{g,b})=2-2g-b,\qquad g=\frac{2-b-\chi}{2}.\]</div>
-          <p>A through-tunnel in the boundary of a solid adds a handle but does <em>not</em> create a surface boundary: the tunnel wall joins the two openings, so the resulting B-Rep boundary remains closed and \(b=0\). Removing the interior of a disk from a surface creates one boundary component and lowers \(\chi\) by one.</p>
+          <h3>Closed boundary components</h3>
+          <p>Let the boundary of a solid consist of \(c\) connected, closed, orientable shells \(\Sigma_1,\ldots,\Sigma_c\), with genera \(g_1,\ldots,g_c\). If \(G=\sum_i g_i\), additivity gives</p>
+          <div class="equation">\[\chi=\sum_{i=1}^{c}(2-2g_i)=2c-2G,\qquad G=c-\frac{\chi}{2}.\]</div>
+          <p>The initial model has two closed boundary components: a light-blue outer sphere \(S^2\) and an orange inner toroidal cavity \(T^2\). Thus \(c=2\), \(G=0+1=1\), and \(\chi=2+0=2\). The inner torus is a second <em>shell</em>, not a boundary loop of a punctured surface; every shell shown here has \(b=0\).</p>
         </div>
         <div>
           <h3>Connected sum \(\#\)</h3>
           <p>To form \(M\#N\), remove one open disk from each closed surface and glue the two resulting boundary circles together. The temporary boundary circles disappear in the gluing, and</p>
           <div class="equation">\[\chi(M\#N)=\chi(M)+\chi(N)-2.\]</div>
-          <p>Because \(\chi(T^2)=0\), taking a connected sum with a torus adds one handle: \(g(M\#T^2)=g(M)+1\). Thus a closed genus-\(g\) orientable surface is \(S^2\) when \(g=0\), and a connected sum of \(g\) tori when \(g\ge1\).</p>
+          <p>One connecting passage joins the two shells: \(S^2\#T^2\cong T^2\), so \(c\) drops from 2 to 1 while \(G=1\) and \(\chi=0\). A second passage joins two regions of the surface that is already connected; it adds a handle, equivalently \((S^2\#T^2)\#T^2\cong T^2\#T^2\), so \(G=2\) and \(\chi=-2\).</p>
         </div>
       </div>
 
       <article class="euler-lab surface-lab" data-genus-lab>
-        <div class="window-heading"><h3>Sphere − through-tunnels → genus \(g\)</h3><span class="scene-tag">CAD Boolean model</span></div>
+        <div class="window-heading"><h3>Outer sphere + inner toroidal cavity</h3><span class="scene-tag">CAD Boolean model</span></div>
         <div class="surface-layout">
           <div>
-            <div class="scene-frame"><canvas data-genus-canvas tabindex="0" aria-label="Interactive smooth surface with selectable handles and boundary components. Drag or use arrow keys to rotate, plus and minus to zoom, and Home to reset." aria-describedby="genus-help"></canvas><p class="view-fallback" data-genus-fallback hidden>WebGL is unavailable. Use the formula and live mesh counts beside this view.</p></div>
-            <p class="interaction-hint" id="genus-help">The light-blue spherical exterior is translucent so the opaque orange Boolean-cut tunnel walls remain visible through it. Cyan loops mark surface boundaries made by removing triangular disks. Turn on triangulation edges when you want to inspect the generated mesh.</p>
+            <div class="scene-frame"><canvas data-genus-canvas tabindex="0" aria-label="Interactive boundary-shell construction with an outer sphere, inner torus, and up to two connecting passages. Drag or use arrow keys to rotate, plus and minus to zoom, and Home to reset." aria-describedby="genus-help"></canvas><p class="view-fallback" data-genus-fallback hidden>WebGL is unavailable. Use the formula and live mesh counts beside this view.</p></div>
+            <p class="interaction-hint" id="genus-help">The translucent light-blue surface is the outer boundary shell. The opaque orange surface is the inner toroidal cavity and any passage that connects it to the exterior. The geometry uses your OpenSCAD arrangement as a visual reference. Turn on triangulation edges to inspect the counted mesh.</p>
           </div>
           <div class="lab-controls">
             <div class="count-strip" aria-label="Generated surface cell counts"><span><small>V</small><strong data-genus-v>0</strong></span><span><small>E</small><strong data-genus-e>0</strong></span><span><small>F</small><strong data-genus-f>0</strong></span><span><small>χ</small><strong data-genus-chi>2</strong></span></div>
-            <div class="topology-readout" aria-label="Surface classification"><span>Genus <strong data-genus-value>0</strong></span><span>Boundary loops <strong data-boundary-value>0</strong></span></div>
-            <label class="slider-control" for="genus-input"><span>Handles \(g\) <output id="genus-output" for="genus-input" data-genus-value>0</output></span><input id="genus-input" data-genus-input type="range" min="0" max="3" step="1" value="0"><small>Each step subtracts another disjoint through-tunnel.</small></label>
-            <label class="slider-control" for="boundary-input"><span>Boundary components \(b\) <output id="boundary-output" for="boundary-input" data-boundary-value>0</output></span><input id="boundary-input" data-boundary-input type="range" min="0" max="3" step="1" value="0"><small>Each step removes one open triangular disk; the cyan boundary remains.</small></label>
-            <label class="slider-control" for="genus-transparency"><span>Outer-sphere transparency <output id="genus-transparency-output" for="genus-transparency" data-genus-transparency-value>62%</output></span><input id="genus-transparency" data-genus-transparency type="range" min="0" max="90" step="1" value="62" aria-valuetext="62% transparent" aria-describedby="genus-transparency-help"><small id="genus-transparency-help">0% is opaque; increase it to reveal the orange tunnel geometry.</small></label>
+            <div class="topology-readout" aria-label="Boundary topology"><span>Closed shells \(c\)<strong data-shell-count>2</strong></span><span>Total genus \(G\)<strong data-total-genus>1</strong></span></div>
+            <label class="slider-control" for="connection-input"><span>Connections <output id="connection-output" for="connection-input" data-connection-value>0</output> · <output for="connection-input" data-stage-name>Separate shells</output></span><input id="connection-input" data-connection-input type="range" min="0" max="2" step="1" value="0"><small>0: separate shells · 1: connected sum · 2: add a second handle.</small></label>
+            <label class="slider-control" for="genus-transparency"><span>Outer-sphere transparency <output id="genus-transparency-output" for="genus-transparency" data-genus-transparency-value>62%</output></span><input id="genus-transparency" data-genus-transparency type="range" min="0" max="90" step="1" value="62" aria-valuetext="62% transparent" aria-describedby="genus-transparency-help"><small id="genus-transparency-help">0% is opaque; increase it to reveal the orange cavity and passage geometry.</small></label>
             <fieldset class="visibility-options"><legend>Show</legend><label><input type="checkbox" data-genus-option="edges"> Triangulation edges</label></fieldset>
-            <div class="action-row"><button class="button primary" type="button" data-genus-action="add-handle">Connected sum with \(T^2\)</button><button class="mini-button" type="button" data-genus-action="remove-handle">Remove one handle</button><button class="mini-button" type="button" data-genus-action="reset-view">Reset view</button></div>
-            <div class="formula-banner"><strong data-genus-formula>χ = 2 − 2(0) − 0 = 2</strong><span>Surface: <b data-connected-sum>S²</b></span></div>
-            <p class="construction-status" aria-live="polite" data-genus-live>Genus 0 with no boundary components.</p>
+            <div class="action-row"><button class="button primary" type="button" data-genus-action="add-connection">Add connection</button><button class="mini-button" type="button" data-genus-action="remove-connection" disabled>Remove connection</button><button class="mini-button" type="button" data-genus-action="reset-view">Reset view</button></div>
+            <div class="formula-banner"><strong data-genus-formula>χ = 2(2) − 2(1) = 2</strong><span>Boundary: <b data-connected-sum>S² ⊔ T²</b></span></div>
+            <p class="construction-status" aria-live="polite" data-genus-live>Two closed boundary shells: an outer sphere and an inner torus.</p>
           </div>
         </div>
       </article>
 
-      <div class="stage-counts" aria-label="Euler characteristic by genus"><span><strong>Sphere</strong> \(g=0,\ \chi=2\)</span><span><strong>Torus</strong> \(g=1,\ \chi=0\)</span><span><strong>Double torus</strong> \(g=2,\ \chi=-2\)</span><span><strong>Triple torus</strong> \(g=3,\ \chi=-4\)</span></div>
+      <div class="stage-counts" aria-label="Euler characteristic during boundary-shell construction"><span><strong>Separate shells</strong> \(c=2,\ G=1,\ \chi=2\)</span><span><strong>One connection</strong> \(c=1,\ G=1,\ \chi=0\)</span><span><strong>Two connections</strong> \(c=1,\ G=2,\ \chi=-2\)</span></div>
 
       <details class="openscad-example">
-        <summary>OpenSCAD example: drill handles through a sphere</summary>
-        <p>The code below preserves the intent of your example while making the Boolean operation explicit. In OpenSCAD, prefixing the sphere with <code>%</code> makes it a background preview object, so remove that modifier when the sphere must be the first solid in <code>difference()</code>.</p>
-        <pre><code>$fn = 100;
+        <summary>OpenSCAD reference: sphere, toroidal cavity, and passages</summary>
+        <p>The Three.js construction uses the arrangement of your OpenSCAD example as a visual reference. The pasted HTML and Markdown escapes have only been normalized into valid OpenSCAD spaces, underscores, and <code>//Option</code> comments.</p>
+        <pre><code>//OpenSCAD  code
+$fn=100;
 
-module through_tunnel(angle = 0) {
-  rotate([0, 0, angle])
-    translate([0, -30, 0])
-      rotate([90, 0, 0])
-        linear_extrude(height = 120, center = true)
-          circle(r = 10);
+difference()
+{
+translate([0,0,0])
+%sphere(50,center=true);
+   color("red")
+{
+
+//Option
+
+rotate([0,0,0])
+translate([0,-30,0])
+rotate([90,0,0])
+linear_extrude(40)
+circle(10);
+
+//Option
+rotate([0,0,60])
+translate([0,-30,0])
+rotate([90,0,0])
+linear_extrude(40)
+circle(10);
+
+rotate_extrude(angle=360,convexity=2)
+translate([30,0,0])
+circle(10);
 }
-
-module toroidal_cutter() {
-  rotate_extrude(angle = 360, convexity = 2)
-    translate([30, 0, 0])
-      circle(r = 10);
-}
-
-difference() {
-  sphere(r = 50);
-  through_tunnel(0);
-  through_tunnel(60);
-  // toroidal_cutter(); // Optional: inspect its intersection carefully.
 }</code></pre>
-        <p class="code-note"><strong>Topology check.</strong> A disjoint cutter that passes completely through the ball adds a handle to its boundary surface. A toroidal cutter wholly enclosed inside the ball instead creates an internal closed cavity shell; that is a separate boundary component of the <em>solid</em>, not a boundary loop \(b\) of one connected surface. Always inspect connectivity before inferring genus from a Boolean feature.</p>
+        <p><a href="https://ochafik.com/openscad2/" target="_blank" rel="noopener">Run it in OpenSCAD Playground</a>: copy the code into the browser editor and press <code>F5</code> for Preview. The exact reference uses <code>%sphere(...)</code>, so the sphere appears as a background object in Preview; a full render intentionally omits that background object.</p>
+        <p class="code-note"><strong>Topology check.</strong> The enclosed toroidal cutter creates the inner \(T^2\) cavity shell. The teaching simulation uses finite, non-overlapping passages inspired by the straight cutters so that the first joins the two shells exactly once and the second adds exactly one handle. Exact OpenSCAD results depend on how its cutter volumes overlap, so connectivity must be inspected rather than inferred from feature count alone.</p>
       </details>
-      <aside class="proof-note"><strong>Why Euler’s formula is useful.</strong> For a connected orientable mesh, first count its boundary loops \(b\), then compute \(\chi=V-E+F\). If \(2-b-\chi\) is a nonnegative even integer, \(g=(2-b-\chi)/2\). A fractional or negative answer signals that an assumption—or the mesh topology—must be checked.</aside>
+      <aside class="proof-note"><strong>Why Euler’s formula is useful.</strong> Count connected closed boundary shells \(c\), then compute \(\chi=V-E+F\) over all their mesh cells. The total genus is \(G=c-\chi/2\). Do not substitute the shell count \(c\) for the surface-boundary-loop count \(b\): in this construction \(b=0\) at every stage.</aside>
     </section>
 
     <section class="lesson-panel compact-panel" aria-labelledby="what-counts-title">

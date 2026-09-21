@@ -35,61 +35,85 @@
     const length = Math.hypot(vector[0], vector[1], vector[2]) || 1;
     return [vector[0] / length, vector[1] / length, vector[2] / length];
   }
+  function smoothMinimum(a, b, radius) {
+    const blend = Math.max(0, Number(radius) || 0);
+    if (!blend) return Math.min(a, b);
+    const h = Math.max(blend - Math.abs(a - b), 0) / blend;
+    return Math.min(a, b) - h * h * blend * 0.25;
+  }
+  function smoothMaximum(a, b, radius) { return -smoothMinimum(-a, -b, radius); }
 
-  function tunnelCenters(genus) {
-    const count = clamp(Math.round(Number(genus) || 0), 0, 3);
-    if (count === 0) return [];
-    if (count === 1) return [0];
-    if (count === 2) return [-0.52, 0.52];
-    return [-0.7, 0, 0.7];
+  function connectionAngles(stage) {
+    const count = clamp(Math.round(Number(stage) || 0), 0, 2);
+    return [0, Math.PI / 3].slice(0, count);
   }
 
-  function fieldParameters(genus) {
-    const handles = clamp(Math.round(Number(genus) || 0), 0, 3);
+  function fieldParameters(stage) {
+    const connections = clamp(Math.round(Number(stage) || 0), 0, 2);
     return {
-      genus: handles,
+      stage: connections,
       sphereRadius: 1.45,
-      tunnelRadius: handles < 3 ? 0.285 : 0.235,
-      centers: tunnelCenters(handles)
+      torusMajorRadius: 0.78,
+      torusMinorRadius: 0.24,
+      passageRadius: 0.14,
+      passageStart: 0.86,
+      passageEnd: 1.62,
+      blendRadius: 0.065,
+      angles: connectionAngles(connections)
     };
   }
 
-  function genusField(point, genus) {
-    const parameters = fieldParameters(genus);
+  function torusDistance(point, parameters) {
+    return Math.hypot(Math.hypot(point[0], point[1]) - parameters.torusMajorRadius, point[2]) - parameters.torusMinorRadius;
+  }
+
+  function passageDistance(point, angle, parameters) {
+    const direction = [Math.cos(angle), Math.sin(angle), 0];
+    const start = direction.map(function (value) { return value * parameters.passageStart; });
+    const end = direction.map(function (value) { return value * parameters.passageEnd; });
+    const segment = subtract(end, start);
+    const relative = subtract(point, start);
+    const amount = clamp(dot(relative, segment) / dot(segment, segment), 0, 1);
+    const closest = [start[0] + amount * segment[0], start[1] + amount * segment[1], 0];
+    return Math.hypot(point[0] - closest[0], point[1] - closest[1], point[2]) - parameters.passageRadius;
+  }
+
+  function genusField(point, stage) {
+    const parameters = fieldParameters(stage);
     const x = point[0], y = point[1], z = point[2];
     const sphere = Math.hypot(x, y, z) - parameters.sphereRadius;
-    if (!parameters.centers.length) return sphere;
-    let cutter = Infinity;
-    parameters.centers.forEach(function (center) {
-      cutter = Math.min(cutter, Math.hypot(x - center, z) - parameters.tunnelRadius);
+    let cutter = torusDistance(point, parameters);
+    parameters.angles.forEach(function (angle) {
+      cutter = smoothMinimum(cutter, passageDistance(point, angle, parameters), parameters.blendRadius);
     });
-    return Math.max(sphere, -cutter);
+    return smoothMaximum(sphere, -cutter, parameters.blendRadius);
   }
 
-  function surfaceKind(point, genus) {
-    const parameters = fieldParameters(genus);
-    if (!parameters.centers.length) return "exterior";
+  function surfaceKind(point, stage) {
+    const parameters = fieldParameters(stage);
     const sphereDistance = Math.abs(Math.hypot(point[0], point[1], point[2]) - parameters.sphereRadius);
-    let tunnelDistance = Infinity;
-    parameters.centers.forEach(function (center) {
-      tunnelDistance = Math.min(tunnelDistance, Math.abs(Math.hypot(point[0] - center, point[2]) - parameters.tunnelRadius));
+    const innerTorusDistance = Math.abs(torusDistance(point, parameters));
+    let passageWallDistance = Infinity;
+    parameters.angles.forEach(function (angle) {
+      passageWallDistance = Math.min(passageWallDistance, Math.abs(passageDistance(point, angle, parameters)));
     });
-    return tunnelDistance < sphereDistance ? "tunnel" : "exterior";
+    if (sphereDistance <= innerTorusDistance && sphereDistance <= passageWallDistance) return "outer";
+    return innerTorusDistance <= passageWallDistance ? "inner-torus" : "connection";
   }
 
-  function fieldGradient(point, genus) {
+  function fieldGradient(point, stage) {
     const step = 1e-4;
     return [0, 1, 2].map(function (axis) {
       const before = point.slice(), after = point.slice();
       before[axis] -= step; after[axis] += step;
-      return (genusField(after, genus) - genusField(before, genus)) / (2 * step);
+      return (genusField(after, stage) - genusField(before, stage)) / (2 * step);
     });
   }
 
-  function buildGenusMesh(genus, resolution) {
-    const handles = clamp(Math.round(Number(genus) || 0), 0, 3);
+  function buildGenusMesh(stage, resolution) {
+    const connections = clamp(Math.round(Number(stage) || 0), 0, 2);
     const divisions = clamp(Math.round(Number(resolution) || 28), 18, 42);
-    const key = handles + ":" + divisions;
+    const key = connections + ":" + divisions;
     if (cache.has(key)) return cache.get(key);
 
     const minimum = -1.62, maximum = 1.62;
@@ -101,7 +125,7 @@
 
     for (let k = 0; k < size; k += 1) {
       for (let j = 0; j < size; j += 1) {
-        for (let i = 0; i < size; i += 1) values[gridIndex(i, j, k)] = genusField(gridPoint(i, j, k), handles);
+        for (let i = 0; i < size; i += 1) values[gridIndex(i, j, k)] = genusField(gridPoint(i, j, k), connections);
       }
     }
 
@@ -128,9 +152,9 @@
       const a = vertices[face[0]], b = vertices[face[1]], c = vertices[face[2]];
       const normal = cross(subtract(b, a), subtract(c, a));
       const center = centroid(a, b, c);
-      if (dot(normal, fieldGradient(center, handles)) < 0) face = [face[0], face[2], face[1]];
+      if (dot(normal, fieldGradient(center, connections)) < 0) face = [face[0], face[2], face[1]];
       faces.push(face);
-      faceKinds.push(surfaceKind(center, handles));
+      faceKinds.push(surfaceKind(center, connections));
     }
 
     for (let k = 0; k < divisions; k += 1) {
@@ -160,8 +184,8 @@
       }
     }
 
-    const normals = vertices.map(function (point) { return unit(fieldGradient(point, handles)); });
-    const mesh = { genus: handles, resolution: divisions, vertices: vertices, normals: normals, faces: faces, faceKinds: faceKinds };
+    const normals = vertices.map(function (point) { return unit(fieldGradient(point, connections)); });
+    const mesh = { stage: connections, genus: connections, resolution: divisions, vertices: vertices, normals: normals, faces: faces, faceKinds: faceKinds };
     cache.set(key, mesh);
     return mesh;
   }
@@ -194,54 +218,46 @@
     return { V: used.size, E: edgeCount, F: faceCount, chi: used.size - edgeCount + faceCount };
   }
 
-  function selectBoundaryFaces(mesh, count) {
-    const requested = clamp(Math.round(Number(count) || 0), 0, 3);
-    const directions = [[0, 0.25, 1], [-0.78, 0.38, 0.55], [0.78, 0.38, 0.55]];
-    const chosen = [], usedVertices = new Set();
-    for (let targetIndex = 0; targetIndex < requested; targetIndex += 1) {
-      const target = directions[targetIndex];
-      let bestIndex = -1, bestScore = -Infinity;
-      mesh.faces.forEach(function (face, faceIndex) {
-        if (mesh.faceKinds[faceIndex] !== "exterior" || face.some(function (vertex) { return usedVertices.has(vertex); })) return;
-        const center = centroid(mesh.vertices[face[0]], mesh.vertices[face[1]], mesh.vertices[face[2]]);
-        const length = Math.hypot(center[0], center[1], center[2]) || 1;
-        const score = (center[0] * target[0] + center[1] * target[1] + center[2] * target[2]) / length;
-        if (score > bestScore) { bestScore = score; bestIndex = faceIndex; }
+  function componentTopologies(mesh, omittedFaces) {
+    const omitted = omittedFaces instanceof Set ? omittedFaces : new Set(omittedFaces || []);
+    const vertexFaces = new Map();
+    mesh.faces.forEach(function (face, faceIndex) {
+      if (omitted.has(faceIndex)) return;
+      face.forEach(function (vertex) {
+        if (!vertexFaces.has(vertex)) vertexFaces.set(vertex, []);
+        vertexFaces.get(vertex).push(faceIndex);
       });
-      if (bestIndex >= 0) {
-        chosen.push(bestIndex);
-        mesh.faces[bestIndex].forEach(function (vertex) { usedVertices.add(vertex); });
-      }
-    }
-    return chosen;
-  }
-
-  function boundaryComponentCount(mesh, omittedFaces) {
-    const boundaryEdges = collectEdges(mesh.faces, new Set(omittedFaces || [])).filter(function (edge) { return edge.count === 1; });
-    const adjacency = new Map();
-    boundaryEdges.forEach(function (edge) {
-      if (!adjacency.has(edge.a)) adjacency.set(edge.a, []);
-      if (!adjacency.has(edge.b)) adjacency.set(edge.b, []);
-      adjacency.get(edge.a).push(edge.b); adjacency.get(edge.b).push(edge.a);
     });
-    const visited = new Set();
-    let components = 0;
-    adjacency.forEach(function (_, start) {
-      if (visited.has(start)) return;
-      components += 1;
-      const stack = [start]; visited.add(start);
+    const visited = new Set(), components = [];
+    mesh.faces.forEach(function (_, startFace) {
+      if (omitted.has(startFace) || visited.has(startFace)) return;
+      const stack = [startFace], faceIndices = [];
+      visited.add(startFace);
       while (stack.length) {
-        const vertex = stack.pop();
-        (adjacency.get(vertex) || []).forEach(function (next) {
-          if (!visited.has(next)) { visited.add(next); stack.push(next); }
+        const faceIndex = stack.pop();
+        faceIndices.push(faceIndex);
+        mesh.faces[faceIndex].forEach(function (vertex) {
+          (vertexFaces.get(vertex) || []).forEach(function (neighbor) {
+            if (!visited.has(neighbor)) { visited.add(neighbor); stack.push(neighbor); }
+          });
         });
       }
+      const vertices = new Set(), edges = new Set();
+      faceIndices.forEach(function (faceIndex) {
+        const face = mesh.faces[faceIndex];
+        face.forEach(function (vertex) { vertices.add(vertex); });
+        edges.add(edgeKey(face[0], face[1]));
+        edges.add(edgeKey(face[1], face[2]));
+        edges.add(edgeKey(face[2], face[0]));
+      });
+      const chi = vertices.size - edges.size + faceIndices.length;
+      components.push({ V: vertices.size, E: edges.size, F: faceIndices.length, chi: chi, genus: (2 - chi) / 2, faces: faceIndices });
     });
-    return components;
+    return components.sort(function (a, b) { return b.chi - a.chi; });
   }
 
-  function genusFromEuler(chi, boundaryComponents) {
-    const value = (2 - Number(boundaryComponents || 0) - Number(chi)) / 2;
+  function totalGenusFromEuler(chi, connectedComponents) {
+    const value = Number(connectedComponents) - Number(chi) / 2;
     return Math.abs(value - Math.round(value)) <= 1e-7 ? Math.round(value) : value;
   }
 
@@ -320,111 +336,41 @@
       });
       const geometry = new T.BufferGeometry(); geometry.setAttribute("position", new T.BufferAttribute(values, 3)); return geometry;
     }
-    function tunnelGeometry(genus) {
-      const parameters = fieldParameters(genus);
-      const around = 96, along = 16;
-      const positions = [], normals = [], indices = [];
-      parameters.centers.forEach(function (center) {
-        const base = positions.length / 3;
-        for (let row = 0; row <= along; row += 1) {
-          const vertical = -1 + 2 * row / along;
-          for (let column = 0; column <= around; column += 1) {
-            const angle = 2 * Math.PI * column / around;
-            const cosine = Math.cos(angle), sine = Math.sin(angle);
-            const x = center + parameters.tunnelRadius * cosine;
-            const z = parameters.tunnelRadius * sine;
-            const limit = Math.sqrt(Math.max(0, parameters.sphereRadius * parameters.sphereRadius - x * x - z * z));
-            positions.push(x, vertical * limit, z);
-            normals.push(-cosine, 0, -sine);
-          }
-        }
-        for (let row = 0; row < along; row += 1) {
-          for (let column = 0; column < around; column += 1) {
-            const a = base + row * (around + 1) + column;
-            const b = a + around + 1;
-            indices.push(a, b, a + 1, a + 1, b, b + 1);
-          }
-        }
-      });
-      const geometry = new T.BufferGeometry();
-      geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3));
-      geometry.setAttribute("normal", new T.Float32BufferAttribute(normals, 3));
-      geometry.setIndex(indices);
-      return geometry;
-    }
-    function makeExteriorMaterial(genus, shellTransparency) {
-      const parameters = fieldParameters(genus);
-      const material = new T.MeshPhongMaterial({
-        color: 0x8fd3ff,
-        emissive: 0x10293d,
-        specular: 0xd9f3ff,
-        shininess: 30,
-        side: T.DoubleSide,
-        flatShading: false,
-        transparent: true,
-        opacity: 1 - shellTransparency,
-        depthWrite: false
-      });
-      const openingRadius = parameters.tunnelRadius + 0.012;
-      const cuts = parameters.centers.map(function (center) {
-        return "if (distance(vGenusPosition.xz, vec2(" + center.toFixed(6) + ", 0.0)) < " + openingRadius.toFixed(6) + ") discard;";
-      }).join("\n");
-      material.onBeforeCompile = function (shader) {
-        shader.vertexShader = shader.vertexShader
-          .replace("#include <common>", "#include <common>\nvarying vec3 vGenusPosition;")
-          .replace("#include <begin_vertex>", "#include <begin_vertex>\nvGenusPosition = position;");
-        shader.fragmentShader = shader.fragmentShader
-          .replace("#include <common>", "#include <common>\nvarying vec3 vGenusPosition;")
-          .replace("#include <clipping_planes_fragment>", "#include <clipping_planes_fragment>\n" + cuts);
-      };
-      material.customProgramCacheKey = function () { return "genus-exterior-" + genus; };
-      return material;
-    }
-    function update(mesh, omittedFaces, showEdges, exteriorTransparency) {
+    function update(mesh, showEdges, exteriorTransparency) {
       disposeObjects();
-      const omitted = new Set(omittedFaces);
-      const visibleFaces = [];
+      const outerFaces = [], cavityFaces = [];
       mesh.faces.forEach(function (_, index) {
-        if (omitted.has(index)) return;
-        visibleFaces.push(index);
+        (mesh.faceKinds[index] === "outer" ? outerFaces : cavityFaces).push(index);
       });
       const shellTransparency = clamp(Number(exteriorTransparency), 0, 0.9);
-      exteriorMaterial = makeExteriorMaterial(mesh.genus, shellTransparency);
-      const exteriorObject = new T.Mesh(geometryFor(mesh, visibleFaces), exteriorMaterial);
+      if (cavityFaces.length) {
+        const cavityObject = new T.Mesh(geometryFor(mesh, cavityFaces), new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 28, side: T.DoubleSide, flatShading: false }));
+        cavityObject.renderOrder = 1;
+        model.add(cavityObject); objects.push(cavityObject);
+      }
+      exteriorMaterial = new T.MeshPhongMaterial({ color: 0x8fd3ff, emissive: 0x10293d, specular: 0xd9f3ff, shininess: 30, side: T.DoubleSide, flatShading: false, transparent: true, opacity: 1 - shellTransparency, depthWrite: false });
+      const exteriorObject = new T.Mesh(geometryFor(mesh, outerFaces), exteriorMaterial);
       exteriorObject.renderOrder = 1;
       model.add(exteriorObject); objects.push(exteriorObject);
-      if (fieldParameters(mesh.genus).centers.length) {
-        const tunnelObject = new T.Mesh(tunnelGeometry(mesh.genus), new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 26, side: T.DoubleSide, flatShading: false }));
-        tunnelObject.renderOrder = 2;
-        model.add(tunnelObject); objects.push(tunnelObject);
-        const parameters = fieldParameters(mesh.genus);
-        parameters.centers.forEach(function (center) {
-          [-1, 1].forEach(function (side) {
-            const points = Array.from({ length: 96 }, function (_, index) {
-              const angle = 2 * Math.PI * index / 96;
-              const x = center + parameters.tunnelRadius * Math.cos(angle);
-              const z = parameters.tunnelRadius * Math.sin(angle);
-              const y = side * Math.sqrt(Math.max(0, parameters.sphereRadius * parameters.sphereRadius - x * x - z * z));
-              return new T.Vector3(x, y, z);
-            });
-            const curve = new T.CatmullRomCurve3(points, true, "centripetal");
-            const collar = new T.Mesh(
-              new T.TubeGeometry(curve, 96, 0.022, 8, true),
-              new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 26 })
-            );
-            collar.renderOrder = 3;
-            model.add(collar); objects.push(collar);
-          });
+      const parameters = fieldParameters(mesh.stage);
+      parameters.angles.forEach(function (angle) {
+        const direction = new T.Vector3(Math.cos(angle), Math.sin(angle), 0);
+        const across = new T.Vector3(-Math.sin(angle), Math.cos(angle), 0);
+        const center = direction.clone().multiplyScalar(Math.sqrt(parameters.sphereRadius * parameters.sphereRadius - parameters.passageRadius * parameters.passageRadius));
+        const points = Array.from({ length: 96 }, function (_, index) {
+          const around = 2 * Math.PI * index / 96;
+          return center.clone().addScaledVector(across, parameters.passageRadius * Math.cos(around)).add(new T.Vector3(0, 0, parameters.passageRadius * Math.sin(around)));
         });
-      }
-      const edges = collectEdges(mesh.faces, omitted);
+        const collar = new T.Mesh(
+          new T.TubeGeometry(new T.CatmullRomCurve3(points, true, "centripetal"), 96, 0.018, 8, true),
+          new T.MeshPhongMaterial({ color: 0xf28c28, emissive: 0x4d1b00, specular: 0xffc27a, shininess: 28 })
+        );
+        collar.renderOrder = 2;
+        model.add(collar); objects.push(collar);
+      });
+      const edges = collectEdges(mesh.faces, []);
       const edgeObject = new T.LineSegments(lineGeometry(mesh, edges), new T.LineBasicMaterial({ color: 0xc91f37, transparent: true, opacity: showEdges ? 0.42 : 0 }));
       edgeObject.renderOrder = 5; model.add(edgeObject); objects.push(edgeObject);
-      const boundaryEdges = edges.filter(function (edge) { return edge.count === 1; });
-      if (boundaryEdges.length) {
-        const boundaryObject = new T.LineSegments(lineGeometry(mesh, boundaryEdges), new T.LineBasicMaterial({ color: 0x54e3ff }));
-        boundaryObject.renderOrder = 7; model.add(boundaryObject); objects.push(boundaryObject);
-      }
       requestRender();
     }
     function setExteriorTransparency(transparency) {
@@ -474,44 +420,50 @@
     if (mountedLabs && mountedLabs.has(lab)) return mountedLabs.get(lab);
     const canvas = lab.querySelector("[data-genus-canvas]");
     const fallback = lab.querySelector("[data-genus-fallback]");
-    const genusInput = lab.querySelector("[data-genus-input]");
-    const boundaryInput = lab.querySelector("[data-boundary-input]");
+    const connectionInput = lab.querySelector("[data-connection-input]");
     const transparencyInput = lab.querySelector("[data-genus-transparency]");
     const transparencyOutput = lab.querySelector("[data-genus-transparency-value]");
     const edgeInput = lab.querySelector("[data-genus-option='edges']");
     const status = lab.querySelector("[data-genus-live]");
     const view = createView(lab, canvas, fallback);
+    const initialTransparency = Number(transparencyInput && transparencyInput.value);
     const state = {
-      genus: Number(genusInput && genusInput.value) || 0,
-      boundaries: Number(boundaryInput && boundaryInput.value) || 0,
-      transparency: clamp(Number(transparencyInput && transparencyInput.value) / 100 || 0.62, 0, 0.9),
+      stage: clamp(Number(connectionInput && connectionInput.value) || 0, 0, 2),
+      transparency: clamp(Number.isFinite(initialTransparency) ? initialTransparency / 100 : 0.62, 0, 0.9),
       showEdges: !edgeInput || edgeInput.checked
     };
     const removers = [];
     const on = function (target, name, handler) { if (!target) return; target.addEventListener(name, handler); removers.push(function () { target.removeEventListener(name, handler); }); };
-    function connectedSumLabel(genus) {
-      if (genus === 0) return "S²";
-      return Array.from({ length: genus }, function () { return "T²"; }).join(" # ");
-    }
+    const stageNames = ["Separate shells", "Single connection", "Double connection"];
+    const stageNotations = ["S² ⊔ T²", "S² # T² ≅ T²", "(S² # T²) # T² ≅ T² # T²"];
     function renderState() {
-      const mesh = buildGenusMesh(state.genus, 36);
-      const omitted = selectBoundaryFaces(mesh, state.boundaries);
-      const counts = topologyCounts(mesh, omitted);
-      const boundaryCount = boundaryComponentCount(mesh, omitted);
+      const mesh = buildGenusMesh(state.stage, 42);
+      const counts = topologyCounts(mesh, []);
+      const components = componentTopologies(mesh, []);
+      const shellCount = components.length;
+      const totalGenus = totalGenusFromEuler(counts.chi, shellCount);
       setText(lab.querySelector("[data-genus-v]"), counts.V);
       setText(lab.querySelector("[data-genus-e]"), counts.E);
       setText(lab.querySelector("[data-genus-f]"), counts.F);
       setText(lab.querySelector("[data-genus-chi]"), counts.chi);
-      Array.from(lab.querySelectorAll("[data-genus-value]")).forEach(function (node) { setText(node, state.genus); });
-      Array.from(lab.querySelectorAll("[data-boundary-value]")).forEach(function (node) { setText(node, boundaryCount); });
+      Array.from(lab.querySelectorAll("[data-connection-value]")).forEach(function (node) { setText(node, state.stage); });
+      setText(lab.querySelector("[data-stage-name]"), stageNames[state.stage]);
+      setText(lab.querySelector("[data-shell-count]"), shellCount);
+      setText(lab.querySelector("[data-total-genus]"), totalGenus);
       setText(transparencyOutput, Math.round(state.transparency * 100) + "%");
-      setText(lab.querySelector("[data-genus-formula]"), "χ = 2 − 2(" + state.genus + ") − " + boundaryCount + " = " + counts.chi);
-      setText(lab.querySelector("[data-connected-sum]"), connectedSumLabel(state.genus));
-      setText(status, "Genus " + state.genus + " with " + boundaryCount + " boundary component" + (boundaryCount === 1 ? "" : "s") + ". The mesh gives V − E + F = " + counts.chi + ", so g = (2 − b − χ)/2 = " + genusFromEuler(counts.chi, boundaryCount) + ".");
-      if (view) view.update(mesh, omitted, state.showEdges, state.transparency);
+      setText(lab.querySelector("[data-genus-formula]"), "χ = 2(" + shellCount + ") − 2(" + totalGenus + ") = " + counts.chi);
+      setText(lab.querySelector("[data-connected-sum]"), stageNotations[state.stage]);
+      if (state.stage === 0) setText(status, "Two closed boundary shells: an outer sphere (χ = 2) and an inner torus (χ = 0). Their total is χ = " + counts.chi + ".");
+      else if (state.stage === 1) setText(status, "One passage joins the two shells by connected sum. The boundary is now one torus with χ = " + counts.chi + ".");
+      else setText(status, "The second passage adds a handle to the connected boundary. The result has total genus 2 and χ = " + counts.chi + ".");
+      Array.from(lab.querySelectorAll("[data-genus-action]" )).forEach(function (button) {
+        const action = button.getAttribute("data-genus-action");
+        if (action === "add-connection") button.disabled = state.stage >= 2;
+        if (action === "remove-connection") button.disabled = state.stage <= 0;
+      });
+      if (view) view.update(mesh, state.showEdges, state.transparency);
     }
-    on(genusInput, "input", function () { state.genus = Number(genusInput.value); renderState(); });
-    on(boundaryInput, "input", function () { state.boundaries = Number(boundaryInput.value); renderState(); });
+    on(connectionInput, "input", function () { state.stage = Number(connectionInput.value); renderState(); });
     on(transparencyInput, "input", function () {
       state.transparency = clamp(Number(transparencyInput.value) / 100, 0, 0.9);
       setText(transparencyOutput, Math.round(state.transparency * 100) + "%");
@@ -522,10 +474,10 @@
     Array.from(lab.querySelectorAll("[data-genus-action]")).forEach(function (button) {
       on(button, "click", function () {
         const action = button.getAttribute("data-genus-action");
-        if (action === "add-handle") state.genus = Math.min(3, state.genus + 1);
-        else if (action === "remove-handle") state.genus = Math.max(0, state.genus - 1);
+        if (action === "add-connection") state.stage = Math.min(2, state.stage + 1);
+        else if (action === "remove-connection") state.stage = Math.max(0, state.stage - 1);
         else if (action === "reset-view" && view) { view.resetCamera(); return; }
-        if (genusInput) genusInput.value = String(state.genus);
+        if (connectionInput) connectionInput.value = String(state.stage);
         renderState();
       });
     });
@@ -544,14 +496,15 @@
   return {
     EPSILON: EPSILON,
     fieldParameters: fieldParameters,
+    boundaryField: genusField,
     genusField: genusField,
     surfaceKind: surfaceKind,
+    buildBoundaryMesh: buildGenusMesh,
     buildGenusMesh: buildGenusMesh,
     collectEdges: collectEdges,
     topologyCounts: topologyCounts,
-    selectBoundaryFaces: selectBoundaryFaces,
-    boundaryComponentCount: boundaryComponentCount,
-    genusFromEuler: genusFromEuler,
+    componentTopologies: componentTopologies,
+    totalGenusFromEuler: totalGenusFromEuler,
     connectedSumEuler: connectedSumEuler,
     mount: mount,
     mountAll: mountAll

@@ -49,7 +49,7 @@ test("the planar proof provides one editable partition with four shape choices",
   assert.match(page, /with no special center vertex/);
   assert.match(page, /Figure 2 · A closed surface/);
   assert.match(page, /Figure 3 · A quotient surface/);
-  assert.match(page, /Figure 4 · Handles and punctures/);
+  assert.match(page, /Figure 4 · Boundary shells and connected sums/);
 });
 
 test("Three.js loads before all closed-surface labs", () => {
@@ -71,10 +71,11 @@ test("Three.js loads before all closed-surface labs", () => {
   assert.match(page, /data-torus-stage="cylinder"/);
   assert.match(page, /data-torus-stage="torus"/);
   assert.match(page, /data-torus-option="labels"/);
-  assert.match(page, /data-genus-input/);
-  assert.match(page, /data-boundary-input/);
+  assert.match(page, /data-connection-input/);
+  assert.doesNotMatch(page, /data-boundary-input/);
   assert.match(page, /data-genus-transparency/);
-  assert.match(page, /data-genus-action="add-handle"/);
+  assert.match(page, /data-genus-action="add-connection"/);
+  assert.match(page, /data-genus-action="remove-connection"/);
 });
 
 test("the proofs state the exact cell counts and distinguish gluing from deformation", () => {
@@ -88,10 +89,18 @@ test("the proofs state the exact cell counts and distinguish gluing from deforma
   assert.match(page, /\(4,12,8\)/);
   assert.match(page, /quotient operations, not continuous deformations/);
   assert.match(page, /not a planar embedding of the torus itself/);
-  assert.match(page, /\\chi\(\\Sigma_\{g,b\}\)=2-2g-b/);
+  assert.match(page, /\\chi=\\sum_\{i=1\}\^\{c\}\(2-2g_i\)=2c-2G/);
+  assert.match(page, /S² ⊔ T²/);
+  assert.match(page, /S\^2\\#T\^2\\cong T\^2/);
+  assert.match(page, /Do not substitute the shell count/);
+  assert.match(page, /surface-boundary-loop count/);
   assert.match(page, /\\chi\(M\\#N\)=\\chi\(M\)\+\\chi\(N\)-2/);
-  assert.match(page, /linear_extrude\(height = 120, center = true\)/);
-  assert.match(page, /prefixing the sphere with <code>%<\/code>/);
+  assert.match(page, /\/\/OpenSCAD  code/);
+  assert.match(page, /%sphere\(50,center=true\)/);
+  assert.match(page, /linear_extrude\(40\)/);
+  assert.match(page, /rotate_extrude\(angle=360,convexity=2\)/);
+  assert.match(page, /https:\/\/ochafik\.com\/openscad2\//);
+  assert.match(page, /press <code>F5<\/code> for Preview/);
 });
 
 test("the cited source is present in the shared bibliography", () => {
