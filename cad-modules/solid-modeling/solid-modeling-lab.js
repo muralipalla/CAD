@@ -615,14 +615,19 @@
 
   function csvRows(rows) {
     return rows.map(function (row) {
-      return row.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+      return row.map(function (cell) {
+        return Number.isInteger(cell) ? String(cell) : '"' + String(cell).replace(/"/g, '""') + '"';
+      }).join(',');
     }).join('\r\n') + '\r\n';
   }
+
+  function csvId(label) { return label ? Number(label.slice(1)) : ''; }
 
   function wingedCsv(data) {
     const columns = ['Edge', 'V1', 'V2', 'Left Face', 'Right Face', 'Left Previous', 'Left Next', 'Right Previous', 'Right Next'];
     const rows = data.edges.map(function (record) {
-      return [record.id, 'V' + record.a, 'V' + record.b, record.leftFace || '', record.rightFace || '', record.leftPrev || '', record.leftNext || '', record.rightPrev || '', record.rightNext || ''];
+      return [csvId(record.id), record.a, record.b, csvId(record.leftFace), csvId(record.rightFace),
+        csvId(record.leftPrev), csvId(record.leftNext), csvId(record.rightPrev), csvId(record.rightNext)];
     });
     return csvRows([columns].concat(rows));
   }
@@ -630,7 +635,8 @@
   function halfEdgeCsv(data) {
     const columns = ['Half-edge', 'Origin', 'Destination', 'Twin', 'Next', 'Previous', 'Face', 'Edge'];
     const rows = data.halfEdges.map(function (record) {
-      return [record.id, record.origin, record.destination, record.twin, record.next, record.prev, record.face, record.edge];
+      return [csvId(record.id), csvId(record.origin), csvId(record.destination), csvId(record.twin),
+        csvId(record.next), csvId(record.prev), csvId(record.face), csvId(record.edge)];
     });
     return csvRows([columns].concat(rows));
   }

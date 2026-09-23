@@ -331,6 +331,22 @@
   line-height: 1.55;
 }
 
+.winged-programme-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.1rem 0 1.5rem;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 1rem;
+  background: var(--blue-light);
+}
+.winged-programme-link strong { color: var(--ink); font-size: 1.05rem; }
+.winged-programme-link p { max-width: 58ch; margin: 0.3rem 0 0; color: var(--ink-soft); }
+.winged-programme-link .button { text-align: center; }
+
 .legend-chip {
   display: inline-grid;
   place-items: center;

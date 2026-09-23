@@ -64,11 +64,14 @@ test("every closed-solid edge has two faces and four valid wing pointers", () =>
 test("CSV exports every edge with the eight winged-edge fields", () => {
   Object.values(api.MODELS).forEach(model => {
     const data = api.buildWingedData(model);
-    const rows = api.wingedCsv(data).trim().split("\r\n").map(row => row.match(/"(?:[^"]|"")*"/g).map(cell => cell.slice(1, -1)));
+    const csv = api.wingedCsv(data);
+    const rows = csv.trim().split("\r\n").map(row => row.split(",").map(cell => cell.replace(/^"|"$/g, "")));
     assert.deepEqual(rows[0], ["Edge", "V1", "V2", "Left Face", "Right Face", "Left Previous", "Left Next", "Right Previous", "Right Next"]);
     assert.equal(rows.length, data.edges.length + 1);
     data.edges.forEach((edge, index) => {
-      assert.deepEqual(rows[index + 1], [edge.id, "V" + edge.a, "V" + edge.b, edge.leftFace, edge.rightFace, edge.leftPrev, edge.leftNext, edge.rightPrev, edge.rightNext]);
+      assert.deepEqual(rows[index + 1], [edge.id.slice(1), String(edge.a), String(edge.b), edge.leftFace.slice(1), edge.rightFace.slice(1),
+        edge.leftPrev.slice(1), edge.leftNext.slice(1), edge.rightPrev.slice(1), edge.rightNext.slice(1)]);
+      assert.match(csv.split("\r\n")[index + 1], /^\d+(,\d+){8}$/);
     });
   });
 });
@@ -92,11 +95,13 @@ test("half-edge CSV exports complete, reciprocal face loops for every solid", ()
       assert.equal(prev.face, record.face);
       assert.ok(winged.byId.has(record.edge));
     });
-    const rows = api.halfEdgeCsv(data).trim().split("\r\n").map(row => row.match(/"(?:[^"]|"")*"/g).map(cell => cell.slice(1, -1)));
+    const csv = api.halfEdgeCsv(data);
+    const rows = csv.trim().split("\r\n").map(row => row.split(",").map(cell => cell.replace(/^"|"$/g, "")));
     assert.deepEqual(rows[0], ["Half-edge", "Origin", "Destination", "Twin", "Next", "Previous", "Face", "Edge"]);
     assert.equal(rows.length, data.halfEdges.length + 1);
     data.halfEdges.forEach((record, index) => {
-      assert.deepEqual(rows[index + 1], [record.id, record.origin, record.destination, record.twin, record.next, record.prev, record.face, record.edge]);
+      assert.deepEqual(rows[index + 1], [record.id, record.origin, record.destination, record.twin, record.next, record.prev, record.face, record.edge].map(value => value.slice(1)));
+      assert.match(csv.split("\r\n")[index + 1], /^\d+(,\d+){7}$/);
     });
   });
 });

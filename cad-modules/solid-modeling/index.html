@@ -19,10 +19,10 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
-  <link rel="stylesheet" href="solid-modeling-lab.css?v=4">
+  <link rel="stylesheet" href="solid-modeling-lab.css?v=5">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
-  <script src="solid-modeling-lab.js?v=5" defer></script>
+  <script src="solid-modeling-lab.js?v=6" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -313,7 +313,7 @@ g=1.
       <div class="zoom-actions" role="group" aria-label="View controls"><button class="mini-button primary-control" type="button" data-zoom-point disabled>Zoom to selected point</button><button class="mini-button" type="button" data-view-reset>Reset view</button></div>
       <label class="labels-toggle"><input type="checkbox" data-show-labels checked> Show vertex, edge, and face labels</label>
       <div class="download-actions" id="winged-lab-downloads" role="group" aria-label="Download diagram and topology data"><button class="mini-button" type="button" data-download-svg>Download SVG</button><button class="mini-button" type="button" data-download-pdf>Download PDF</button><button class="mini-button" type="button" data-download-csv>Download all edges (CSV)</button><button class="mini-button" type="button" data-download-halfedges>Download half-edges (CSV)</button></div>
-      <p class="download-note">SVG and PDF export the current view with a white background and black outlines and labels. The CSV files include every winged-edge or directed half-edge record for the selected solid.</p>
+      <p class="download-note">SVG and PDF export the current view with a white background and black outlines and labels. The CSV files use integer IDs (no V/E/F/H prefixes) for every record of the selected solid. Take the winged-edge CSV to the <a href="../../programming-modules/winged-edge-queries/index.html">Winged-edge query lab</a>.</p>
       <p>Click a vertex, edge, or face to set the yellow zoom point. Use the zoom slider, mouse wheel, or + and − keys. Drag to pan; hold Shift while dragging to rotate.</p>
     </figcaption>
   </figure>
@@ -334,6 +334,7 @@ g=1.
   </section>
   <p class="visually-hidden" data-winged-live aria-live="polite"></p>
 </section>
+<div class="winged-programme-link"><div><strong>Continue with winged-edge algorithms</strong><p>Download all edges (CSV) above, then use that table to query vertex rings and face boundaries in the programming module.</p></div><a class="button secondary" href="../../programming-modules/winged-edge-queries/index.html">Open the Winged-Edge Query Programme</a></div>
 <h3 id="advantages">Advantages</h3>
 <ol class="roman-list"><li><p>Efficient adjacency queries.</p></li><li><p>Good for closed orientable polyhedral surfaces.</p></li><li><p>Useful for mesh editing and traversal.</p></li></ol>
 <h3 id="limitations">Limitations</h3>

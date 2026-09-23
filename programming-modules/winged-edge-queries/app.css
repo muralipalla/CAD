@@ -1,0 +1,125 @@
+.data-source-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 1rem;
+  background: var(--blue-light);
+}
+.data-source-callout p { max-width: 58ch; margin: 0; color: var(--ink); }
+.data-source-callout .button { text-align: center; }
+
+.query-lab {
+  display: grid;
+  gap: 1.2rem;
+  padding: clamp(1.3rem, 3vw, 2rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 1.35rem;
+  background: var(--paper);
+  box-shadow: var(--shadow-small);
+}
+
+.query-upload {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 0.95rem;
+  background: var(--blue-light);
+}
+
+.query-upload label,
+.query-controls label {
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.query-upload input { max-width: 100%; font: inherit; }
+.query-upload p { margin: 0; color: var(--ink-soft); font-size: 0.91rem; }
+
+.query-controls,
+.algorithm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.query-controls > div {
+  display: grid;
+  grid-template-columns: minmax(5rem, 1fr) auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.95rem;
+  background: var(--lavender-light);
+}
+
+.query-controls label { grid-column: 1 / -1; }
+.query-controls select {
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.5rem;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+.query-controls button { justify-self: start; white-space: nowrap; }
+.query-controls button:disabled { opacity: 0.52; cursor: not-allowed; }
+
+.query-answer {
+  padding: 1rem;
+  border-left: 5px solid var(--green);
+  border-radius: 0.8rem;
+  background: var(--green-light);
+}
+.query-answer h3 { margin: 0 0 0.4rem; font-size: 1.08rem; }
+.query-answer pre { margin: 0; overflow-x: auto; color: var(--ink); font: 0.98rem/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; }
+
+.query-table-wrap { overflow-x: auto; }
+.query-table-wrap table { width: 100%; min-width: 34rem; border-collapse: collapse; }
+.query-table-wrap th,
+.query-table-wrap td { padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.query-table-wrap th { background: var(--blue-light); color: var(--ink); }
+.query-table-wrap td:first-child { white-space: nowrap; }
+
+.algorithm-card,
+.code-download-card {
+  min-width: 0;
+  padding: clamp(1.25rem, 3vw, 1.8rem);
+  border: 1px solid var(--line);
+  border-radius: 1.15rem;
+  background: var(--paper);
+  box-shadow: var(--shadow-small);
+}
+.algorithm-card:first-child { border-top: 5px solid var(--blue); background: var(--blue-light); }
+.algorithm-card:nth-child(2) { border-top: 5px solid var(--lavender); background: var(--lavender-light); }
+.algorithm-index { color: var(--muted); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.06em; text-transform: uppercase; }
+.algorithm-card h3,
+.code-download-card h3 { margin: 0.55rem 0 0.8rem; color: var(--ink); font-size: 1.22rem; }
+.algorithm-card .main-inquiry { margin: 0 0 1rem; color: var(--ink); font-size: 1rem; line-height: 1.5; }
+.main-inquiry strong { color: var(--navy); }
+.algorithm-card pre { padding: 1rem; margin: 0; overflow-x: auto; border-radius: 0.65rem; background: #171541; color: white; font: 0.91rem/1.62 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.algorithm-card p,
+.code-download-card p { color: var(--ink-soft); }
+.code-download-card .code-panel { margin-bottom: 1rem; }
+.code-download-card .code-panel pre { min-height: 6.5rem; font-size: 0.78rem; white-space: pre-wrap; }
+.source-details { margin-top: 1rem; }
+.source-details summary { color: var(--blue); font-weight: 850; cursor: pointer; }
+.source-details pre { max-height: 35rem; padding: 1rem; overflow: auto; border-radius: 0.7rem; background: #171541; color: white; font: 0.82rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.query-convention { max-width: 75ch; margin: 1.2rem 0 0; color: var(--ink-soft); }
+
+@media (max-width: 58rem) {
+  .query-controls,
+  .algorithm-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 34rem) {
+  .query-controls > div { grid-template-columns: 1fr; }
+  .query-controls label { grid-column: auto; }
+  .query-controls button { width: 100%; justify-self: stretch; }
+}

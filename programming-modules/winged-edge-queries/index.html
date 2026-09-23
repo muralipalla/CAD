@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V7VVFX9X21"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-V7VVFX9X21');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Upload a numeric winged-edge CSV and traverse incident edges around vertices or face boundaries; study Python and MATLAB implementations.">
+  <meta name="theme-color" content="#fdf6ec">
+  <title>CAD · Winged-Edge Queries</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <link rel="stylesheet" href="app.css?v=2">
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="app.js?v=1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="page-header">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a class="brand" href="../../index.html" aria-label="CAD home"><span class="brand-mark" aria-hidden="true"></span><span class="brand-copy"><strong>CAD</strong></span></a>
+      <div class="nav-links"><a href="../../cad-modules/index.html">Theory</a><a href="../index.html" aria-current="page">Programming Modules</a><a href="../../self-assessment-quizzes/index.html">Self Assessment Quizzes</a></div>
+    </nav>
+  </header>
+
+  <main class="activity-shell" id="main-content">
+    <header class="activity-intro">
+      <ol class="breadcrumb" aria-label="Breadcrumb"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li aria-current="page">Winged-Edge Queries</li></ol>
+      <p class="eyebrow">Interactive topology module</p>
+      <h1>Winged-Edge <em>Queries</em></h1>
+      <p class="activity-lead">Follow the four wing pointers to discover every edge around a vertex or every edge and vertex around a face. Upload the numeric CSV exported by the Solid Modeling explorer; all processing stays in your browser.</p>
+      <ul class="meta-list"><li>Integer IDs</li><li>Vertex rings</li><li>Face loops</li><li>Python and MATLAB</li></ul>
+    </header>
+
+    <section class="section compact" aria-labelledby="query-algorithms-title">
+      <div class="section-heading"><div><p class="section-kicker">Traversal logic</p><h2 id="query-algorithms-title">Algorithms on WEDS</h2></div><p>Adapted from the vertex and face inquiries in <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Mesh.pdf">C.-K. Shene’s Mesh Basics slides</a>, especially slides 35–42.</p></div>
+      <div class="algorithm-grid">
+        <article class="algorithm-card"><span class="algorithm-index">01 · Around a vertex</span><h3>Incident edges and neighboring vertices</h3>
+          <p class="main-inquiry"><strong>Main Inquiry:</strong> Find all edges incident to a given vertex and all vertices connected to it.</p>
+          <pre><code>seed = any edge touching vertex X
+edge = seed
+repeat:
+    emit edge and its other endpoint
+    if edge.V1 == X:
+        edge = edge.LeftPrevious
+    else:
+        edge = edge.RightPrevious
+until edge == seed</code></pre>
+          <p>Each step stays at X and crosses to the next adjacent face. The result has one edge per vertex incident.</p>
+        </article>
+        <article class="algorithm-card"><span class="algorithm-index">02 · Around a face</span><h3>Boundary edges and vertices</h3>
+          <p class="main-inquiry"><strong>Main Inquiry:</strong> Find all edges and vertices that bound a given face.</p>
+          <pre><code>seed = any edge touching face F
+edge = seed
+repeat:
+    emit edge
+    if edge.LeftFace == F:
+        emit edge.V1
+        edge = edge.LeftNext
+    else:
+        emit edge.V2
+        edge = edge.RightNext
+until edge == seed</code></pre>
+          <p>The vertices are emitted in the face orientation stored by the exporter. A face with multiple loops would require one seed per loop.</p>
+        </article>
+      </div>
+      <p class="query-convention">The lecture slides describe the same local traversal idea with predecessor/successor names tied to their illustrated winding. Our exporter defines <em>Previous</em> and <em>Next</em> in each face’s stored boundary order, so the exact pointer choices above are the ones for this CSV format.</p>
+    </section>
+
+    <section class="section compact" aria-labelledby="query-lab-title">
+      <div class="section-heading"><div><p class="section-kicker">Try a real mesh</p><h2 id="query-lab-title">Ask the winged-edge table</h2></div><p>Choose a solid, download <strong>all edges (CSV)</strong>, then upload that file here to run either query. This module uses the winged-edge CSV, not the half-edge CSV.</p></div>
+      <div class="data-source-callout"><p><strong>Need a data structure?</strong> Generate the winged-edge table for a tetrahedron, cube, or pentagonal prism in the Solid Modeling explorer.</p><a class="button secondary" href="../../cad-modules/solid-modeling/index.html#winged-lab-downloads">Open Winged-Edge Data Structure and download CSV</a></div>
+      <div class="query-lab" data-winged-query-lab>
+        <div class="query-upload">
+          <label for="winged-csv-file">Winged-edge CSV file</label>
+          <input id="winged-csv-file" type="file" accept=".csv,text/csv" data-winged-file>
+          <p data-file-status role="status">Choose a winged-edge CSV to begin.</p>
+        </div>
+        <div class="query-controls">
+          <div><label for="query-vertex">Vertex ID</label><select id="query-vertex" data-vertex-select disabled></select><button class="button primary" type="button" data-query-vertex disabled>Find incident edges</button></div>
+          <div><label for="query-face">Face ID</label><select id="query-face" data-face-select disabled></select><button class="button primary" type="button" data-query-face disabled>Trace face boundary</button></div>
+        </div>
+        <div class="query-answer"><h3>Query result</h3><pre data-query-result aria-live="polite">Upload a CSV, then choose a vertex or face.</pre></div>
+      </div>
+    </section>
+
+    <section class="section compact" aria-labelledby="csv-format-title">
+      <div class="content-panel">
+        <p class="section-kicker">Data contract</p><h2 id="csv-format-title">What the CSV stores</h2>
+        <p>Each row is one edge. The first column is its ID; the next eight columns hold its endpoints, two incident faces, and four wing links. All record values are non-negative, zero-based integers without V, E, or F prefixes. The exported tetrahedron, cube, and pentagonal prism are closed orientable meshes, so every edge has both incident faces.</p>
+        <div class="query-table-wrap"><table><thead><tr><th scope="col">Columns</th><th scope="col">Meaning</th></tr></thead><tbody>
+          <tr><td><code>Edge, V1, V2</code></td><td>Edge ID and its chosen direction from start vertex V1 to end vertex V2.</td></tr>
+          <tr><td><code>Left Face, Right Face</code></td><td>Incident face IDs relative to that direction.</td></tr>
+          <tr><td><code>Left Previous, Left Next</code></td><td>Previous and next edge IDs in the stored left-face boundary order.</td></tr>
+          <tr><td><code>Right Previous, Right Next</code></td><td>Previous and next edge IDs in the stored right-face boundary order.</td></tr>
+        </tbody></table></div>
+        <p>The CSV supplies the edge table but not separate vertex and face tables. The browser, Python, and MATLAB examples scan it once to choose one seed edge for each vertex and face; each later query walks only local wing pointers.</p>
+      </div>
+    </section>
+
+    <section class="section compact" aria-labelledby="query-code-title">
+      <div class="section-heading"><div><p class="section-kicker">Run it yourself</p><h2 id="query-code-title">Python and MATLAB code</h2></div><p>Both complete files read the same numeric CSV, build seed maps, and answer either query without extra libraries or toolboxes.</p></div>
+      <div class="algorithm-grid">
+        <article class="code-download-card"><h3>Python</h3><p>Python 3 standard library (<code>csv</code> and <code>argparse</code>).</p><div class="code-panel"><div class="code-toolbar"><span>Command line</span></div><pre><code>python winged_edge_queries.py cube-winged-edges.csv --vertex 0
+python winged_edge_queries.py cube-winged-edges.csv --face 1</code></pre></div><a class="button secondary" href="winged_edge_queries.py" download>Download complete Python code</a><details class="source-details"><summary>View complete Python source</summary><pre><code data-source-file="winged_edge_queries.py">Open the downloaded file to view its source when browsing locally.</code></pre></details></article>
+        <article class="code-download-card"><h3>MATLAB</h3><p>Uses <code>readmatrix</code> and built-in maps.</p><div class="code-panel"><div class="code-toolbar"><span>Command Window</span></div><pre><code>[edges, neighbors] = winged_edge_queries('cube-winged-edges.csv', 'vertex', 0)
+[edges, vertices] = winged_edge_queries('cube-winged-edges.csv', 'face', 1)</code></pre></div><a class="button secondary" href="winged_edge_queries.m" download>Download complete MATLAB code</a><details class="source-details"><summary>View complete MATLAB source</summary><pre><code data-source-file="winged_edge_queries.m">Open the downloaded file to view its source when browsing locally.</code></pre></details></article>
+      </div>
+      <p class="query-convention">Original algorithm reference: <a href="https://pages.mtu.edu/~shene/COURSES/cs3621/SLIDES/Mesh.pdf">C.-K. Shene, <cite>Mesh Basics</cite>, Michigan Technological University, slides 21–42</a>. The code and CSV-specific pointer convention here are new adaptations for this site.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><p><strong>CAD</strong> · Winged-Edge Queries</p><ul class="footer-nav" aria-label="Footer navigation"><li><a href="../../index.html">Home</a></li><li><a href="../index.html">Programming Modules</a></li><li><a href="../../cad-modules/solid-modeling/index.html">Solid Modeling</a></li></ul><p>Created by Murali Palla · <span data-year>2026</span></p></footer>
+</body>
+</html>
