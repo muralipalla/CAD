@@ -1,10 +1,11 @@
-"""Query the numeric winged-edge CSV exported by the CAD Solid Modeling page.
+"""Query the complete WEDS CSV exported by the CAD Solid Modeling page.
 
-Usage: python winged_edge_queries.py cube-winged-edges.csv --vertex 0 --face 1
+Usage: python winged_edge_queries.py cube-weds.csv --vertex 0 --face 1
 """
 
 import argparse
 import csv
+import re
 
 
 COLUMNS = (
@@ -18,30 +19,96 @@ def load_mesh(path):
     vertex_seed = {}
     face_seed = {}
     with open(path, newline="", encoding="utf-8-sig") as source:
-        reader = csv.DictReader(source)
-        if tuple(reader.fieldnames or ()) != COLUMNS:
-            raise ValueError("Expected the numeric winged-edge CSV, not the half-edge CSV")
-        for line, row in enumerate(reader, start=2):
-            try:
-                values = [int(row[name]) for name in COLUMNS]
-            except (TypeError, ValueError) as exc:
-                raise ValueError(f"Row {line} must contain integer IDs") from exc
-            if any(value < 0 for value in values):
-                raise ValueError(f"Row {line} has a negative ID")
-            edge = dict(zip(COLUMNS, values))
-            edge_id = edge["Edge"]
-            if edge_id in edges:
-                raise ValueError(f"Duplicate edge {edge_id}")
-            if edge["V1"] == edge["V2"] or edge["Left Face"] == edge["Right Face"]:
-                raise ValueError(f"Edge {edge_id} has invalid endpoints or faces")
-            edges[edge_id] = edge
+        rows = [row for row in csv.reader(source) if any(cell.strip() for cell in row)]
+
+    def natural(cell, context):
+        if not re.fullmatch(r"0|[1-9][0-9]*", cell.strip()):
+            raise ValueError(f"{context} must contain non-negative integer IDs")
+        return int(cell)
+
+    vertex_rows = face_rows = None
+    if rows and rows[0] == ["Vertex Table"]:
+        cursor = 1
+
+        def count(label):
+            nonlocal cursor
+            if cursor >= len(rows) or len(rows[cursor]) != 1:
+                raise ValueError(f"Missing Number of {label} count")
+            match = re.fullmatch(rf"Number of {label}=([0-9]+)", rows[cursor][0].strip())
+            cursor += 1
+            if not match or int(match.group(1)) < 1:
+                raise ValueError(f"Invalid Number of {label} count")
+            return int(match.group(1))
+
+        def seeds(label, expected, header):
+            nonlocal cursor
+            if cursor >= len(rows) or rows[cursor] != [header, "Edge Number"]:
+                raise ValueError(f"Expected the {label} table column labels")
+            cursor += 1
+            result = []
+            for _ in range(expected):
+                if cursor >= len(rows) or len(rows[cursor]) != 2:
+                    raise ValueError(f"The {label} table needs {expected} records")
+                result.append(tuple(natural(cell, label) for cell in rows[cursor]))
+                cursor += 1
+            return result
+
+        vertex_rows = seeds("vertex", count("Vertices"), "Vertex")
+        if cursor >= len(rows) or rows[cursor] != ["Face Table"]:
+            raise ValueError("Expected Face Table after the vertex records")
+        cursor += 1
+        face_rows = seeds("face", count("Faces"), "Face")
+        if cursor >= len(rows) or rows[cursor] != ["Edge Table"]:
+            raise ValueError("Expected Edge Table after the face records")
+        cursor += 1
+        edge_count = count("Edges")
+        if cursor >= len(rows) or tuple(rows[cursor]) != COLUMNS:
+            raise ValueError("Expected the nine edge table column labels")
+        edge_rows = rows[cursor + 1:]
+        if len(edge_rows) != edge_count:
+            raise ValueError(f"The Edge Table count does not match its {len(edge_rows)} records")
+    elif rows and tuple(rows[0]) == COLUMNS:
+        edge_rows = rows[1:]  # Earlier edge-only downloads remain usable.
+    else:
+        raise ValueError("Expected the WEDS CSV, not the half-edge CSV")
+
+    for number, row in enumerate(edge_rows, start=1):
+        if len(row) != len(COLUMNS):
+            raise ValueError(f"Edge record {number} needs nine columns")
+        values = [natural(cell, f"Edge record {number}") for cell in row]
+        edge = dict(zip(COLUMNS, values))
+        edge_id = edge["Edge"]
+        if edge_id in edges:
+            raise ValueError(f"Duplicate edge {edge_id}")
+        if edge["V1"] == edge["V2"] or edge["Left Face"] == edge["Right Face"]:
+            raise ValueError(f"Edge {edge_id} has invalid endpoints or faces")
+        edges[edge_id] = edge
+        if vertex_rows is None:
             for vertex in (edge["V1"], edge["V2"]):
                 vertex_seed.setdefault(vertex, edge_id)
             for face in (edge["Left Face"], edge["Right Face"]):
                 face_seed.setdefault(face, edge_id)
     if not edges:
         raise ValueError("The CSV has no edge records")
+    if vertex_rows is not None:
+        for vertex, seed in vertex_rows:
+            if vertex in vertex_seed:
+                raise ValueError(f"Duplicate vertex {vertex}")
+            edge = edges.get(seed)
+            if edge is None or vertex not in (edge["V1"], edge["V2"]):
+                raise ValueError(f"Vertex {vertex} has an invalid seed edge {seed}")
+            vertex_seed[vertex] = seed
+        for face, seed in face_rows:
+            if face in face_seed:
+                raise ValueError(f"Duplicate face {face}")
+            edge = edges.get(seed)
+            if edge is None or face not in (edge["Left Face"], edge["Right Face"]):
+                raise ValueError(f"Face {face} has an invalid seed edge {seed}")
+            face_seed[face] = seed
     for edge in edges.values():
+        if any(vertex not in vertex_seed for vertex in (edge["V1"], edge["V2"])) or \
+                any(face not in face_seed for face in (edge["Left Face"], edge["Right Face"])):
+            raise ValueError(f"Edge {edge['Edge']} refers to a missing vertex or face")
         for field in ("Left Previous", "Left Next", "Right Previous", "Right Next"):
             if edge[field] not in edges:
                 raise ValueError(f"Edge {edge['Edge']} points to a missing edge")
@@ -98,7 +165,7 @@ def face_boundary(edges, face_seed, face):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("csv_file", help="Winged-edge CSV downloaded from Solid Modeling")
+    parser.add_argument("csv_file", help="Complete WEDS CSV downloaded from Solid Modeling")
     parser.add_argument("--vertex", type=int, help="List incident edges around this vertex")
     parser.add_argument("--face", type=int, help="List boundary edges around this face")
     args = parser.parse_args()

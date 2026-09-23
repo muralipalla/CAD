@@ -1,3 +1,28 @@
+.weds-programming {
+  margin: 3rem 0;
+  padding-top: 0.35rem;
+  border-top: 2px solid var(--line-strong);
+}
+.weds-programming > h2 {
+  margin: 2.8rem 0 1rem;
+  color: var(--ink);
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  scroll-margin-top: 1.2rem;
+}
+.weds-programming > p,
+.weds-programming-part > p { color: var(--ink-soft); }
+.weds-programming-part { margin-top: 2.7rem; }
+.weds-programming-part > h3 {
+  margin: 0 0 0.7rem;
+  color: var(--navy);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.25;
+  scroll-margin-top: 1.2rem;
+}
+.weds-programming-part .algorithm-grid { margin-top: 1.2rem; }
+
 .data-source-callout {
   display: flex;
   align-items: center;
@@ -77,7 +102,7 @@
   border-radius: 0.8rem;
   background: var(--green-light);
 }
-.query-answer h3 { margin: 0 0 0.4rem; font-size: 1.08rem; }
+.query-answer h4 { margin: 0 0 0.4rem; font-size: 1.08rem; }
 .query-answer pre { margin: 0; overflow-x: auto; color: var(--ink); font: 0.98rem/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; }
 
 .query-table-wrap { overflow-x: auto; }
@@ -99,8 +124,8 @@
 .algorithm-card:first-child { border-top: 5px solid var(--blue); background: var(--blue-light); }
 .algorithm-card:nth-child(2) { border-top: 5px solid var(--lavender); background: var(--lavender-light); }
 .algorithm-index { color: var(--muted); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.06em; text-transform: uppercase; }
-.algorithm-card h3,
-.code-download-card h3 { margin: 0.55rem 0 0.8rem; color: var(--ink); font-size: 1.22rem; }
+.algorithm-card h4,
+.code-download-card h4 { margin: 0.55rem 0 0.8rem; color: var(--ink); font-size: 1.22rem; }
 .algorithm-card .main-inquiry { margin: 0 0 1rem; color: var(--ink); font-size: 1rem; line-height: 1.5; }
 .main-inquiry strong { color: var(--navy); }
 .algorithm-card pre { padding: 1rem; margin: 0; overflow-x: auto; border-radius: 0.65rem; background: #171541; color: white; font: 0.91rem/1.62 ui-monospace, SFMono-Regular, Consolas, monospace; }

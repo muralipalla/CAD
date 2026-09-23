@@ -183,6 +183,26 @@
   line-height: 1.45;
 }
 
+.topology-figure { background: var(--lab-navy); }
+.topology-figure figcaption { display: grid; gap: 0.4rem; }
+.topology-figure figcaption p { margin: 0; }
+.euler-zoom-control { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; }
+.euler-zoom-control label { color: #f7f8ff; font-size: 0.75rem; font-weight: 800; }
+.euler-zoom-control input { width: 100%; margin: 0; accent-color: var(--lab-gold); }
+.euler-zoom-control output { min-width: 3.2rem; color: var(--lab-gold); font-size: 0.75rem; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
+
+.topology-figure:fullscreen {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background: var(--lab-navy);
+}
+
+.topology-figure:fullscreen .topology-canvas-wrap,
+.topology-figure:fullscreen .topology-canvas-wrap canvas { min-height: 0; height: 100%; }
+
 .model-counts {
   position: absolute;
   right: 0.8rem;

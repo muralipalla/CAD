@@ -4,7 +4,7 @@ A responsive, static learning website for computer-aided design fundamentals, ge
 
 ## Sections
 
-- **Theory and Interactive Modules** — nine course-note modules on geometric transformations, curves, Bezier curves, Hermite curves, B-splines, surfaces, solid modeling, CAD software and data exchange, and CAD workflow, followed by standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations.
+- **Mathematical Foundations** — nine course-note modules on geometric transformations, curves, Bezier curves, Hermite curves, B-splines, surfaces, solid modeling, CAD software and data exchange, and CAD workflow, followed by standalone Rational Bezier Curves, Möbius Surface, General Sweep Surfaces, and rotation visualizations.
 - **Programming Modules** — synchronized Python/MATLAB code and JavaScript graphics for interpolation, Bezier curves, Hermite curves, B-spline basis functions, B-splines/NURBS, B-spline surfaces, and Coons patches.
 - **Self Assessment Quizzes** — a 16-question Geometry and Curves quiz with complete data, worked solutions, and printable question/solution sheets.
 

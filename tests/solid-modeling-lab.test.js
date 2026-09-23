@@ -14,6 +14,10 @@ const api = context.window.SolidModelingLab;
 test("the module states the loop-aware Euler–Poincaré relation and mounts both interactives", () => {
   assert.match(page, /V-E\+2F-L=2\(S-G\)/);
   assert.match(page, /data-euler-lab/);
+  assert.match(page, /value="square-pocket"/);
+  assert.match(page, /data-euler-zoom-slider/);
+  assert.match(page, /data-euler-zoom-output/);
+  assert.match(page, /data-euler-fullscreen/);
   assert.match(page, /data-winged-lab/);
   assert.match(page, /Tetrahedron/);
   assert.match(page, /Pentagonal prism/);
@@ -29,6 +33,24 @@ test("the module states the loop-aware Euler–Poincaré relation and mounts bot
   assert.match(page, /href="#winged-lab-downloads"/);
   assert.equal((page.match(/data-edge-field=/g) || []).length, 8);
   assert.doesNotMatch(page, /data-winged-net/);
+});
+
+test("the OpenSCAD pocket has a visible open top, a floor, and loop-aware Euler counts", () => {
+  const model = api.EULER_MODELS["square-pocket"];
+  assert.deepEqual({ ...model.counts }, { V: 16, E: 24, F: 11, L: 12, S: 1, G: 0 });
+  const c = model.counts;
+  assert.equal(c.V - c.E + 2 * c.F - c.L, 2 * (c.S - c.G));
+  assert.equal(c.L - c.F, 1, "the top B-Rep face has one inner loop");
+  const group = model.make();
+  assert.equal(group.children[2].children.length, c.E, "the graphic draws every B-Rep edge");
+  group.updateMatrixWorld(true);
+  const ray = new THREE.Raycaster();
+  function topHit(x, z) {
+    ray.set(new THREE.Vector3(x, 4, z), new THREE.Vector3(0, -1, 0));
+    return ray.intersectObjects(group.children.slice(0, 2), false)[0].point.y;
+  }
+  assert.ok(Math.abs(topHit(0, 0) - 0.6) < 1e-6, "the center ray reaches the pocket floor");
+  assert.ok(Math.abs(topHit(0.9, 0) - 1.2) < 1e-6, "the surrounding top face remains at cube height");
 });
 
 test("winged-edge examples have the expected Euler counts", () => {
@@ -61,17 +83,31 @@ test("every closed-solid edge has two faces and four valid wing pointers", () =>
   });
 });
 
-test("CSV exports every edge with the eight winged-edge fields", () => {
+test("complete WEDS CSV exports vertex, face, and edge tables with valid seed edges", () => {
   Object.values(api.MODELS).forEach(model => {
     const data = api.buildWingedData(model);
     const csv = api.wingedCsv(data);
-    const rows = csv.trim().split("\r\n").map(row => row.split(",").map(cell => cell.replace(/^"|"$/g, "")));
-    assert.deepEqual(rows[0], ["Edge", "V1", "V2", "Left Face", "Right Face", "Left Previous", "Left Next", "Right Previous", "Right Next"]);
-    assert.equal(rows.length, data.edges.length + 1);
+    const rows = csv.trimEnd().split("\r\n"), vertices = model.vertices.length, faces = model.faces.length;
+    const faceTitle = 4 + vertices, edgeTitle = faceTitle + 4 + faces;
+    assert.equal(rows.length, edgeTitle + 3 + data.edges.length);
+    assert.deepEqual(rows.slice(0, 3), ["Vertex Table", "Number of Vertices=" + vertices, "Vertex,Edge Number"]);
+    data.vertexTable.forEach((record, index) => {
+      assert.equal(rows[3 + index], index + "," + record.edge.slice(1));
+      const edge = data.byId.get(record.edge);
+      assert.ok(edge.a === index || edge.b === index);
+    });
+    assert.deepEqual(rows.slice(faceTitle - 1, faceTitle + 3), ["", "Face Table", "Number of Faces=" + faces, "Face,Edge Number"]);
+    data.faceTable.forEach((record, index) => {
+      assert.equal(rows[faceTitle + 3 + index], index + "," + record.edge.slice(1));
+      const edge = data.byId.get(record.edge);
+      assert.ok(edge.leftFace === "F" + index || edge.rightFace === "F" + index);
+    });
+    assert.deepEqual(rows.slice(edgeTitle - 1, edgeTitle + 3), ["", "Edge Table", "Number of Edges=" + data.edges.length,
+      "Edge,V1,V2,Left Face,Right Face,Left Previous,Left Next,Right Previous,Right Next"]);
     data.edges.forEach((edge, index) => {
-      assert.deepEqual(rows[index + 1], [edge.id.slice(1), String(edge.a), String(edge.b), edge.leftFace.slice(1), edge.rightFace.slice(1),
-        edge.leftPrev.slice(1), edge.leftNext.slice(1), edge.rightPrev.slice(1), edge.rightNext.slice(1)]);
-      assert.match(csv.split("\r\n")[index + 1], /^\d+(,\d+){8}$/);
+      assert.equal(rows[edgeTitle + 3 + index], [edge.id.slice(1), edge.a, edge.b, edge.leftFace.slice(1), edge.rightFace.slice(1),
+        edge.leftPrev.slice(1), edge.leftNext.slice(1), edge.rightPrev.slice(1), edge.rightNext.slice(1)].join(","));
+      assert.match(rows[edgeTitle + 3 + index], /^\d+(,\d+){8}$/);
     });
   });
 });

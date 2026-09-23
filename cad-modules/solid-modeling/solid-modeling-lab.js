@@ -178,7 +178,18 @@
         record[side + "Next"] = faceEdges[(index + 1) % faceEdges.length].id;
       });
     });
-    return { edges: sorted, byKey: records, byId: new Map(sorted.map(function (record) { return [record.id, record]; })) };
+    const vertexTable = model.vertices.map(function (_, vertex) {
+      const edge = sorted.find(function (record) { return record.a === vertex || record.b === vertex; });
+      if (!edge) throw new Error("Vertex " + vertex + " has no incident edge.");
+      return { vertex: vertex, edge: edge.id };
+    });
+    const faceTable = model.faces.map(function (_, face) {
+      const edge = sorted.find(function (record) { return record.leftFace === "F" + face || record.rightFace === "F" + face; });
+      if (!edge) throw new Error("Face " + face + " has no boundary edge.");
+      return { face: face, edge: edge.id };
+    });
+    return { edges: sorted, vertexTable: vertexTable, faceTable: faceTable,
+      byKey: records, byId: new Map(sorted.map(function (record) { return [record.id, record]; })) };
   }
 
   function buildHalfEdgeData(model, wingedData) {
@@ -616,7 +627,8 @@
   function csvRows(rows) {
     return rows.map(function (row) {
       return row.map(function (cell) {
-        return Number.isInteger(cell) ? String(cell) : '"' + String(cell).replace(/"/g, '""') + '"';
+        const value = String(cell);
+        return /[",\r\n]/.test(value) ? '"' + value.replace(/"/g, '""') + '"' : value;
       }).join(',');
     }).join('\r\n') + '\r\n';
   }
@@ -625,11 +637,18 @@
 
   function wingedCsv(data) {
     const columns = ['Edge', 'V1', 'V2', 'Left Face', 'Right Face', 'Left Previous', 'Left Next', 'Right Previous', 'Right Next'];
-    const rows = data.edges.map(function (record) {
+    const edgeRows = data.edges.map(function (record) {
       return [csvId(record.id), record.a, record.b, csvId(record.leftFace), csvId(record.rightFace),
         csvId(record.leftPrev), csvId(record.leftNext), csvId(record.rightPrev), csvId(record.rightNext)];
     });
-    return csvRows([columns].concat(rows));
+    const rows = [
+      ['Vertex Table'], ['Number of Vertices=' + data.vertexTable.length], ['Vertex', 'Edge Number']
+    ];
+    data.vertexTable.forEach(function (record) { rows.push([record.vertex, csvId(record.edge)]); });
+    rows.push([], ['Face Table'], ['Number of Faces=' + data.faceTable.length], ['Face', 'Edge Number']);
+    data.faceTable.forEach(function (record) { rows.push([record.face, csvId(record.edge)]); });
+    rows.push([], ['Edge Table'], ['Number of Edges=' + data.edges.length], columns);
+    return csvRows(rows.concat(edgeRows));
   }
 
   function halfEdgeCsv(data) {
@@ -703,15 +722,52 @@
     return group;
   }
 
+  function makeSquarePocket() {
+    // OpenSCAD: difference() { cube(40, center=true); translate([0,0,20]) cube(20, center=true); }
+    // Scale the 40-unit outer cube to 2.4 units. Its 10-unit-deep cut opens through the top.
+    const group = new T.Group(), outer = [[-1.2,-1.2],[1.2,-1.2],[1.2,1.2],[-1.2,1.2]];
+    const inner = [[-.6,-.6],[.6,-.6],[.6,.6],[-.6,.6]];
+    const top = 1.2, bottom = -1.2, floor = .6, shell = [], pocketFloor = [], segments = boxEdges(2.4, 2.4, 2.4);
+    function point(ring, index, y) { return [ring[index][0], y, ring[index][1]]; }
+    function quad(positions, a, b, c, d) { positions.push.apply(positions, a.concat(b, c, a, c, d)); }
+    for (let i = 0; i < 4; i += 1) {
+      const next = (i + 1) % 4;
+      // The four coplanar strips form one top B-Rep face with an inner loop.
+      quad(shell, point(outer,i,top), point(inner,i,top), point(inner,next,top), point(outer,next,top));
+      quad(shell, point(outer,next,bottom), point(outer,i,bottom), point(outer,i,top), point(outer,next,top));
+      quad(shell, point(inner,i,top), point(inner,i,floor), point(inner,next,floor), point(inner,next,top));
+      segments.push([point(inner,i,top), point(inner,next,top)]);
+      segments.push([point(inner,i,top), point(inner,i,floor)]);
+      segments.push([point(inner,i,floor), point(inner,next,floor)]);
+    }
+    quad(shell, point(outer,0,bottom), point(outer,1,bottom), point(outer,2,bottom), point(outer,3,bottom));
+    quad(pocketFloor, point(inner,0,floor), point(inner,3,floor), point(inner,2,floor), point(inner,1,floor));
+    function surface(positions, color) {
+      const geometry = new T.BufferGeometry();
+      geometry.setAttribute("position", new T.Float32BufferAttribute(positions, 3));
+      geometry.computeVertexNormals();
+      return new T.Mesh(geometry, new T.MeshStandardMaterial({ color: color, roughness: 0.62, side: T.DoubleSide }));
+    }
+    group.add(surface(shell, 0x8fd5ef));
+    group.add(surface(pocketFloor, 0xffba73));
+    group.add(lineSegmentsGroup(segments, 0x233a5d));
+    return group;
+  }
+
   const EULER_MODELS = {
     cube: { counts: {V:8,E:12,F:6,L:6,S:1,G:0}, make: makeEulerCube, explanation: "A single closed shell. Every face has exactly one outer loop, so L = F." },
     "through-hole": { counts: {V:16,E:24,F:10,L:12,S:1,G:1}, make: makeThroughHole, explanation: "The top and bottom faces each have an outer loop and an inner loop. The tunnel makes the one boundary shell genus 1." },
+    "square-pocket": { counts: {V:16,E:24,F:11,L:12,S:1,G:0}, make: makeSquarePocket, explanation: "A shallow square pocket opens through the top face. Its rim is one inner loop; the pocket floor closes the recess, so this is one genus-0 shell, not a through-hole or enclosed cavity." },
     cavity: { counts: {V:16,E:24,F:12,L:12,S:2,G:0}, make: makeCavity, explanation: "The enclosed void contributes a second closed boundary shell. It is not an inner loop in a face." }
   };
 
   function mountEulerLab(lab) {
     const canvas = lab.querySelector("[data-euler-canvas]"), fallback = lab.querySelector("[data-euler-fallback]");
-    const viewer = createViewer(canvas, fallback);
+    const zoomSlider = lab.querySelector("[data-euler-zoom-slider]"), zoomOutput = lab.querySelector("[data-euler-zoom-output]");
+    const fullscreenButton = lab.querySelector("[data-euler-fullscreen]"), figure = lab.querySelector(".topology-figure");
+    const viewer = createViewer(canvas, fallback, null, function (percent) {
+      zoomSlider.value = String(percent); zoomOutput.textContent = percent + "%";
+    });
     const explanation = lab.querySelector("[data-euler-explanation]"), substitution = lab.querySelector("[data-euler-substitution]");
     const result = lab.querySelector("[data-euler-result]"), status = lab.querySelector("[data-euler-status]");
     function select(name) {
@@ -727,6 +783,21 @@
     }
     lab.querySelectorAll("input[name='euler-model']").forEach(function (input) { input.addEventListener("change", function () { if (input.checked) select(input.value); }); });
     lab.querySelector("[data-euler-reset]").addEventListener("click", function () { if (viewer) viewer.reset(); });
+    zoomSlider.addEventListener("input", function () { if (viewer) viewer.setZoomPercent(zoomSlider.value); });
+    function syncFullscreen() {
+      const active = root.document.fullscreenElement === figure;
+      fullscreenButton.textContent = active ? "Exit full screen" : "Full screen";
+      fullscreenButton.setAttribute("aria-pressed", String(active));
+      if (viewer) root.requestAnimationFrame(function () { viewer.resize(); });
+    }
+    fullscreenButton.addEventListener("click", function () {
+      try {
+        const action = root.document.fullscreenElement === figure ? root.document.exitFullscreen && root.document.exitFullscreen() : figure.requestFullscreen && figure.requestFullscreen();
+        if (!action || typeof action.catch !== "function") { status.textContent = "Full screen is unavailable in this browser."; return; }
+        action.catch(function () { status.textContent = "Full screen could not be opened here."; });
+      } catch (_) { status.textContent = "Full screen could not be opened here."; }
+    });
+    root.document.addEventListener("fullscreenchange", syncFullscreen);
     select("cube");
   }
 
@@ -830,8 +901,8 @@
       live.textContent = model.label + " PDF diagram downloaded.";
     });
     csvButton.addEventListener("click", function () {
-      downloadFile(select.value + "-winged-edges.csv", wingedCsv(data), "text/csv;charset=utf-8");
-      live.textContent = "All " + data.edges.length + " edges of the " + model.label + " downloaded as CSV.";
+      downloadFile(select.value + "-weds.csv", wingedCsv(data), "text/csv;charset=utf-8");
+      live.textContent = "Complete WEDS for the " + model.label + " downloaded: " + data.vertexTable.length + " vertices, " + data.faceTable.length + " faces, and " + data.edges.length + " edges.";
     });
     halfEdgeButton.addEventListener("click", function () {
       downloadFile(select.value + "-half-edges.csv", halfEdgeCsv(halfEdgeData), "text/csv;charset=utf-8");
@@ -881,7 +952,7 @@
     root.document.querySelectorAll("[data-winged-lab]").forEach(mountWingedLab);
   }
 
-  const API = { MODELS: MODELS, buildWingedData: buildWingedData, buildHalfEdgeData: buildHalfEdgeData, buildUnfoldPlan: buildUnfoldPlan, unfoldedFaces: unfoldedFaces, unfoldMatrices: unfoldMatrices, netCoordinates: netCoordinates, makeWingedGroup: makeWingedGroup, createViewer: createViewer, makeExportDrawing: makeExportDrawing, drawingToSvg: drawingToSvg, drawingToPdf: drawingToPdf, wingedCsv: wingedCsv, halfEdgeCsv: halfEdgeCsv, orientFaces: orientFaces, edgeKey: edgeKey };
+  const API = { MODELS: MODELS, EULER_MODELS: EULER_MODELS, buildWingedData: buildWingedData, buildHalfEdgeData: buildHalfEdgeData, buildUnfoldPlan: buildUnfoldPlan, unfoldedFaces: unfoldedFaces, unfoldMatrices: unfoldMatrices, netCoordinates: netCoordinates, makeWingedGroup: makeWingedGroup, createViewer: createViewer, makeExportDrawing: makeExportDrawing, drawingToSvg: drawingToSvg, drawingToPdf: drawingToPdf, wingedCsv: wingedCsv, halfEdgeCsv: halfEdgeCsv, orientFaces: orientFaces, edgeKey: edgeKey };
   root.SolidModelingLab = API;
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   if (root.document) {
