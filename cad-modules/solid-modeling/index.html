@@ -19,7 +19,10 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
+  <link rel="stylesheet" href="solid-modeling-lab.css?v=4">
   <script src="../../assets/js/main.js" defer></script>
+  <script src="../../assets/vendor/three.min.js" defer></script>
+  <script src="solid-modeling-lab.js?v=5" defer></script>
   <script>
     window.MathJax = {
       tex: {
@@ -60,6 +63,7 @@
 <li class="toc-section"><a href="#interior-boundary-and-exterior-of-a-solid">Interior, Boundary and Exterior of a Solid</a></li>
 <li class="toc-section"><a href="#definition-of-homeomorphism">Definition of Homeomorphism</a></li>
 <li class="toc-section"><a href="#euler-characteristic">Euler Characteristic</a></li>
+<li class="toc-subsection"><a href="#euler-poincare-with-loops">Euler–Poincaré Formula with Loops</a></li>
 <li class="toc-section"><a href="#concept-of-genus">Concept of Genus</a></li>
 <li class="toc-section"><a href="#types-of-solid-modeling">Solid Representations and Modeling Layers</a></li>
 <li class="toc-subsection"><a href="#solid-representation-schemes">Representation Schemes</a></li>
@@ -68,6 +72,7 @@
 <li class="toc-subsection"><a href="#advantages-of-b-rep">Advantages of B-Rep</a></li>
 <li class="toc-subsection"><a href="#limitations-of-b-rep">Limitations of B-Rep</a></li>
 <li class="toc-section"><a href="#winged-edge-data-structure">Winged-Edge Data Structure</a></li>
+<li class="toc-subsection"><a href="#winged-edge-explorer">Interactive Winged-Edge Explorer</a></li>
 <li class="toc-subsection"><a href="#advantages">Advantages</a></li>
 <li class="toc-subsection"><a href="#limitations">Limitations</a></li>
 <li class="toc-section"><a href="#half-edge-data-structure">Half-Edge Data Structure</a></li>
@@ -210,8 +215,49 @@ g=1.
 \chi=2-2g=2-2=0.
 \]</div>
 <p>A torus has one handle.</p></div></aside>
-<aside class="notes-box remarkbox"><p class="notes-box-title">Necessary, Not Sufficient</p><div class="notes-box-body"><p>For a closed, connected, orientable polyhedral 2-manifold, the relation (V-E+F=2-2g) is a necessary topological consistency check. More general B-Reps with multiple shells, face loops or internal cavities require the corresponding extended Euler–Poincare relation. Passing the applicable Euler check is not proof that a model is valid: incorrect adjacency can sometimes preserve the same global counts, and the equation does not test geometric conditions such as face–face self-intersection, overlapping faces, gaps, degeneracy or inconsistent surface geometry.</p></div></aside>
+<aside class="notes-box remarkbox"><p class="notes-box-title">Necessary, Not Sufficient</p><div class="notes-box-body"><p>For a closed, connected, orientable polyhedral 2-manifold, the relation \(V-E+F=2-2g\) is a necessary topological consistency check. More general B-Reps with multiple shells, face loops or internal cavities require the corresponding extended Euler–Poincaré relation. Passing the applicable Euler check is not proof that a model is valid: incorrect adjacency can sometimes preserve the same global counts, and the equation does not test geometric conditions such as face–face self-intersection, overlapping faces, gaps, degeneracy or inconsistent surface geometry.</p></div></aside>
 <p><strong>Interactive detour:</strong> <a href="../euler-characteristic/index.html">work through the Euler-characteristic proofs for a triangulated square, sphere, and torus</a>.</p>
+<h3 id="euler-poincare-with-loops">Euler–Poincaré Formula with Loops</h3>
+<p>A trimmed B-Rep face can have more than one boundary loop. Every face has one outer loop, while a hole in that face contributes an inner loop. Let \(L\) be the total number of face loops, \(S\) the number of connected closed shells, and \(G\) the sum of the genera of those shells. For a valid, orientable, manifold B-Rep boundary, the extended Euler–Poincaré relation is</p>
+<div class="math-display">\[
+\boxed{V-E+F-(L-F)=2(S-G)}
+\]</div>
+<p>Since \(L-F\) counts the inner loops, the same relation is often written as</p>
+<div class="math-display">\[
+\boxed{V-E+2F-L=2(S-G).}
+\]</div>
+<p>When every face has only its outer loop, \(L=F\). For one shell with no handles, \(S=1\) and \(G=0\), so the familiar formula \(V-E+F=2\) is recovered.</p>
+<section class="topology-lab" data-euler-lab aria-labelledby="euler-loop-lab-title">
+  <div class="topology-lab-heading">
+    <div><p class="topology-lab-kicker">Interactive topology check</p><h4 id="euler-loop-lab-title">Faces, loops, shells and handles</h4></div>
+    <p>Select a B-Rep example and verify both sides of the relation.</p>
+  </div>
+  <div class="euler-lab-grid">
+    <form class="topology-controls" aria-label="Euler–Poincaré model controls">
+      <fieldset class="solid-options"><legend>Example model</legend>
+        <label><input type="radio" name="euler-model" value="cube" checked> Cube</label>
+        <label><input type="radio" name="euler-model" value="through-hole"> Block with square through-hole</label>
+        <label><input type="radio" name="euler-model" value="cavity"> Block with an internal cavity</label>
+      </fieldset>
+      <p class="model-explanation" data-euler-explanation></p>
+      <div class="equation-check" aria-label="Euler–Poincaré calculation">
+        <span data-euler-substitution></span>
+        <strong data-euler-result></strong>
+      </div>
+      <button class="mini-button" type="button" data-euler-reset>Reset 3D view</button>
+    </form>
+    <figure class="topology-figure">
+      <div class="topology-canvas-wrap">
+        <canvas data-euler-canvas tabindex="0" role="img" aria-label="Interactive Three.js B-Rep example" aria-describedby="euler-view-help"></canvas>
+        <p class="topology-fallback" data-euler-fallback hidden>WebGL is unavailable. The exact topology counts remain available beside the view.</p>
+        <div class="model-counts" aria-label="Current topology counts"><span><small>V</small><strong data-count="V">8</strong></span><span><small>E</small><strong data-count="E">12</strong></span><span><small>F</small><strong data-count="F">6</strong></span><span><small>L</small><strong data-count="L">6</strong></span><span><small>S</small><strong data-count="S">1</strong></span><span><small>G</small><strong data-count="G">0</strong></span></div>
+      </div>
+      <figcaption id="euler-view-help">Drag to orbit. Scroll or use + and − to zoom; arrow keys rotate; Home resets the view.</figcaption>
+    </figure>
+  </div>
+  <p class="topology-status" data-euler-status aria-live="polite"></p>
+</section>
+<aside class="notes-box examplebox"><p class="notes-box-title">Reading the three examples</p><div class="notes-box-body"><p>The cube has one loop per face. The through-hole block has two inner loops—one on its top face and one on its bottom face—and its boundary has genus one. The cavity model has two disconnected boundary shells: the outer shell and the inward-oriented cavity shell.</p></div></aside>
 <h2 id="concept-of-genus">Concept of Genus</h2>
 <p>The genus of a closed orientable surface is the number of handles or through-holes in the object.</p>
 <div class="notes-center"><div class="notes-table-wrap"><table><thead><tr><th scope="col"><strong>Object</strong></th><th scope="col"><strong>Genus \(g\)</strong></th><th scope="col"><strong>Euler Characteristic \(\chi=2-2g\)</strong></th></tr></thead><tbody><tr><td>Sphere-like object</td><td>\(0\)</td><td>\(2\)</td></tr><tr><td>Torus</td><td>\(1\)</td><td>\(0\)</td></tr><tr><td>Double torus</td><td>\(2\)</td><td>\(-2\)</td></tr><tr><td>Triple torus</td><td>\(3\)</td><td>\(-4\)</td></tr></tbody></table></div></div>
@@ -248,6 +294,46 @@ g=1.
 (v_1,v_2,f_L,f_R,e_{L}^{prev},e_{L}^{next},e_{R}^{prev},e_{R}^{next}).
 \]</div>
 <aside class="notes-box keybox"><p class="notes-box-title">Key Idea</p><div class="notes-box-body"><p>The winged-edge data structure is designed to answer adjacency queries efficiently. For example, it can quickly find the faces adjacent to an edge or the neighboring edges around a face.</p></div></aside>
+<h3 id="winged-edge-explorer">Interactive Winged-Edge Explorer</h3>
+<p>Choose a solid and open its faces into a plane in the 3D view. Hover over an edge to highlight it in yellow, or click it to inspect its winged-edge record. Drag to pan; Shift-drag to rotate. Click a vertex or face to choose a point, then zoom smoothly around it.</p>
+<section class="topology-lab winged-edge-lab" data-winged-lab aria-labelledby="winged-lab-title">
+  <div class="topology-lab-heading">
+    <div><p class="topology-lab-kicker">Interactive adjacency map</p><h4 id="winged-lab-title">Solid to planar net</h4></div>
+    <label class="solid-select">Solid <select data-winged-solid aria-label="Choose a solid"><option value="tetrahedron">Tetrahedron</option><option value="cube" selected>Cube</option><option value="pentagonal-prism">Pentagonal prism</option></select></label>
+  </div>
+  <figure class="winged-view">
+    <div class="view-title"><strong>3D solid → unfolded plane</strong><button class="mini-button fullscreen-button" type="button" data-fullscreen aria-pressed="false">Full screen</button></div>
+    <div class="winged-canvas-wrap"><canvas data-winged-canvas tabindex="0" role="img" aria-label="Interactive labeled solid for the winged-edge data structure" aria-describedby="winged-help"></canvas><p class="topology-fallback" data-winged-fallback hidden>WebGL is unavailable. The winged-edge explanation and record fields remain available below.</p><p class="zoom-point-badge" data-selected-point>Zoom point: model center. Click the solid to select a point.</p></div>
+    <figcaption class="unfold-controls">
+      <label for="winged-progress">Opening <output id="winged-progress-value" data-winged-progress-output for="winged-progress">0% · solid</output></label>
+      <input id="winged-progress" data-winged-progress type="range" min="0" max="100" step="1" value="0" aria-label="Open the solid faces into one plane">
+      <div class="unfold-actions"><button class="mini-button primary-control" type="button" data-unfold>Open all faces</button><button class="mini-button" type="button" data-fold>Reset solid</button></div>
+      <label for="winged-zoom">Zoom <output id="winged-zoom-value" data-zoom-output for="winged-zoom">100%</output></label>
+      <input id="winged-zoom" data-zoom-slider type="range" min="50" max="400" step="1" value="100" aria-label="Zoom around the selected point">
+      <div class="zoom-actions" role="group" aria-label="View controls"><button class="mini-button primary-control" type="button" data-zoom-point disabled>Zoom to selected point</button><button class="mini-button" type="button" data-view-reset>Reset view</button></div>
+      <label class="labels-toggle"><input type="checkbox" data-show-labels checked> Show vertex, edge, and face labels</label>
+      <div class="download-actions" id="winged-lab-downloads" role="group" aria-label="Download diagram and topology data"><button class="mini-button" type="button" data-download-svg>Download SVG</button><button class="mini-button" type="button" data-download-pdf>Download PDF</button><button class="mini-button" type="button" data-download-csv>Download all edges (CSV)</button><button class="mini-button" type="button" data-download-halfedges>Download half-edges (CSV)</button></div>
+      <p class="download-note">SVG and PDF export the current view with a white background and black outlines and labels. The CSV files include every winged-edge or directed half-edge record for the selected solid.</p>
+      <p>Click a vertex, edge, or face to set the yellow zoom point. Use the zoom slider, mouse wheel, or + and − keys. Drag to pan; hold Shift while dragging to rotate.</p>
+    </figcaption>
+  </figure>
+  <p class="interaction-help" id="winged-help"><span class="legend-chip vertex">V</span> vertices <span class="legend-chip edge">E</span> edges <span class="legend-chip face">F</span> faces. Click an edge to update its record. Every face unfolds in the single view; the same edge ID remains on both sides of a cut.</p>
+  <section class="edge-record" aria-labelledby="edge-record-title">
+    <div class="edge-record-heading"><div><p class="topology-lab-kicker">Selected record</p><h5 id="edge-record-title" data-edge-title>Edge E0</h5></div><code data-edge-pair>V0 → V1</code></div>
+    <dl class="edge-record-grid">
+      <div><dt>V1 · start vertex</dt><dd data-edge-field="v1">—</dd></div>
+      <div><dt>V2 · end vertex</dt><dd data-edge-field="v2">—</dd></div>
+      <div><dt>Left face</dt><dd data-edge-field="leftFace">—</dd></div>
+      <div><dt>Right face</dt><dd data-edge-field="rightFace">—</dd></div>
+      <div><dt>Left previous</dt><dd data-edge-field="leftPrev">—</dd></div>
+      <div><dt>Left next</dt><dd data-edge-field="leftNext">—</dd></div>
+      <div><dt>Right previous</dt><dd data-edge-field="rightPrev">—</dd></div>
+      <div><dt>Right next</dt><dd data-edge-field="rightNext">—</dd></div>
+    </dl>
+    <p data-edge-reading></p>
+  </section>
+  <p class="visually-hidden" data-winged-live aria-live="polite"></p>
+</section>
 <h3 id="advantages">Advantages</h3>
 <ol class="roman-list"><li><p>Efficient adjacency queries.</p></li><li><p>Good for closed orientable polyhedral surfaces.</p></li><li><p>Useful for mesh editing and traversal.</p></li></ol>
 <h3 id="limitations">Limitations</h3>
@@ -255,6 +341,7 @@ g=1.
 <h2 id="half-edge-data-structure">Half-Edge Data Structure</h2>
 <p class="topic-citation">Further reading: Mäntylä <a href="../references/index.html#ref-14">[14]</a> and the official CGAL halfedge documentation <a href="../references/index.html#ref-17">[17]</a>. Implementation conventions may differ from the simplified examples here.</p>
 <p>The half-edge data structure is one of the most widely used data structures for polygon meshes and B-Rep topology.</p>
+<p>For the selected tetrahedron, cube, or pentagonal prism, use <a href="#winged-lab-downloads">Download half-edges (CSV)</a> in the interactive explorer above to obtain its complete half-edge table.</p>
 <p>The main idea is to split each edge into two oppositely oriented half-edges.</p>
 <p>If an edge connects vertices \(v_i\) and \(v_j\), then the two half-edges are:</p>
 <div class="math-display">\[
