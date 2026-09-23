@@ -14,37 +14,64 @@
 .workflow-path {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 1.15rem;
   padding: 0;
-  margin: 1.4rem 0;
+  margin: 1.65rem 0;
   counter-reset: workflow-step;
   list-style: none;
 }
 
 .workflow-path li {
+  --workflow-accent: var(--blue);
+  --workflow-fill: var(--blue-light);
   position: relative;
-  min-height: 7.2rem;
-  padding: 1rem 1rem 1rem 3.15rem;
-  border: 1px solid var(--line);
-  border-radius: 0.9rem;
-  background: rgba(255, 255, 255, 0.72);
+  min-height: 11rem;
+  padding: 1.35rem 1.25rem 1.35rem 4.2rem;
+  border: 1px solid var(--workflow-accent);
+  border-radius: 1.1rem;
+  background: var(--workflow-fill);
   color: var(--ink-soft);
+  box-shadow: 0 7px 20px rgba(41, 37, 104, 0.09);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.workflow-path li:nth-child(4n + 2) {
+  --workflow-accent: var(--lavender);
+  --workflow-fill: var(--lavender-light);
+}
+
+.workflow-path li:nth-child(4n + 3) {
+  --workflow-accent: var(--green);
+  --workflow-fill: var(--green-light);
+}
+
+.workflow-path li:nth-child(4n) {
+  --workflow-accent: var(--coral);
+  --workflow-fill: var(--coral-soft);
+}
+
+@media (hover: hover) {
+  .workflow-path li:hover {
+    z-index: 1;
+    transform: translateY(-5px) scale(1.045);
+    box-shadow: 0 18px 36px rgba(41, 37, 104, 0.18);
+  }
 }
 
 .workflow-path li::before {
   position: absolute;
-  top: 0.9rem;
-  left: 0.9rem;
+  top: 1.25rem;
+  left: 1.2rem;
   display: grid;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 2.1rem;
+  height: 2.1rem;
   place-items: center;
   border-radius: 50%;
-  background: var(--navy);
+  background: var(--workflow-accent);
   color: white;
   content: counter(workflow-step);
   counter-increment: workflow-step;
-  font-size: 0.76rem;
+  font-size: 0.95rem;
   font-weight: 850;
 }
 
@@ -54,13 +81,15 @@
 }
 
 .workflow-path strong {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
   color: var(--ink);
+  font-size: 1.13rem;
+  line-height: 1.35;
 }
 
 .workflow-path span {
-  font-size: 0.86rem;
-  line-height: 1.45;
+  font-size: 1.02rem;
+  line-height: 1.55;
 }
 
 .software-profile {
@@ -489,11 +518,17 @@
   line-height: 1.35;
 }
 
+@media (max-width: 78rem) {
+  .workflow-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 58rem) {
   .workflow-path,
   .software-facts {
     grid-template-columns: 1fr;
   }
+
+  .workflow-path li { min-height: 0; }
 
   .cad-lab-heading {
     align-items: start;
@@ -521,6 +556,10 @@
   }
 }
 
+@media (max-width: 58rem) and (hover: hover) {
+  .workflow-path li:hover { transform: translateY(-4px) scale(1.015); }
+}
+
 @media (max-width: 38rem) {
   .cad-lab-controls {
     grid-template-columns: 1fr;
@@ -540,6 +579,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .workflow-path li { transition: none; }
+  .workflow-path li:hover { transform: none; }
   .cad-lab-canvas-wrap canvas {
     scroll-behavior: auto;
   }

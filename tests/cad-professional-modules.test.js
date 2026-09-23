@@ -62,6 +62,20 @@ test("workflow stages reveal product-definition layers progressively", () => {
   assert.throws(() => workflow.stageState(workflow.STAGES.length), RangeError);
 });
 
+test("workflow cards use readable theme colors and an accessible hover enlargement", () => {
+  const page = read("cad-modules", "cad-workflow", "index.html");
+  const css = read("assets", "css", "cad-professional.css");
+  assert.match(page, /cad-professional\.css\?v=2/);
+  assert.match(page, /<ol class="workflow-path">/);
+  for (const color of ["blue-light", "lavender-light", "green-light", "coral-soft"]) {
+    assert.match(css, new RegExp("--workflow-fill: var\\(--" + color + "\\)"));
+  }
+  assert.match(css, /\.workflow-path strong\s*\{[^}]*font-size: 1\.13rem/s);
+  assert.match(css, /\.workflow-path span\s*\{[^}]*font-size: 1\.02rem/s);
+  assert.match(css, /\.workflow-path li:hover\s*\{[^}]*scale\(1\.045\)/s);
+  assert.match(css, /prefers-reduced-motion: reduce/);
+});
+
 test("new modules are wired into the course sequence and local Three.js runtime", () => {
   const home = read("index.html");
   const hub = read("cad-modules", "index.html");
