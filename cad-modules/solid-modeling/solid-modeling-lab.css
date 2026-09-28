@@ -186,7 +186,25 @@
 .topology-figure { background: var(--lab-navy); }
 .topology-figure figcaption { display: grid; gap: 0.4rem; }
 .topology-figure figcaption p { margin: 0; }
-.euler-zoom-control { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; }
+.view-slider-overlay {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 0.65rem;
+  background: rgba(12, 20, 38, 0.88);
+  box-shadow: 0 0.45rem 1.2rem rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(0.5rem);
+}
+.euler-zoom-control {
+  top: 0.8rem;
+  left: 0.8rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(21rem, calc(100% - 1.6rem));
+  padding: 0.6rem 0.7rem;
+}
 .euler-zoom-control label { color: #f7f8ff; font-size: 0.75rem; font-weight: 800; }
 .euler-zoom-control input { width: 100%; margin: 0; accent-color: var(--lab-gold); }
 .euler-zoom-control output { min-width: 3.2rem; color: var(--lab-gold); font-size: 0.75rem; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
@@ -310,10 +328,23 @@
   pointer-events: none;
 }
 
+.winged-slider-controls {
+  right: 0.85rem;
+  bottom: 0.85rem;
+  left: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  padding: 0.7rem 0.8rem;
+}
+.view-slider-control { display: grid; min-width: 0; gap: 0.4rem; }
+.view-slider-control label { display: flex; justify-content: space-between; gap: 0.5rem; color: #f7f8ff; font-size: 0.74rem; font-weight: 800; }
+.view-slider-control output { color: var(--lab-gold); font-variant-numeric: tabular-nums; }
+.view-slider-control input[type="range"] { width: 100%; margin: 0; accent-color: var(--lab-coral); }
+
 .unfold-controls { display: grid; gap: 0.55rem; }
 .unfold-controls label { display: flex; justify-content: space-between; gap: 0.5rem; color: #f7f8ff; font-size: 0.74rem; font-weight: 800; }
 .unfold-controls output { color: var(--lab-gold); font-variant-numeric: tabular-nums; }
-.unfold-controls input[type="range"] { width: 100%; margin: 0; accent-color: var(--lab-coral); }
 .unfold-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .zoom-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
 .download-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding-top: 0.55rem; border-top: 1px solid rgba(255, 255, 255, 0.2); }
@@ -420,6 +451,7 @@
   .winged-edge-lab .winged-canvas-wrap canvas { min-height: 23rem; }
   .model-counts { left: 0.55rem; right: 0.55rem; bottom: 0.55rem; }
   .model-counts span { padding-inline: 0.2rem; }
+  .winged-slider-controls { grid-template-columns: 1fr; }
   .zoom-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .edge-record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

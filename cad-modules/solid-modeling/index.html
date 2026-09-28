@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="../../assets/css/notes.css">
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
-  <link rel="stylesheet" href="solid-modeling-lab.css?v=6">
+  <link rel="stylesheet" href="solid-modeling-lab.css?v=7">
   <link rel="stylesheet" href="../../programming-modules/winged-edge-queries/app.css?v=3">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
@@ -257,9 +257,14 @@ g=1.
       <div class="topology-canvas-wrap">
         <canvas data-euler-canvas tabindex="0" role="img" aria-label="Interactive Three.js B-Rep example" aria-describedby="euler-view-help"></canvas>
         <p class="topology-fallback" data-euler-fallback hidden>WebGL is unavailable. The exact topology counts remain available beside the view.</p>
+        <div class="view-slider-overlay euler-zoom-control">
+          <label for="euler-zoom-slider">Zoom</label>
+          <input id="euler-zoom-slider" type="range" min="50" max="400" step="1" value="100" data-euler-zoom-slider aria-label="Euler model zoom">
+          <output for="euler-zoom-slider" data-euler-zoom-output>100%</output>
+        </div>
         <div class="model-counts" aria-label="Current topology counts"><span><small>V</small><strong data-count="V">8</strong></span><span><small>E</small><strong data-count="E">12</strong></span><span><small>F</small><strong data-count="F">6</strong></span><span><small>L</small><strong data-count="L">6</strong></span><span><small>S</small><strong data-count="S">1</strong></span><span><small>G</small><strong data-count="G">0</strong></span></div>
       </div>
-      <figcaption><div class="euler-zoom-control"><label for="euler-zoom-slider">Zoom</label><input id="euler-zoom-slider" type="range" min="50" max="400" step="1" value="100" data-euler-zoom-slider aria-label="Euler model zoom"><output for="euler-zoom-slider" data-euler-zoom-output>100%</output></div><p id="euler-view-help">Drag to orbit. Use the slider or scroll to zoom; arrow keys rotate; Home resets the view.</p></figcaption>
+      <figcaption><p id="euler-view-help">Drag to orbit. Use the slider or scroll to zoom; arrow keys rotate; Home resets the view.</p></figcaption>
     </figure>
   </div>
   <p class="topology-status" data-euler-status aria-live="polite"></p>
@@ -310,13 +315,23 @@ g=1.
   </div>
   <figure class="winged-view">
     <div class="view-title"><strong>3D solid → unfolded plane</strong><button class="mini-button fullscreen-button" type="button" data-fullscreen aria-pressed="false">Full screen</button></div>
-    <div class="winged-canvas-wrap"><canvas data-winged-canvas tabindex="0" role="img" aria-label="Interactive labeled solid for the winged-edge data structure" aria-describedby="winged-help"></canvas><p class="topology-fallback" data-winged-fallback hidden>WebGL is unavailable. The winged-edge explanation and record fields remain available below.</p><p class="zoom-point-badge" data-selected-point>Zoom point: model center. Click the solid to select a point.</p></div>
+    <div class="winged-canvas-wrap">
+      <canvas data-winged-canvas tabindex="0" role="img" aria-label="Interactive labeled solid for the winged-edge data structure" aria-describedby="winged-help"></canvas>
+      <p class="topology-fallback" data-winged-fallback hidden>WebGL is unavailable. The winged-edge explanation and record fields remain available below.</p>
+      <p class="zoom-point-badge" data-selected-point>Zoom point: model center. Click the solid to select a point.</p>
+      <div class="view-slider-overlay winged-slider-controls" role="group" aria-label="Solid view sliders">
+        <div class="view-slider-control">
+          <label for="winged-progress">Opening <output id="winged-progress-value" data-winged-progress-output for="winged-progress">0% · solid</output></label>
+          <input id="winged-progress" data-winged-progress type="range" min="0" max="100" step="1" value="0" aria-label="Open the solid faces into one plane">
+        </div>
+        <div class="view-slider-control">
+          <label for="winged-zoom">Zoom <output id="winged-zoom-value" data-zoom-output for="winged-zoom">100%</output></label>
+          <input id="winged-zoom" data-zoom-slider type="range" min="50" max="400" step="1" value="100" aria-label="Zoom around the selected point">
+        </div>
+      </div>
+    </div>
     <figcaption class="unfold-controls">
-      <label for="winged-progress">Opening <output id="winged-progress-value" data-winged-progress-output for="winged-progress">0% · solid</output></label>
-      <input id="winged-progress" data-winged-progress type="range" min="0" max="100" step="1" value="0" aria-label="Open the solid faces into one plane">
       <div class="unfold-actions"><button class="mini-button primary-control" type="button" data-unfold>Open all faces</button><button class="mini-button" type="button" data-fold>Reset solid</button></div>
-      <label for="winged-zoom">Zoom <output id="winged-zoom-value" data-zoom-output for="winged-zoom">100%</output></label>
-      <input id="winged-zoom" data-zoom-slider type="range" min="50" max="400" step="1" value="100" aria-label="Zoom around the selected point">
       <div class="zoom-actions" role="group" aria-label="View controls"><button class="mini-button primary-control" type="button" data-zoom-point disabled>Zoom to selected point</button><button class="mini-button" type="button" data-view-reset>Reset view</button></div>
       <label class="labels-toggle"><input type="checkbox" data-show-labels checked> Show vertex, edge, and face labels</label>
       <div class="download-actions" id="winged-lab-downloads" role="group" aria-label="Download diagram and topology data"><button class="mini-button" type="button" data-download-svg>Download SVG</button><button class="mini-button" type="button" data-download-pdf>Download PDF</button><button class="mini-button" type="button" data-download-csv>Download complete WEDS (CSV)</button><button class="mini-button" type="button" data-download-halfedges>Download half-edges (CSV)</button></div>
