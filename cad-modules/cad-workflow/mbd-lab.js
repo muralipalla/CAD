@@ -11,475 +11,274 @@
 })(typeof window !== "undefined" ? window : null, function (root) {
   "use strict";
 
-  const STAGES = Object.freeze([
-    Object.freeze({ label: "Nominal model", description: "Begin with the theoretically exact plate and hole." }),
-    Object.freeze({ label: "Datum features", description: "Identify the physical faces used to establish A, B, and C." }),
-    Object.freeze({ label: "Datum reference frame", description: "Derive the ideal reference planes and coordinate frame in datum order." }),
-    Object.freeze({ label: "PMI association", description: "Associate the position requirement with the hole and its datum references." }),
-    Object.freeze({ label: "Tolerance zone", description: "Locate the cylindrical position-tolerance zone from basic dimensions." }),
-    Object.freeze({ label: "Inspection result", description: "Compare the measured hole axis with the permitted cylindrical zone." })
+  const FEATURES = Object.freeze({
+    hole: Object.freeze({ label: "Hole", target: "cylindrical bore" }),
+    slot: Object.freeze({ label: "Slot", target: "opposed walls" }),
+    surface: Object.freeze({ label: "Planar pad", target: "top pad face" }),
+    shaft: Object.freeze({ label: "Stepped shaft", target: "upper shaft step" })
+  });
+  const CONTROLS = Object.freeze([
+    Object.freeze({ id: "straightness", label: "Straightness", symbol: "⏤", family: "Form", features: ["hole", "slot"] }),
+    Object.freeze({ id: "flatness", label: "Flatness", symbol: "⏥", family: "Form", features: ["slot", "surface"] }),
+    Object.freeze({ id: "circularity", label: "Circularity", symbol: "○", family: "Form", features: ["hole"] }),
+    Object.freeze({ id: "cylindricity", label: "Cylindricity", symbol: "⌭", family: "Form", features: ["hole"] }),
+    Object.freeze({ id: "profile-line", label: "Profile of a line", symbol: "⌒", family: "Profile", features: ["hole", "slot", "surface"] }),
+    Object.freeze({ id: "profile-surface", label: "Profile of a surface", symbol: "⌓", family: "Profile", features: ["hole", "slot", "surface"] }),
+    Object.freeze({ id: "parallelism", label: "Parallelism", symbol: "∥", family: "Orientation", features: ["surface"] }),
+    Object.freeze({ id: "perpendicularity", label: "Perpendicularity", symbol: "⟂", family: "Orientation", features: ["hole", "slot"] }),
+    Object.freeze({ id: "position", label: "Position", symbol: "⌖", family: "Location", features: ["hole", "slot"] }),
+    Object.freeze({ id: "circular-runout", label: "Circular runout", symbol: "↗", family: "Runout", features: ["shaft"] }),
+    Object.freeze({ id: "total-runout", label: "Total runout", symbol: "⌰", family: "Runout", features: ["shaft"] })
   ]);
+  const GROUPS = ["Form", "Profile", "Orientation", "Location", "Runout"];
 
-  function finite(value, name) {
-    if (!Number.isFinite(value)) throw new RangeError(name + " must be finite.");
-    return value;
-  }
-
-  function positionResult(offsetX, offsetY, diameterTolerance) {
-    finite(offsetX, "offsetX");
-    finite(offsetY, "offsetY");
-    finite(diameterTolerance, "diameterTolerance");
-    if (diameterTolerance <= 0) throw new RangeError("diameterTolerance must be positive.");
-    const radialOffset = Math.hypot(offsetX, offsetY);
-    const diametricalDeviation = 2 * radialOffset;
-    const margin = diameterTolerance - diametricalDeviation;
-    return {
-      radialOffset,
-      diametricalDeviation,
-      diameterTolerance,
-      margin,
-      pass: diametricalDeviation <= diameterTolerance + 1e-12
-    };
-  }
-
-  function stageState(index) {
-    if (!Number.isInteger(index) || index < 0 || index >= STAGES.length) throw new RangeError("Unknown workflow stage.");
-    return {
-      index,
-      label: STAGES[index].label,
-      description: STAGES[index].description,
-      showDatumFeatures: index >= 1,
-      showDatumFrame: index >= 2,
-      showPmi: index >= 3,
-      showToleranceZone: index >= 4,
-      showInspection: index >= 5
-    };
-  }
-
-  function makePlateShape(T, centerX, centerY) {
-    const shape = new T.Shape();
-    shape.moveTo(-3, -1.8);
-    shape.lineTo(3, -1.8);
-    shape.lineTo(3, 1.8);
-    shape.lineTo(-3, 1.8);
-    shape.closePath();
-    const controlledHole = new T.Path();
-    controlledHole.absarc(centerX, centerY, 0.52, 0, Math.PI * 2, true);
-    shape.holes.push(controlledHole);
-    [[-1.7, -0.8], [-1.7, 0.8]].forEach(function (center) {
-      const hole = new T.Path();
-      hole.absarc(center[0], center[1], 0.3, 0, Math.PI * 2, true);
-      shape.holes.push(hole);
+  function availableControls(feature, datumCount) {
+    if (!FEATURES[feature]) throw new RangeError("Unknown feature.");
+    if (![0, 1, 2, 3].includes(datumCount)) throw new RangeError("Choose no datum, A, A–B, or A–B–C.");
+    return CONTROLS.filter(function (control) {
+      return control.features.includes(feature) && (feature === "shaft" || datumCount > 0 || control.family === "Form" || control.family === "Profile");
     });
-    return shape;
   }
-
-  function makePlateGeometry(T, offsetX, offsetY, showInspection) {
-    const visualScale = 0.8;
-    const centerX = 0.8 + (showInspection ? offsetX * visualScale : 0);
-    const centerY = 0.25 + (showInspection ? offsetY * visualScale : 0);
-    const shape = makePlateShape(T, centerX, centerY);
-    const geometry = new T.ExtrudeGeometry(shape, { depth: 0.72, bevelEnabled: false, curveSegments: 48, steps: 1 });
-    geometry.translate(0, 0, -0.36);
-    geometry.computeVertexNormals();
-    return geometry;
+  function zoneFor(feature, id) {
+    if (id === "circular-runout") return { kind: "runout-section", name: "One radial section band", diameter: false };
+    if (id === "total-runout") return { kind: "runout-full", name: "Whole-surface radial band", diameter: false };
+    if (id === "circularity") return { kind: "annulus", name: "Concentric-circle band", diameter: false };
+    if (id === "cylindricity") return { kind: "cylinder-shell", name: "Coaxial cylindrical shell", diameter: false };
+    if (id === "profile-line") return { kind: feature === "hole" ? "annulus" : feature === "slot" ? "slot-contour" : "profile-line", name: "Line-profile band", diameter: false };
+    if (id === "profile-surface") return { kind: feature === "hole" ? "cylinder-shell" : feature === "slot" ? "slot-walls" : "profile-surface", name: "Surface-profile envelope", diameter: false };
+    if (feature === "hole") return { kind: "axis-cylinder", name: "Cylindrical axis zone", diameter: true };
+    if (id === "straightness") return { kind: "line-band", name: "Straightness band", diameter: false };
+    return { kind: "parallel-planes", name: "Two parallel planes", diameter: false };
   }
-
-  function createViewer(canvas, fallback) {
-    const T = root && root.THREE;
-    const unavailable = { available: false, update: function () {}, dispose: function () {} };
-    function fail(message) {
-      if (fallback) {
-        fallback.hidden = false;
-        fallback.textContent = message || "The Three.js MBD viewer could not be loaded. The GD&T and workflow explanation remains available.";
+  function selection(feature, datumCount, controlId, tolerance) {
+    const control = availableControls(feature, datumCount).find(function (item) { return item.id === controlId; });
+    if (!control) throw new RangeError("This control is not applicable to the selected feature and datum setup.");
+    const minimum = control.family === "Runout" ? 0.01 : 0.1;
+    const maximum = control.family === "Runout" ? 0.10 : 1;
+    if (!Number.isFinite(tolerance) || tolerance < minimum || tolerance > maximum) throw new RangeError(`Tolerance must be between ${numberText(minimum)} and ${numberText(maximum)} mm.`);
+    const datumRefs = control.family === "Runout" ? ["D"] : control.family === "Form" ? [] : control.family === "Orientation" ? ["A"] : ["A", "B", "C"].slice(0, datumCount);
+    return { feature, datumCount, control, tolerance, datumRefs, zone: zoneFor(feature, controlId) };
+  }
+  function positionFreedom(datumCount, feature) {
+    if (![1, 2, 3].includes(datumCount)) throw new RangeError("Invalid datum setup.");
+    if (feature === "slot") return datumCount === 1 ? { x: true, y: true, label: "A only · slot may slide and rotate in plane" } :
+      datumCount === 2 ? { x: false, y: true, label: "A–B · direction set; width location free" } :
+        { x: false, y: false, label: "A–B–C · median plane located across slot width" };
+    return datumCount === 1 ? { x: true, y: true, label: "A only · axis ⟂ bottom A · X and Y free" } :
+      datumCount === 2 ? { x: false, y: true, label: "A–B · X fixed · Y free" } :
+        { x: false, y: false, label: "A–B–C · X and Y located" };
+  }
+  const MOTION_AXES = Object.freeze(["tx", "ty", "tz", "rx", "ry", "rz"]);
+  function allowedZoneMotion(state) {
+    const mask = Object.fromEntries(MOTION_AXES.map(function (axis) { return [axis, false]; }));
+    const id = state.control.id;
+    const refs = state.datumRefs;
+    if (!refs.length) {
+      MOTION_AXES.forEach(function (axis) { mask[axis] = true; });
+      return mask;
+    }
+    if (id === "parallelism") { mask.tz = true; return mask; }
+    if (id === "perpendicularity" || id === "position" || state.control.family === "Profile") {
+      mask.tx = !refs.includes("B");
+      mask.ty = !refs.includes("C");
+      mask.rz = state.feature !== "hole" && !refs.includes("B");
+      // A controls tilt; a circular zone's spin around its own axis is not a distinct motion.
+      return mask;
+    }
+    return mask;
+  }
+  function targetFor(state) {
+    const id = state.control.id;
+    if (state.feature === "shaft") return "upper cylindrical step";
+    if (state.feature === "hole") return ["circularity", "profile-line"].includes(id) ? "bore section" : ["cylindricity", "profile-surface"].includes(id) ? "bore surface" : "derived bore axis";
+    if (state.feature === "slot") return id === "profile-line" ? "slot section" : id === "profile-surface" ? "slot walls" : id === "straightness" ? "median line" : "derived median plane";
+    return id === "profile-line" ? "pad-face section" : "top pad face";
+  }
+  function explanation(state) {
+    const id = state.control.id;
+    if (id === "circular-runout") return "At the selected height, two circles coaxial with datum D bound the upper step's surface. Their radial separation is T. Each height is evaluated independently during rotation.";
+    if (id === "total-runout") return "Two cylinders coaxial with datum D bound the entire upper step. Their radial separation is T; one common zone applies along the whole controlled surface during rotation.";
+    if (id === "straightness") return state.feature === "hole" ? "The derived bore axis stays inside a cylindrical zone of diameter T." : "A selected median line of the slot stays between two parallel lines T apart.";
+    if (id === "flatness") return state.feature === "slot" ? "The slot's derived median plane stays between two parallel planes separated by T." : "The selected planar pad face stays between two parallel planes separated by T; no datum is referenced.";
+    if (id === "circularity") return "Each bore cross-section stays between two concentric circles with radial separation T.";
+    if (id === "cylindricity") return "The whole bore surface stays between two coaxial cylinders with radial separation T.";
+    if (id === "profile-line") return state.feature === "surface" ? "A section of the planar pad face stays between two lines T apart." : "The selected section stays inside a band bounded by two normal-offset curves, T apart.";
+    if (id === "profile-surface") return state.feature === "surface" ? state.datumRefs.length ? "The planar pad face stays between two profile boundaries T apart, oriented and located by the referenced datums." : "The planar pad face stays between two profile boundaries T apart, with no datum reference." : "The selected surface stays within a three-dimensional envelope of two normal-offset surfaces, T apart.";
+    if (id === "parallelism") return "The top pad face stays between two planes T apart, parallel to bottom datum A. The zone is not located in height by parallelism alone.";
+    if (id === "perpendicularity") return `The ${targetFor(state)} stays inside a zone perpendicular to bottom datum A.`;
+    return state.feature === "hole" ? "The derived bore axis stays inside a cylindrical position zone of diameter T." : "The slot's derived median plane stays between two parallel planes separated by T.";
+  }
+  function refNote(state) {
+    if (state.control.family === "Runout") return "The lower cylindrical journal establishes datum axis D; only the upper step is controlled. T is radial, with no diameter symbol or MMC bonus. The red gap is enlarged for visibility and its radial placement is schematic, not fixed to nominal size.";
+    if (state.control.family === "Form") return "Form controls do not use datum references. The selected datum setup is not in this feature control frame.";
+    if (!state.datumRefs.length) return "No datum is referenced. The profile zone controls form but is free to shift and rotate relative to the part; it does not establish location or orientation.";
+    if (state.control.id === "position") {
+      if (state.feature === "slot") {
+        if (state.datumCount === 1) return "A constrains tilt of the slot's derived median plane but leaves in-plane rotation and translation free; this is not full slot location.";
+        if (state.datumCount === 2) return "The short end datum B sets the in-plane direction. The median plane can still shift across the slot width until C is referenced.";
+        return "C, the long side, fixes the median plane across the slot width. The boxed 2.30 mm is its basic distance from C. Position of that median plane does not by itself control the slot's end geometry or its lengthwise extent.";
       }
-      canvas.tabIndex = -1;
-      return unavailable;
+      if (state.datumCount === 1) return "A is the bottom face. It orients the cylindrical zone perpendicular to A but does not locate the hole in X or Y, so no X/Y basic location dimensions are shown. Use the X and Y sliders to translate the zone.";
+      if (state.datumCount === 2) return "B is the short end face. The boxed 4.04 mm is the basic B-to-hole X distance; Y remains free and the hole axis stays perpendicular to A.";
+      return "C is the long side face. Boxed basic dimensions locate the hole 4.04 mm from B in X and 2.04 mm from C in Y.";
     }
-    if (!T) return fail();
-
-    let renderer;
-    try {
-      renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
-    } catch (_) {
-      return fail();
-    }
-    if (fallback) fallback.hidden = true;
-
-    const scene = new T.Scene();
-    scene.background = new T.Color(0x10182d);
-    const camera = new T.PerspectiveCamera(36, 1, 0.05, 100);
-    const target = new T.Vector3(0, 0, 0);
-    const modelGroup = new T.Group();
-    const grid = new T.GridHelper(10, 20, 0x63728e, 0x283650);
-    grid.rotation.x = Math.PI / 2;
-    grid.position.z = -0.62;
-    scene.add(grid, modelGroup);
-    scene.add(new T.HemisphereLight(0xcfe9ff, 0x24304b, 1.4));
-    const key = new T.DirectionalLight(0xffffff, 1.5);
-    key.position.set(5, -4, 7);
-    scene.add(key);
-    const fill = new T.DirectionalLight(0x8da9ff, 0.65);
-    fill.position.set(-5, 3, 2);
-    scene.add(fill);
-
-    const listeners = [];
-    const pointers = new Map();
-    let radius = 8.8;
-    let azimuth = -0.78;
-    let elevation = 0.5;
-    let lastPairDistance = 0;
-    let pending = 0;
-    let observer = null;
-    let disposed = false;
-
-    function on(targetNode, name, listener, options) {
-      targetNode.addEventListener(name, listener, options);
-      listeners.push([targetNode, name, listener, options]);
-    }
-
-    function clearGroup(group) {
-      const geometries = new Set();
-      const materials = new Set();
-      const textures = new Set();
-      group.traverse(function (object) {
-        if (object.geometry) geometries.add(object.geometry);
-        const list = Array.isArray(object.material) ? object.material : [object.material];
-        list.filter(Boolean).forEach(function (material) {
-          materials.add(material);
-          if (material.map) textures.add(material.map);
-        });
-      });
-      while (group.children.length) group.remove(group.children[0]);
-      geometries.forEach(function (geometry) { geometry.dispose(); });
-      textures.forEach(function (texture) { texture.dispose(); });
-      materials.forEach(function (material) { material.dispose(); });
-    }
-
-    function updateCamera() {
-      const horizontal = radius * Math.cos(elevation);
-      camera.position.set(
-        target.x + horizontal * Math.cos(azimuth),
-        target.y + horizontal * Math.sin(azimuth),
-        target.z + radius * Math.sin(elevation)
-      );
-      camera.up.set(0, 0, 1);
-      camera.lookAt(target);
-    }
-
-    function render() {
-      pending = 0;
-      if (!disposed) renderer.render(scene, camera);
-    }
-
-    function schedule() {
-      if (!pending && !disposed) pending = root.requestAnimationFrame(render);
-    }
-
-    function resize() {
-      const rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      renderer.setPixelRatio(Math.min(root.devicePixelRatio || 1, 2));
-      renderer.setSize(rect.width, rect.height, false);
-      camera.aspect = rect.width / rect.height;
-      camera.updateProjectionMatrix();
-      schedule();
-    }
-
-    function labelSprite(text, color) {
-      const labelCanvas = root.document.createElement("canvas");
-      labelCanvas.width = 128;
-      labelCanvas.height = 64;
-      const context = labelCanvas.getContext("2d");
-      context.fillStyle = "rgba(16,24,45,.92)";
-      context.fillRect(4, 4, 120, 56);
-      context.strokeStyle = color;
-      context.lineWidth = 5;
-      context.strokeRect(4, 4, 120, 56);
-      context.fillStyle = "#ffffff";
-      context.font = "bold 34px system-ui, sans-serif";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.fillText(text, 64, 32);
-      const texture = new T.CanvasTexture(labelCanvas);
-      texture.colorSpace = T.SRGBColorSpace;
-      const sprite = new T.Sprite(new T.SpriteMaterial({ map: texture, transparent: true, depthTest: false }));
-      sprite.scale.set(0.8, 0.4, 1);
-      return sprite;
-    }
-
-    function addDatumFeatures(state, offsetX, offsetY) {
-      if (!state.showDatumFeatures) return;
-      const visualScale = 0.8;
-      const centerX = 0.8 + (state.showInspection ? offsetX * visualScale : 0);
-      const centerY = 0.25 + (state.showInspection ? offsetY * visualScale : 0);
-      const materialA = new T.MeshBasicMaterial({ color: 0x64d7ff, transparent: true, opacity: 0.42, side: T.DoubleSide, depthWrite: false });
-      const materialB = new T.MeshBasicMaterial({ color: 0x7ce8b2, transparent: true, opacity: 0.4, side: T.DoubleSide, depthWrite: false });
-      const materialC = new T.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.38, side: T.DoubleSide, depthWrite: false });
-
-      const featureA = new T.Mesh(new T.ShapeGeometry(makePlateShape(T, centerX, centerY), 48), materialA);
-      featureA.position.z = -0.371;
-      const featureB = new T.Mesh(new T.PlaneGeometry(0.72, 3.6), materialB);
-      featureB.rotation.y = Math.PI / 2;
-      featureB.position.set(-3.011, 0, 0);
-      const featureC = new T.Mesh(new T.PlaneGeometry(6, 0.72), materialC);
-      featureC.rotation.x = Math.PI / 2;
-      featureC.position.set(0, -1.811, 0);
-      modelGroup.add(featureA, featureB, featureC);
-
-      const labelA = labelSprite("A", "#64d7ff");
-      labelA.position.set(2.7, 1.65, -0.62);
-      const labelB = labelSprite("B", "#7ce8b2");
-      labelB.position.set(-3.4, 1.5, 0.7);
-      const labelC = labelSprite("C", "#ffd76a");
-      labelC.position.set(2.6, -2.08, 0.7);
-      modelGroup.add(labelA, labelB, labelC);
-    }
-
-    function addDatumFrame(state) {
-      if (!state.showDatumFrame) return;
-      const planeOptions = { transparent: true, opacity: 0.13, side: T.DoubleSide, depthWrite: false };
-      const datumA = new T.Mesh(new T.PlaneGeometry(7.1, 4.5), new T.MeshBasicMaterial({ ...planeOptions, color: 0x64d7ff }));
-      datumA.position.z = -0.405;
-      const datumB = new T.Mesh(new T.PlaneGeometry(1.55, 4.4), new T.MeshBasicMaterial({ ...planeOptions, color: 0x7ce8b2 }));
-      datumB.rotation.y = Math.PI / 2;
-      datumB.position.set(-3.075, 0, 0.16);
-      const datumC = new T.Mesh(new T.PlaneGeometry(6.5, 1.55), new T.MeshBasicMaterial({ ...planeOptions, color: 0xffd76a }));
-      datumC.rotation.x = Math.PI / 2;
-      datumC.position.set(0, -1.875, 0.16);
-      const origin = new T.Vector3(-2.78, -1.58, -0.37);
-      modelGroup.add(
-        datumA,
-        datumB,
-        datumC,
-        new T.ArrowHelper(new T.Vector3(1, 0, 0), origin, 1.25, 0xff7868, 0.18, 0.1),
-        new T.ArrowHelper(new T.Vector3(0, 1, 0), origin, 1.25, 0x7ce8b2, 0.18, 0.1),
-        new T.ArrowHelper(new T.Vector3(0, 0, 1), origin, 1.25, 0x64d7ff, 0.18, 0.1)
-      );
-    }
-
-    function addPmiLink(state) {
-      if (!state.showPmi) return;
-      const points = [new T.Vector3(0.8, 0.25, 0.44), new T.Vector3(1.65, 1.35, 1.1), new T.Vector3(2.55, 1.35, 1.1)];
-      modelGroup.add(new T.Line(new T.BufferGeometry().setFromPoints(points), new T.LineBasicMaterial({ color: 0xbba5ff })));
-      const marker = new T.Mesh(new T.SphereGeometry(0.1, 18, 12), new T.MeshBasicMaterial({ color: 0xbba5ff }));
-      marker.position.copy(points[0]);
-      modelGroup.add(marker);
-    }
-
-    function addToleranceAndInspection(state, result, offsetX, offsetY) {
-      if (!state.showToleranceZone) return;
-      const visualScale = 0.8;
-      const nominalX = 0.8;
-      const nominalY = 0.25;
-      const zoneRadius = result.diameterTolerance * visualScale / 2;
-      const zoneColor = state.showInspection && !result.pass ? 0xff7868 : 0x7ce8b2;
-      const zone = new T.Mesh(
-        new T.CylinderGeometry(zoneRadius, zoneRadius, 1.7, 40, 1, true),
-        new T.MeshBasicMaterial({ color: zoneColor, transparent: true, opacity: 0.26, side: T.DoubleSide, depthWrite: false })
-      );
-      zone.rotation.x = Math.PI / 2;
-      zone.position.set(nominalX, nominalY, 0);
-      modelGroup.add(zone);
-
-      const nominalAxis = new T.Line(
-        new T.BufferGeometry().setFromPoints([new T.Vector3(nominalX, nominalY, -1), new T.Vector3(nominalX, nominalY, 1)]),
-        new T.LineDashedMaterial({ color: 0x7ce8b2, dashSize: 0.14, gapSize: 0.09 })
-      );
-      nominalAxis.computeLineDistances();
-      modelGroup.add(nominalAxis);
-
-      if (!state.showInspection) return;
-      const actualX = nominalX + offsetX * visualScale;
-      const actualY = nominalY + offsetY * visualScale;
-      const actualAxis = new T.Line(
-        new T.BufferGeometry().setFromPoints([new T.Vector3(actualX, actualY, -1), new T.Vector3(actualX, actualY, 1)]),
-        new T.LineBasicMaterial({ color: 0xff7868 })
-      );
-      modelGroup.add(actualAxis);
-      [-0.72, -0.36, 0, 0.36, 0.72].forEach(function (z) {
-        const point = new T.Mesh(new T.SphereGeometry(0.065, 14, 10), new T.MeshBasicMaterial({ color: 0xffd76a }));
-        point.position.set(actualX, actualY, z);
-        modelGroup.add(point);
-      });
-    }
-
-    function update(stageIndex, offsetX, offsetY, diameterTolerance) {
-      const state = stageState(stageIndex);
-      const result = positionResult(offsetX, offsetY, diameterTolerance);
-      clearGroup(modelGroup);
-      const geometry = makePlateGeometry(T, offsetX, offsetY, state.showInspection);
-      const part = new T.Mesh(geometry, new T.MeshStandardMaterial({ color: 0x72d3ef, roughness: 0.42, metalness: 0.08 }));
-      modelGroup.add(part);
-      modelGroup.add(new T.LineSegments(new T.EdgesGeometry(geometry, 20), new T.LineBasicMaterial({ color: 0xd9efff, transparent: true, opacity: 0.85 })));
-      addDatumFeatures(state, offsetX, offsetY);
-      addDatumFrame(state);
-      addPmiLink(state);
-      addToleranceAndInspection(state, result, offsetX, offsetY);
-      schedule();
-    }
-
-    function pairDistance() {
-      const points = [...pointers.values()];
-      return points.length < 2 ? 0 : Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
-    }
-    on(canvas, "pointerdown", function (event) {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
-      event.preventDefault();
-      try { canvas.focus({ preventScroll: true }); } catch (_) { canvas.focus(); }
-      canvas.setPointerCapture(event.pointerId);
-      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-      lastPairDistance = pairDistance();
-    });
-    on(canvas, "pointermove", function (event) {
-      const previous = pointers.get(event.pointerId);
-      if (!previous) return;
-      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
-      if (pointers.size === 1) {
-        azimuth -= (event.clientX - previous.x) * 0.008;
-        elevation = Math.max(-1.25, Math.min(1.35, elevation + (event.clientY - previous.y) * 0.007));
-      } else if (pointers.size === 2) {
-        const distance = pairDistance();
-        if (lastPairDistance > 0 && distance > 0) radius = Math.max(5, Math.min(15, radius * lastPairDistance / distance));
-        lastPairDistance = distance;
-      }
-      updateCamera();
-      schedule();
-    });
-    function release(event) {
-      pointers.delete(event.pointerId);
-      lastPairDistance = pairDistance();
-    }
-    on(canvas, "pointerup", release);
-    on(canvas, "pointercancel", release);
-    on(canvas, "lostpointercapture", release);
-    on(canvas, "wheel", function (event) {
-      event.preventDefault();
-      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? canvas.clientHeight : 1;
-      const delta = Math.max(-1000, Math.min(1000, event.deltaY * unit));
-      radius = Math.max(5, Math.min(15, radius * Math.exp(delta * 0.001)));
-      updateCamera();
-      schedule();
-    }, { passive: false });
-    on(canvas, "keydown", function (event) {
-      const key = event.key;
-      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "+", "=", "-", "_", "Home"].includes(key)) return;
-      event.preventDefault();
-      if (key === "ArrowLeft") azimuth += 0.12;
-      if (key === "ArrowRight") azimuth -= 0.12;
-      if (key === "ArrowUp") elevation = Math.min(1.35, elevation + 0.1);
-      if (key === "ArrowDown") elevation = Math.max(-1.25, elevation - 0.1);
-      if (key === "+" || key === "=") radius = Math.max(5, radius * 0.9);
-      if (key === "-" || key === "_") radius = Math.min(15, radius * 1.1);
-      if (key === "Home") { radius = 8.8; azimuth = -0.78; elevation = 0.5; }
-      updateCamera();
-      schedule();
-    });
-    on(canvas, "webglcontextlost", function (event) {
-      event.preventDefault();
-      if (fallback) { fallback.hidden = false; fallback.textContent = "The 3D context was lost. Reload the page to restore the MBD view."; }
-    });
-    on(canvas, "webglcontextrestored", function () {
-      if (fallback) fallback.hidden = true;
-      schedule();
-    });
-
-    updateCamera();
-    if (root.ResizeObserver) {
-      observer = new root.ResizeObserver(resize);
-      observer.observe(canvas);
-    } else on(root, "resize", resize);
-    resize();
-
-    return {
-      available: true,
-      update,
-      dispose: function () {
-        disposed = true;
-        if (pending) root.cancelAnimationFrame(pending);
-        if (observer) observer.disconnect();
-        listeners.forEach(function (entry) { entry[0].removeEventListener(entry[1], entry[2], entry[3]); });
-        clearGroup(modelGroup);
-        if (grid.geometry) grid.geometry.dispose();
-        (Array.isArray(grid.material) ? grid.material : [grid.material]).filter(Boolean).forEach(function (material) { material.dispose(); });
-        renderer.dispose();
-      }
-    };
+    if (state.control.id === "parallelism") return "Only bottom datum A is used for this orientation control. B and C are not included in this feature control frame even if the datum setup is selected.";
+    if (state.control.id === "perpendicularity") return state.feature === "hole" ? "Only A is needed. Like position referenced to A alone, this cylindrical orientation zone can shift in X and Y; it does not locate the hole." : "Only bottom A is used. The slot's median-plane zone is perpendicular to A but is not located across the plate.";
+    return "The datum references orient and, where applicable, locate the nominal profile zone; basic geometry defines its nominal shape.";
   }
-
-  function numberText(value) {
-    return Math.abs(value) < 0.0005 ? "0.000" : value.toFixed(3);
-  }
+  function numberText(value) { return Number(value).toFixed(2); }
 
   function mountLab(lab) {
-    if (lab.dataset.workflowMounted === "true") return;
-    lab.dataset.workflowMounted = "true";
-    const find = function (name) { return lab.querySelector(`[data-${name}]`); };
-    const canvas = find("mbd-canvas");
-    const fallback = find("mbd-fallback");
-    const offsetX = find("offset-x");
-    const offsetY = find("offset-y");
-    const tolerance = find("position-tolerance");
-    if (!canvas || !offsetX || !offsetY || !tolerance) return;
-    const viewer = createViewer(canvas, fallback);
-    let activeStage = 0;
-
-    function update(announce) {
-      const state = stageState(activeStage);
-      const x = offsetX.valueAsNumber;
-      const y = offsetY.valueAsNumber;
-      const diameter = tolerance.valueAsNumber;
-      const result = positionResult(x, y, diameter);
-      find("workflow-step-count").value = `Step ${activeStage + 1} of ${STAGES.length}`;
-      find("workflow-step-count").textContent = `Step ${activeStage + 1} of ${STAGES.length}`;
-      find("workflow-step-title").textContent = state.label;
-      find("workflow-step-description").textContent = state.description;
-      find("workflow-prev").disabled = activeStage === 0;
-      find("workflow-next").disabled = activeStage === STAGES.length - 1;
-      find("offset-x-output").value = `${numberText(x)} mm`;
-      find("offset-x-output").textContent = `${numberText(x)} mm`;
-      find("offset-y-output").value = `${numberText(y)} mm`;
-      find("offset-y-output").textContent = `${numberText(y)} mm`;
-      find("position-tolerance-output").value = `⌀${diameter.toFixed(2)} mm`;
-      find("position-tolerance-output").textContent = `⌀${diameter.toFixed(2)} mm`;
-      find("radial-offset").textContent = `${numberText(result.radialOffset)} mm`;
-      find("diametrical-deviation").textContent = `${numberText(result.diametricalDeviation)} mm`;
-      find("inspection-result").textContent = result.pass ? "Pass" : "Fail";
-      find("mbd-overlay-title").textContent = state.label;
-      find("mbd-overlay-text").textContent = state.description;
-      find("feature-control-frame").textContent = `⌖ | ⌀${diameter.toFixed(2)} | A | B | C`;
-      find("feature-control-frame").hidden = !state.showPmi;
-
-      const status = find("mbd-status");
-      if (state.showInspection) {
-        status.dataset.result = result.pass ? "pass" : "fail";
-        status.textContent = `${result.pass ? "Pass" : "Fail"}: diametrical axis deviation ${numberText(result.diametricalDeviation)} mm ${result.pass ? "does not exceed" : "exceeds"} the ⌀${diameter.toFixed(2)} mm position tolerance. The visual deviation is enlarged for teaching.`;
-      } else {
-        delete status.dataset.result;
-        status.textContent = state.description;
-      }
-      const resultLabel = state.showInspection ? ` Simplified inspection result ${result.pass ? "pass" : "fail"}.` : "";
-      canvas.setAttribute("aria-label", `${state.label} for a plate with a position-controlled hole.${resultLabel}`);
-      viewer.update(activeStage, x, y, diameter);
-      if (announce) {
-        const live = find("mbd-live");
-        if (live) live.textContent = state.showInspection ? `${state.label}. ${status.textContent}` : `${state.label}. ${state.description}`;
-      }
+    if (lab.dataset.mbdMounted === "true") return;
+    const doc = lab.ownerDocument;
+    const featureInputs = [...lab.querySelectorAll('input[name="gdt-feature"]')];
+    const datumInput = lab.querySelector("[data-gdt-datums]");
+    const controlInput = lab.querySelector("[data-gdt-control]");
+    const toleranceInput = lab.querySelector("[data-gdt-tolerance]");
+    const stationInput = lab.querySelector("[data-gdt-station]");
+    const motionInputs = [...lab.querySelectorAll("[data-gdt-motion]")];
+    const motionReset = lab.querySelector("[data-gdt-reset-motion]");
+    const host = lab.querySelector("[data-gdt-viewer]");
+    if (!datumInput || !controlInput || !toleranceInput || !host) return;
+    const viewer = root.CADWorkflowThree && root.CADWorkflowThree.createViewer(host);
+    if (!viewer) host.querySelector("[data-gdt-webgl-fallback]").hidden = false;
+    lab.dataset.mbdMounted = "true";
+    function checked(inputs) { return inputs.find(function (input) { return input.checked; }).value; }
+    function readMotion() {
+      return Object.fromEntries(motionInputs.map(function (input) { return [input.dataset.gdtMotion, input.disabled ? 0 : Number(input.value)]; }));
     }
-
-    find("workflow-prev").addEventListener("click", function () { activeStage = Math.max(0, activeStage - 1); update(true); });
-    find("workflow-next").addEventListener("click", function () { activeStage = Math.min(STAGES.length - 1, activeStage + 1); update(true); });
-    [offsetX, offsetY, tolerance].forEach(function (input) {
-      input.addEventListener("input", function () { update(false); });
-      input.addEventListener("change", function () { update(true); });
+    function updateMotionOutputs() {
+      motionInputs.forEach(function (input) {
+        const axis = input.dataset.gdtMotion, value = Number(input.value);
+        lab.querySelector(`[data-gdt-motion-output="${axis}"]`).textContent = axis[0] === "r" ? `${value}°` : `${value.toFixed(2)} mm`;
+      });
+      if (motionReset) motionReset.disabled = motionInputs.every(function (input) { return Number(input.value) === 0; });
+    }
+    function syncMotionControls(state) {
+      const allowed = allowedZoneMotion(state);
+      motionInputs.forEach(function (input) {
+        const active = allowed[input.dataset.gdtMotion];
+        input.disabled = !active;
+        if (!active) input.value = "0";
+        input.closest(".gdt-motion-row").classList.toggle("is-locked", !active);
+      });
+      updateMotionOutputs();
+      const active = MOTION_AXES.filter(function (axis) { return allowed[axis]; });
+      lab.querySelector("[data-gdt-motion-help]").textContent = !state.datumRefs.length ?
+        "No datum in this frame: the illustrated finite zone can translate and rotate freely." :
+        active.length ? `Frame ${state.datumRefs.join("–")} · free: ${active.map(function (axis) { return axis[0] === "t" ? `move ${axis[1].toUpperCase()}` : `rotate ${axis[1].toUpperCase()}`; }).join(", ")}. Other zone motions are locked.` :
+          `Frame ${state.datumRefs.join("–")}: the illustrated zone is fixed by these references.`;
+      return readMotion();
+    }
+    function populate(feature, datumCount) {
+      const previous = controlInput.value || "position";
+      const available = availableControls(feature, datumCount);
+      controlInput.replaceChildren();
+      GROUPS.forEach(function (family) {
+        const matches = available.filter(function (item) { return item.family === family; });
+        if (!matches.length) return;
+        const group = doc.createElement("optgroup"); group.label = family;
+        matches.forEach(function (item) {
+          const option = doc.createElement("option"); option.value = item.id; option.textContent = `${item.symbol}  ${item.label}`; group.appendChild(option);
+        });
+        controlInput.appendChild(group);
+      });
+      controlInput.value = available.some(function (item) { return item.id === previous; }) ? previous :
+        available.some(function (item) { return item.id === "position"; }) ? "position" :
+          available.some(function (item) { return item.id === "profile-surface"; }) ? "profile-surface" : available[0].id;
+      lab.querySelector("[data-gdt-availability]").textContent = `${available.length} illustrated controls for this feature.`;
+    }
+    function render(announce) {
+      const feature = checked(featureInputs), datumCount = Number(datumInput.value);
+      const state = selection(feature, datumCount, controlInput.value, toleranceInput.valueAsNumber);
+      const shaftMode = feature === "shaft";
+      lab.querySelector("[data-gdt-datum-choice]").hidden = shaftMode;
+      lab.querySelector("[data-gdt-shaft-datum]").hidden = !shaftMode;
+      lab.querySelector("[data-gdt-motion-panel]").hidden = shaftMode;
+      lab.querySelector("[data-gdt-station-field]").hidden = state.control.id !== "circular-runout";
+      state.station = stationInput ? stationInput.valueAsNumber / 100 : 0.5;
+      if (stationInput) lab.querySelector("[data-gdt-station-output]").textContent = `${stationInput.value}% of upper step`;
+      const frame = lab.querySelector("[data-gdt-frame]");
+      frame.replaceChildren();
+      [state.control.symbol, `${state.zone.diameter ? "⌀" : ""}${numberText(state.tolerance)}`, ...state.datumRefs].forEach(function (value) {
+        const cell = doc.createElement("span"); cell.textContent = value; frame.appendChild(cell);
+      });
+      frame.setAttribute("aria-label", `${state.control.label}, ${state.zone.diameter ? "diameter " : ""}${numberText(state.tolerance)} millimetres${state.datumRefs.length ? ", datums " + state.datumRefs.join(" ") : ", no datum references"}`);
+      lab.querySelector("[data-gdt-title]").textContent = state.control.label;
+      lab.querySelector("[data-gdt-zone-type]").textContent = state.zone.name;
+      lab.querySelector("[data-gdt-tolerance-output]").textContent = `${numberText(state.tolerance)} mm`;
+      lab.querySelector("[data-gdt-zone-description]").textContent = explanation(state);
+      lab.querySelector("[data-gdt-reference-note]").textContent = refNote(state);
+      lab.querySelector("[data-gdt-datum-help]").textContent = state.datumRefs.length ?
+        `Frame: ${state.datumRefs.join(" → ")}. A = bottom; B = short end; C = long side.` :
+        "No datum references in this frame. A = bottom; B = short end; C = long side.";
+      lab.querySelector("[data-gdt-basic-legend]").hidden = !(state.control.id === "position" &&
+        (state.feature === "hole" && datumCount >= 2 || state.feature === "slot" && datumCount === 3));
+      lab.querySelector("[data-gdt-freedom]").textContent = shaftMode ?
+        state.control.id === "circular-runout" ? "Datum D · one section at the selected height" : "Datum D · entire upper step" :
+        state.control.id === "position" ? positionFreedom(datumCount, feature).label :
+        state.control.id === "perpendicularity" && feature === "hole" ? positionFreedom(1).label :
+          state.datumRefs.length ? `${state.datumRefs.join("–")} · referenced face highlighted` : state.control.family === "Form" ? "Form zone · no datum reference" : "Datumless profile · location free";
+      state.motion = syncMotionControls(state);
+      if (viewer) viewer.update(state);
+      if (announce) lab.querySelector("[data-gdt-live]").textContent = `${FEATURES[feature].label}: ${state.control.label}. ${state.zone.name}, ${numberText(state.tolerance)} millimetres. ${refNote(state)}`;
+    }
+    function setToleranceScale(runout) {
+      toleranceInput.min = runout ? "0.01" : "0.10";
+      toleranceInput.max = runout ? "0.10" : "1.00";
+      toleranceInput.step = runout ? "0.01" : "0.05";
+      toleranceInput.value = runout ? "0.04" : "0.40";
+      lab.querySelector("[data-gdt-tolerance-min]").textContent = `${toleranceInput.min} mm`;
+      lab.querySelector("[data-gdt-tolerance-max]").textContent = `${Number(toleranceInput.max).toFixed(2)} mm`;
+    }
+    let lastFeature = checked(featureInputs);
+    if (lastFeature === "shaft") setToleranceScale(true);
+    function changeContext() {
+      const feature = checked(featureInputs);
+      if ((feature === "shaft") !== (lastFeature === "shaft")) setToleranceScale(feature === "shaft");
+      lastFeature = feature;
+      populate(feature, Number(datumInput.value));
+      render(true);
+    }
+    featureInputs.forEach(function (input) { input.addEventListener("change", changeContext); });
+    datumInput.addEventListener("change", changeContext);
+    controlInput.addEventListener("change", function () { render(true); });
+    toleranceInput.addEventListener("input", function () { render(false); });
+    toleranceInput.addEventListener("change", function () { render(true); });
+    if (stationInput) stationInput.addEventListener("input", function () { render(false); });
+    motionInputs.forEach(function (input) { input.addEventListener("input", function () { updateMotionOutputs(); if (viewer) viewer.setMotion(readMotion()); }); });
+    if (motionReset) motionReset.addEventListener("click", function () {
+      motionInputs.forEach(function (input) { input.value = "0"; });
+      updateMotionOutputs();
+      if (viewer) viewer.setMotion(readMotion());
     });
-    update(false);
-    if (root) root.addEventListener("pagehide", function (event) { if (!event.persisted) viewer.dispose(); }, { once: true });
-  }
+    lab.querySelector("[data-gdt-reset-view]").addEventListener("click", function () { if (viewer) viewer.resetView(); });
+    lab.querySelector("[data-gdt-bottom-view]").addEventListener("click", function () { if (viewer) viewer.bottomView(); });
 
-  function mountAll(documentObject) {
-    [...documentObject.querySelectorAll("[data-mbd-lab]")].forEach(mountLab);
+    const fullButton = lab.querySelector("[data-gdt-fullscreen]");
+    function isFull() { return doc.fullscreenElement === lab || lab.classList.contains("gdt-fallback-fullscreen"); }
+    function syncFullButton() {
+      const active = isFull();
+      fullButton.querySelector("[data-gdt-fullscreen-label]").textContent = active ? "Exit full screen" : "Full screen";
+      fullButton.setAttribute("aria-label", active ? "Exit full screen" : "Enter full screen");
+      fullButton.setAttribute("aria-pressed", String(active));
+      if (viewer) viewer.resize();
+    }
+    fullButton.addEventListener("click", function () {
+      if (doc.fullscreenElement === lab) {
+        doc.exitFullscreen();
+        lab.classList.remove("gdt-fallback-fullscreen");
+      } else lab.classList.toggle("gdt-fallback-fullscreen");
+      syncFullButton();
+    });
+    doc.addEventListener("fullscreenchange", syncFullButton);
+    doc.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && lab.classList.contains("gdt-fallback-fullscreen")) { lab.classList.remove("gdt-fallback-fullscreen"); syncFullButton(); }
+    });
+    populate(checked(featureInputs), Number(datumInput.value));
+    render(false);
+    syncFullButton();
   }
-
-  return { STAGES, positionResult, stageState, mountAll };
+  function mountAll(documentObject) { [...documentObject.querySelectorAll("[data-mbd-lab]")].forEach(mountLab); }
+  return { FEATURES, CONTROLS, availableControls, zoneFor, selection, positionFreedom, allowedZoneMotion, targetFor, explanation, refNote, mountAll };
 });

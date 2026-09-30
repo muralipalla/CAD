@@ -32,34 +32,115 @@ test("mesh detail settings progress from coarse to very fine", () => {
   assert.throws(() => exchange.detailLevel(1.5), RangeError);
 });
 
-test("position-tolerance result uses diametrical axis deviation", () => {
-  const passing = workflow.positionResult(0.08, 0.05, 0.4);
-  assert.ok(Math.abs(passing.radialOffset - Math.hypot(0.08, 0.05)) < 1e-12);
-  assert.ok(Math.abs(passing.diametricalDeviation - 2 * Math.hypot(0.08, 0.05)) < 1e-12);
-  assert.equal(passing.pass, true);
-
-  assert.equal(workflow.positionResult(0.2, 0, 0.4).pass, true);
-  assert.equal(workflow.positionResult(0.3, 0.3, 0.4).pass, false);
-  assert.throws(() => workflow.positionResult(0, 0, 0), RangeError);
-  assert.throws(() => workflow.positionResult(Number.NaN, 0, 0.4), RangeError);
+test("GD&T studio offers only controls applicable to each modeled feature", () => {
+  const hole = workflow.availableControls("hole", 3).map((control) => control.id);
+  const slot = workflow.availableControls("slot", 3).map((control) => control.id);
+  const surface = workflow.availableControls("surface", 3).map((control) => control.id);
+  assert.ok(hole.includes("circularity") && hole.includes("cylindricity") && hole.includes("position"));
+  assert.ok(slot.includes("flatness") && slot.includes("position"));
+  assert.deepEqual(surface, ["flatness", "profile-line", "profile-surface", "parallelism"]);
+  assert.ok(!workflow.availableControls("hole", 1).some((control) => control.id === "parallelism"));
+  assert.ok(!slot.includes("parallelism"));
+  assert.ok(!hole.includes("circular-runout") && !hole.includes("concentricity"));
+  assert.deepEqual(workflow.availableControls("hole", 0).map((control) => control.id),
+    ["straightness", "circularity", "cylindricity", "profile-line", "profile-surface"]);
+  assert.ok(!workflow.availableControls("slot", 0).some((control) => ["position", "perpendicularity"].includes(control.id)));
+  assert.throws(() => workflow.selection("hole", 0, "position", 0.4), RangeError);
+  assert.throws(() => workflow.availableControls("unknown", 3), RangeError);
 });
 
-test("workflow stages reveal product-definition layers progressively", () => {
-  assert.equal(workflow.STAGES.length, 6);
-  assert.deepEqual(workflow.stageState(0), {
-    index: 0,
-    label: "Nominal model",
-    description: "Begin with the theoretically exact plate and hole.",
-    showDatumFeatures: false,
-    showDatumFrame: false,
-    showPmi: false,
-    showToleranceZone: false,
-    showInspection: false
-  });
-  assert.equal(workflow.stageState(3).showPmi, true);
-  assert.equal(workflow.stageState(3).showToleranceZone, false);
-  assert.equal(workflow.stageState(5).showInspection, true);
-  assert.throws(() => workflow.stageState(workflow.STAGES.length), RangeError);
+test("datum references and tolerance-zone geometry follow the selected control", () => {
+  const form = workflow.selection("hole", 3, "circularity", 0.4);
+  assert.deepEqual(form.datumRefs, []);
+  assert.equal(form.zone.kind, "annulus");
+  assert.equal(form.zone.diameter, false);
+  const axis = workflow.selection("hole", 1, "position", 0.4);
+  assert.deepEqual(axis.datumRefs, ["A"]);
+  assert.equal(axis.zone.kind, "axis-cylinder");
+  assert.equal(axis.zone.diameter, true);
+  assert.match(workflow.refNote(axis), /perpendicular to A.*X or Y/);
+  assert.match(workflow.refNote(workflow.selection("hole", 2, "position", 0.4)), /4\.04 mm.*Y remains free/);
+  assert.match(workflow.refNote(workflow.selection("hole", 3, "position", 0.4)), /4\.04 mm from B.*2\.04 mm from C/);
+  assert.match(workflow.refNote(workflow.selection("slot", 3, "position", 0.4)), /2\.30 mm.*basic distance from C/);
+  assert.deepEqual(workflow.positionFreedom(1), { x: true, y: true, label: "A only · axis ⟂ bottom A · X and Y free" });
+  assert.deepEqual([workflow.positionFreedom(2).x, workflow.positionFreedom(2).y], [false, true]);
+  assert.deepEqual([workflow.positionFreedom(3).x, workflow.positionFreedom(3).y], [false, false]);
+  assert.deepEqual(workflow.selection("slot", 2, "position", 0.4).datumRefs, ["A", "B"]);
+  assert.equal(workflow.selection("slot", 3, "position", 0.4).zone.kind, "parallel-planes");
+  assert.equal(workflow.selection("slot", 3, "profile-line", 0.4).zone.kind, "slot-contour");
+  assert.equal(workflow.selection("surface", 3, "profile-surface", 0.4).zone.kind, "profile-surface");
+  assert.equal(workflow.selection("surface", 3, "flatness", 0.4).zone.kind, "parallel-planes");
+  assert.deepEqual(workflow.selection("surface", 3, "flatness", 0.4).datumRefs, []);
+  assert.deepEqual(workflow.selection("surface", 3, "parallelism", 0.4).datumRefs, ["A"]);
+  assert.deepEqual(workflow.selection("hole", 3, "perpendicularity", 0.4).datumRefs, ["A"]);
+  assert.match(workflow.refNote(workflow.selection("slot", 3, "position", 0.4)), /does not by itself control the slot's end geometry/);
+  assert.throws(() => workflow.selection("surface", 3, "position", 0.4), RangeError);
+  assert.throws(() => workflow.selection("hole", 3, "position", 0), RangeError);
+});
+
+test("stepped shaft runout is isolated to the upper step and uses lower journal datum D", () => {
+  for (const datumCount of [0, 1, 2, 3]) {
+    assert.deepEqual(workflow.availableControls("shaft", datumCount).map((control) => control.id),
+      ["circular-runout", "total-runout"]);
+  }
+  const circular = workflow.selection("shaft", 0, "circular-runout", 0.04);
+  const total = workflow.selection("shaft", 3, "total-runout", 0.04);
+  assert.deepEqual(circular.datumRefs, ["D"]);
+  assert.deepEqual(total.datumRefs, ["D"]);
+  assert.equal(circular.zone.kind, "runout-section");
+  assert.equal(total.zone.kind, "runout-full");
+  assert.equal(circular.zone.diameter, false);
+  assert.equal(total.zone.diameter, false);
+  assert.match(workflow.explanation(circular), /Each height is evaluated independently/);
+  assert.match(workflow.explanation(total), /one common zone/);
+  assert.match(workflow.refNote(circular), /radial.*no diameter symbol or MMC bonus/);
+  assert.ok(Object.values(workflow.allowedZoneMotion(total)).every((allowed) => !allowed));
+  assert.throws(() => workflow.selection("shaft", 0, "circular-runout", 0.40), RangeError);
+  assert.throws(() => workflow.selection("hole", 3, "total-runout", 0.04), RangeError);
+
+  const viewer = read("cad-modules", "cad-workflow", "mbd-three.js");
+  assert.match(viewer, /function addShaftDatum\(/);
+  assert.match(viewer, /kind === "runout-section"/);
+  assert.match(viewer, /new T\.RingGeometry\(inner, outer, 64\)/);
+  assert.match(viewer, /new T\.CylinderGeometry\(radius, radius, SHAFT\.upperH/);
+});
+
+test("the Three.js zone changes size and shows datum-dependent freedoms", () => {
+  const viewer = read("cad-modules", "cad-workflow", "mbd-three.js");
+  assert.match(viewer, /0\.06 \+ width \* 0\.22/);
+  assert.match(viewer, /t \* 0\.23/);
+  assert.doesNotMatch(viewer, /ghost cylinders|mobilityCount/);
+  assert.match(viewer, /bottomView/);
+  assert.match(viewer, /const boreWall = new T\.MeshBasicMaterial/);
+  assert.match(viewer, /PlaneGeometry\(7\.2, 4\.8\)/);
+  assert.match(viewer, /tag\.position\.set\(-1\.3, -2\.18, BOTTOM - 0\.02\)/);
+  assert.match(viewer, /PlaneGeometry\(TOP - BOTTOM \+ 0\.44, 4\.04\)/);
+  assert.match(viewer, /PlaneGeometry\(6\.44, TOP - BOTTOM \+ 0\.44\)/);
+  assert.match(viewer, /metalness: 0, roughness: 0\.98/);
+  assert.match(viewer, /zone: 0xf32438/);
+  assert.match(viewer, /datum: 0x6aaeff/);
+  assert.match(viewer, /RingGeometry\(HOLE\.r, HOLE\.r \+ 0\.25/);
+  assert.match(viewer, /if \(!active\) \{ planeGeometry\.dispose\(\); return; \}/);
+  assert.match(viewer, /addBasicDimensions\(state\)/);
+});
+
+test("datum-dependent sliders expose only meaningful free zone motion", () => {
+  const active = (feature, datumCount, control) => Object.entries(workflow.allowedZoneMotion(
+    workflow.selection(feature, datumCount, control, 0.4))).filter(([, allowed]) => allowed).map(([axis]) => axis);
+  assert.deepEqual(active("hole", 0, "cylindricity"), ["tx", "ty", "tz", "rx", "ry", "rz"]);
+  assert.deepEqual(active("hole", 1, "position"), ["tx", "ty"]);
+  assert.deepEqual(active("hole", 2, "position"), ["ty"]);
+  assert.deepEqual(active("hole", 3, "position"), []);
+  assert.deepEqual(active("hole", 3, "perpendicularity"), ["tx", "ty"]);
+  assert.deepEqual(active("slot", 1, "perpendicularity"), ["tx", "ty", "rz"]);
+  assert.deepEqual(active("slot", 2, "position"), ["ty"]);
+  assert.deepEqual(active("surface", 3, "parallelism"), ["tz"]);
+  assert.deepEqual(active("surface", 0, "profile-surface"), ["tx", "ty", "tz", "rx", "ry", "rz"]);
+  const viewer = read("cad-modules", "cad-workflow", "mbd-three.js");
+  assert.match(viewer, /function rectangularFrame\(/);
+  assert.match(viewer, /rectangularFrame\(T, edgePoints, zoneLine/);
+  assert.match(viewer, /zoneContent\.position\.copy\(zonePivot\)/);
+  assert.match(viewer, /function setMotion\(motion\)/);
 });
 
 test("workflow cards use readable theme colors and an accessible hover enlargement", () => {
@@ -76,7 +157,7 @@ test("workflow cards use readable theme colors and an accessible hover enlargeme
   assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
-test("new modules are wired into the course sequence and local Three.js runtime", () => {
+test("new modules are wired into the course sequence and interactive runtimes", () => {
   const home = read("index.html");
   const hub = read("cad-modules", "index.html");
   const solids = read("cad-modules", "solid-modeling", "index.html");
@@ -99,9 +180,29 @@ test("new modules are wired into the course sequence and local Three.js runtime"
   assert.match(workflowPage, /data-mbd-lab/);
   assert.ok(workflowPage.indexOf('id="model-based-definition"') < workflowPage.indexOf('id="interactive-mbd-inspection"'));
   assert.ok(workflowPage.indexOf('id="interactive-mbd-inspection"') < workflowPage.indexOf('id="release-and-revision"'));
+  assert.ok(workflowPage.indexOf('id="material-condition-modifier"') < workflowPage.indexOf('id="rule-one-independency"'));
+  assert.ok(workflowPage.indexOf('id="rule-one-independency"') < workflowPage.indexOf('id="release-and-revision"'));
   assert.ok(workflowPage.indexOf('id="release-and-revision"') < workflowPage.indexOf('id="exchange-validation"'));
   assert.ok(workflowPage.indexOf('id="exchange-validation"') < workflowPage.indexOf('id="digital-thread"'));
-  assert.ok(workflowPage.indexOf("assets/vendor/three.min.js") < workflowPage.indexOf("mbd-lab.js"));
+  assert.match(workflowPage, /data-gdt-fullscreen/);
+  assert.match(workflowPage, /data-gdt-tolerance/);
+  assert.equal((workflowPage.match(/type="range"/g) || []).length, 8);
+  assert.match(workflowPage, /<select id="gdt-datums" data-gdt-datums>/);
+  assert.match(workflowPage, /<option value="0">No datum<\/option>/);
+  assert.match(workflowPage, /value="shaft"/);
+  assert.match(workflowPage, /data-gdt-station/);
+  assert.match(workflowPage, /id="material-condition-modifier"/);
+  assert.match(workflowPage, /data-mmc-lab/);
+  assert.match(workflowPage, /mbd-mmc\.js/);
+  assert.match(workflowPage, /data-rule1-lab/);
+  assert.match(workflowPage, /mbd-rule1\.css/);
+  assert.match(workflowPage, /mbd-rule1\.js/);
+  for (const axis of ["tx", "ty", "tz", "rx", "ry", "rz"]) assert.match(workflowPage, new RegExp(`data-gdt-motion="${axis}"`));
+  assert.doesNotMatch(workflowPage, /data-offset-x|data-workflow-next|data-gdt-diagram/);
+  assert.ok(workflowPage.indexOf("assets/vendor/three.min.js") < workflowPage.indexOf("mbd-three.js"));
+  assert.ok(workflowPage.indexOf("mbd-three.js") < workflowPage.indexOf("mbd-lab.js"));
+  assert.ok(workflowPage.indexOf("assets/vendor/three.min.js") < workflowPage.indexOf("mbd-rule1.js"));
+  assert.match(workflowPage, /data-gdt-viewer/);
 
   assert.match(references, /id="ref-19"/);
   assert.match(references, /id="ref-41"/);

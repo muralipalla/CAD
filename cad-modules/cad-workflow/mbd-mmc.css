@@ -1,0 +1,183 @@
+.mmc-lab {
+  --mmc-ink: #182e42;
+  --mmc-muted: #475c70;
+  --mmc-line: #c4d3df;
+  --mmc-teal: #006f79;
+  --mmc-red: #c72b40;
+  box-sizing: border-box;
+  width: 100%;
+  padding: clamp(1rem, 2.4vw, 1.55rem);
+  border: 1px solid #adbfce;
+  border-radius: 1rem;
+  background: #eff5f9;
+  color: var(--mmc-ink);
+  box-shadow: 0 12px 28px rgba(32, 57, 78, .08);
+}
+
+.mmc-lab *, .mmc-lab *::before, .mmc-lab *::after { box-sizing: border-box; }
+
+.mmc-lab__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(18rem, .82fr);
+  align-items: start;
+  gap: clamp(1rem, 2.4vw, 1.6rem);
+}
+
+.mmc-lab__visual, .mmc-lab__controls { min-width: 0; }
+
+.mmc-lab__visual {
+  overflow: hidden;
+  border: 1px solid var(--mmc-line);
+  border-radius: .8rem;
+  background: #fff;
+}
+
+.mmc-lab__visual-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .25rem 1rem;
+  padding: .8rem 1rem;
+  color: var(--mmc-ink);
+  border-bottom: 1px solid var(--mmc-line);
+}
+
+.mmc-lab__visual-heading strong { font-size: .95rem; }
+.mmc-lab__visual-heading span { color: var(--mmc-muted); font-size: .78rem; }
+
+.mmc-lab__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #ffe477;
+}
+
+.mmc-lab__material { fill: #ffe477; }
+.mmc-lab__clearance { fill: #f6fbff; }
+.mmc-lab__hole { fill: #f6fbff; stroke: #20384c; stroke-width: 3; }
+.mmc-lab__shaft { fill: #ffe477; stroke: #20384c; stroke-width: 3; }
+.mmc-lab__slot-opening { fill: #f6fbff; }
+.mmc-lab__actual-wall { stroke: #20384c; stroke-width: 3; }
+.mmc-lab__gauge-edge { fill: none; stroke: var(--mmc-red); stroke-width: 4; stroke-dasharray: 9 6; }
+.mmc-lab__zone { fill: rgba(0, 126, 137, .14); stroke: var(--mmc-teal); stroke-width: 2.5; }
+.mmc-lab__zone-fill { fill: rgba(0, 126, 137, .16); }
+.mmc-lab__zone-edge { stroke: var(--mmc-teal); stroke-width: 2.5; }
+.mmc-lab__offset { stroke: #20384c; stroke-width: 2.5; }
+.mmc-lab__true-center { fill: none; stroke: var(--mmc-teal); stroke-width: 3; }
+.mmc-lab__actual-center { fill: #162b40; stroke: #fff; stroke-width: 2; }
+.mmc-lab__true-median { stroke: var(--mmc-teal); stroke-width: 2; stroke-dasharray: 5 7; }
+.mmc-lab__actual-median { stroke: #20384c; stroke-width: 2; stroke-dasharray: 14 6; }
+
+.mmc-lab__legend {
+  display: flex;
+  gap: .45rem 1rem;
+  flex-wrap: wrap;
+  padding: .75rem 1rem .4rem;
+  color: var(--mmc-ink);
+  font-size: .8rem;
+  font-weight: 650;
+}
+
+.mmc-lab__legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.mmc-lab__swatch { display: inline-block; flex: 0 0 auto; width: .85rem; height: .85rem; border-radius: 50%; }
+.mmc-lab__swatch--actual { background: #f6fbff; border: 2px solid #20384c; }
+.mmc-lab[data-feature="shaft"] .mmc-lab__swatch--actual { background: #ffe477; }
+.mmc-lab__swatch--gauge { background: rgba(221, 47, 69, .14); border: 2px dashed var(--mmc-red); }
+.mmc-lab__swatch--zone { background: rgba(0, 126, 137, .14); border: 2px solid var(--mmc-teal); }
+
+.mmc-lab__caption {
+  margin: 0;
+  padding: .2rem 1rem .85rem;
+  color: var(--mmc-muted);
+  font-size: .8rem;
+  line-height: 1.45;
+}
+
+.mmc-lab__controls {
+  padding: .3rem .1rem;
+  color: var(--mmc-ink);
+}
+
+.mmc-lab__eyebrow {
+  margin: 0 0 .65rem;
+  color: var(--mmc-teal);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.mmc-lab__selectors {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+  gap: .65rem;
+  margin-bottom: 1rem;
+}
+
+.mmc-lab__selectors > div { min-width: 0; }
+.mmc-lab__selectors label { display: block; margin: 0 0 .3rem; color: var(--mmc-ink); font-size: .8rem; font-weight: 750; }
+.mmc-lab__selectors select { width: 100%; min-width: 0; min-height: 2.55rem; padding: .45rem .55rem; border: 1px solid #8da4b5; border-radius: .45rem; background: #fff; color: var(--mmc-ink); font: inherit; font-size: .82rem; }
+.mmc-lab__selectors select:focus-visible { outline: 3px solid #e06035; outline-offset: 2px; }
+
+.mmc-lab__frame {
+  display: inline-flex;
+  max-width: 100%;
+  border: 2px solid #20384c;
+  color: #172d40;
+  background: #fff;
+  font-family: "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  font-size: clamp(.85rem, 1.4vw, 1.1rem);
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mmc-lab__frame span { padding: .5rem .62rem; }
+.mmc-lab__frame span + span { border-left: 2px solid #20384c; }
+
+.mmc-lab__limits {
+  margin: .8rem 0 1.3rem;
+  color: var(--mmc-muted);
+  font-size: .91rem;
+  line-height: 1.55;
+}
+
+.mmc-lab__limits strong { color: var(--mmc-ink); }
+
+.mmc-lab__input-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .45rem;
+}
+
+.mmc-lab__input-heading label { font-size: .9rem; font-weight: 750; }
+.mmc-lab__input-heading output { color: var(--mmc-teal); font-size: 1.16rem; font-weight: 800; white-space: nowrap; }
+
+.mmc-lab input[type="range"] { width: 100%; min-height: 2rem; margin: 0; accent-color: var(--mmc-teal); cursor: pointer; }
+.mmc-lab input[type="range"]:focus-visible { outline: 3px solid #e06035; outline-offset: 3px; border-radius: .25rem; }
+
+.mmc-lab__range-ends { display: flex; justify-content: space-between; gap: .5rem; color: var(--mmc-muted); font-size: .72rem; font-weight: 650; }
+.mmc-lab__input-hint { margin: .6rem 0 1.15rem; color: var(--mmc-muted); font-size: .79rem; line-height: 1.45; }
+
+.mmc-lab__metrics { display: grid; gap: .55rem; }
+.mmc-lab__metrics > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: .1rem .6rem; padding: .7rem .8rem; border: 1px solid var(--mmc-line); border-radius: .55rem; background: #fff; }
+.mmc-lab__metrics span { color: var(--mmc-ink); font-size: .82rem; font-weight: 700; }
+.mmc-lab__metrics strong { color: var(--mmc-teal); font-size: 1.08rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mmc-lab__metrics > div:last-child strong { color: var(--mmc-red); }
+.mmc-lab__metrics small { grid-column: 1 / -1; color: var(--mmc-muted); font-size: .72rem; }
+
+.mmc-lab__caution { margin: .9rem 0 0; color: var(--mmc-muted); font-size: .74rem; line-height: 1.45; }
+
+@media (max-width: 800px) {
+  .mmc-lab__layout { grid-template-columns: 1fr; }
+  .mmc-lab__controls { padding: .1rem .2rem .2rem; }
+}
+
+@media (max-width: 420px) {
+  .mmc-lab__frame span { padding: .43rem .45rem; }
+  .mmc-lab__visual-heading, .mmc-lab__legend, .mmc-lab__caption { padding-left: .75rem; padding-right: .75rem; }
+  .mmc-lab__selectors { grid-template-columns: 1fr; }
+}
