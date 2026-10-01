@@ -5,6 +5,7 @@ const test = require("node:test");
 
 const exchange = require("../cad-modules/cad-software-data-exchange/exchange-lab.js");
 const workflow = require("../cad-modules/cad-workflow/mbd-lab.js");
+const workflowThree = require("../cad-modules/cad-workflow/mbd-three.js");
 
 const root = path.resolve(__dirname, "..");
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), "utf8");
@@ -30,6 +31,131 @@ test("mesh detail settings progress from coarse to very fine", () => {
   assert.deepEqual(segments, [6, 12, 24, 48]);
   assert.throws(() => exchange.detailLevel(-1), RangeError);
   assert.throws(() => exchange.detailLevel(1.5), RangeError);
+});
+
+test("GD&T zoom slider increases magnification to the right and round-trips camera distance", () => {
+  assert.equal(workflowThree.distanceFromZoom(0), 18);
+  assert.equal(workflowThree.distanceFromZoom(100), 6);
+  assert.equal(workflowThree.distanceFromZoom(50), 12);
+  assert.equal(workflowThree.zoomFromDistance(18), 0);
+  assert.equal(workflowThree.zoomFromDistance(6), 100);
+  assert.equal(workflowThree.zoomFromDistance(12), 50);
+  assert.equal(workflowThree.distanceFromZoom(150), 6);
+  assert.equal(workflowThree.distanceFromZoom(-1), 18);
+});
+
+test("ordinary wheel scrolls the lesson while modified or full-screen wheel zooms the model", () => {
+  assert.equal(workflowThree.shouldZoomOnWheel({ ctrlKey: false, metaKey: false }, false), false);
+  assert.equal(workflowThree.shouldZoomOnWheel({ ctrlKey: true, metaKey: false }, false), true);
+  assert.equal(workflowThree.shouldZoomOnWheel({ ctrlKey: false, metaKey: true }, false), true);
+  assert.equal(workflowThree.shouldZoomOnWheel({ ctrlKey: false, metaKey: false }, true), true);
+});
+
+test("GD&T orthographic view presets face the intended datums with consistent screen axes", () => {
+  function closeVector(actual, expected, label) {
+    assert.equal(actual.length, 3, `${label} has three coordinates`);
+    actual.forEach((coordinate, axis) => {
+      assert.ok(Math.abs(coordinate - expected[axis]) < 1e-12,
+        `${label} axis ${axis}: expected ${expected[axis]}, got ${coordinate}`);
+    });
+  }
+  function cross(a, b) {
+    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  }
+  const expected = {
+    top: { towardCamera: [0, 0, 1], up: [0, 1, 0], right: [1, 0, 0], screenUp: [0, 1, 0] },
+    front: { towardCamera: [0, -1, 0], up: [0, 0, 1], right: [1, 0, 0], screenUp: [0, 0, 1] },
+    side: { towardCamera: [-1, 0, 0], up: [0, 0, 1], right: [0, -1, 0], screenUp: [0, 0, 1] }
+  };
+  for (const [name, axes] of Object.entries(expected)) {
+    const preset = workflowThree.viewPreset(name);
+    const direction = [
+      Math.cos(preset.elevation) * Math.cos(preset.azimuth),
+      Math.cos(preset.elevation) * Math.sin(preset.azimuth),
+      Math.sin(preset.elevation)
+    ];
+    closeVector(direction, axes.towardCamera, `${name} camera direction`);
+    closeVector(preset.up, axes.up, `${name} camera up`);
+    const right = cross(preset.up, direction);
+    closeVector(right, axes.right, `${name} screen right`);
+    closeVector(cross(direction, right), axes.screenUp, `${name} screen up`);
+  }
+  assert.throws(() => workflowThree.viewPreset("unknown"), RangeError);
+});
+
+test("GD&T axial views use an orthographic camera and connect all three controls", () => {
+  const viewer = read("cad-modules", "cad-workflow", "mbd-three.js");
+  const lab = read("cad-modules", "cad-workflow", "mbd-lab.js");
+  const page = read("cad-modules", "cad-workflow", "index.html");
+  assert.ok(/new T\.OrthographicCamera\(/.test(viewer), "axial views use an orthographic camera");
+  for (const edge of ["left", "right", "top", "bottom"]) {
+    assert.ok(new RegExp(`\\.${edge}\\s*=`).test(viewer), `orthographic ${edge} frustum edge is updated`);
+  }
+  assert.ok(/updateProjectionMatrix\(\)/.test(viewer), "the camera projection matrix is updated");
+  for (const name of ["top", "front", "side"]) {
+    assert.match(page, new RegExp(`<button[^>]*data-gdt-${name}-view`));
+    assert.ok(lab.includes(`"[data-gdt-${name}-view]", "${name}View", "${name}"`), `${name} button maps to the matching viewer method`);
+    assert.match(viewer, new RegExp(`\\b${name}View\\b`));
+  }
+  assert.match(lab, /viewer\[method\]\(\)/);
+  assert.match(lab, /viewer\.onViewChange\(/, "selected view is announced on the controls");
+});
+
+test("GD&T full screen uses the native API and falls back when unavailable or rejected", async () => {
+  function classList() {
+    const values = new Set();
+    return { contains: name => values.has(name), toggle(name, force) {
+      if (force === undefined ? !values.has(name) : force) values.add(name);
+      else values.delete(name);
+    } };
+  }
+  function target() {
+    const listeners = new Map();
+    return { addEventListener(name, callback) {
+      if (!listeners.has(name)) listeners.set(name, []);
+      listeners.get(name).push(callback);
+    }, emit(name, event = {}) { for (const callback of listeners.get(name) || []) callback(event); } };
+  }
+  function harness() {
+    const doc = target(), button = target(), label = { textContent: "" };
+    const attributes = new Map();
+    doc.documentElement = { classList: classList() };
+    button.querySelector = () => label;
+    button.setAttribute = (name, value) => attributes.set(name, value);
+    const lab = { ownerDocument: doc, classList: classList(), querySelector: () => button };
+    let resized = 0, preserved = 0;
+    const viewer = { resize() { resized++; }, preserveZoom() { preserved++; } };
+    const controller = workflow.createFullscreenController(lab, viewer);
+    return { doc, button, label, attributes, lab, controller, get resized() { return resized; }, get preserved() { return preserved; } };
+  }
+  const native = harness();
+  let requests = 0, exits = 0;
+  native.lab.requestFullscreen = () => { requests++; native.doc.fullscreenElement = native.lab; native.doc.emit("fullscreenchange"); return Promise.resolve(); };
+  native.doc.exitFullscreen = () => { exits++; native.doc.fullscreenElement = null; native.doc.emit("fullscreenchange"); return Promise.resolve(); };
+  const entering = native.controller.toggle();
+  assert.equal(requests, 1, "requestFullscreen is called within the click gesture");
+  await entering;
+  assert.equal(native.controller.isFull(), true);
+  assert.equal(native.attributes.get("aria-pressed"), "true");
+  assert.equal(native.lab.classList.contains("gdt-fallback-fullscreen"), false);
+  await native.controller.toggle();
+  assert.equal(exits, 1);
+  assert.equal(native.controller.isFull(), false);
+  assert.equal(native.preserved, 2);
+  assert.ok(native.resized >= 3);
+
+  const fallback = harness();
+  await fallback.controller.toggle();
+  assert.equal(fallback.lab.classList.contains("gdt-fallback-fullscreen"), true);
+  assert.equal(fallback.doc.documentElement.classList.contains("gdt-fallback-page"), true);
+  fallback.doc.emit("keydown", { key: "Escape" });
+  assert.equal(fallback.controller.isFull(), false);
+  assert.equal(fallback.doc.documentElement.classList.contains("gdt-fallback-page"), false);
+
+  const rejected = harness();
+  rejected.lab.requestFullscreen = () => Promise.reject(new Error("Full screen denied"));
+  await rejected.controller.toggle();
+  assert.equal(rejected.lab.classList.contains("gdt-fallback-fullscreen"), true);
 });
 
 test("GD&T studio offers only controls applicable to each modeled feature", () => {
@@ -65,6 +191,8 @@ test("datum references and tolerance-zone geometry follow the selected control",
   assert.deepEqual(workflow.positionFreedom(1), { x: true, y: true, label: "A only · axis ⟂ bottom A · X and Y free" });
   assert.deepEqual([workflow.positionFreedom(2).x, workflow.positionFreedom(2).y], [false, true]);
   assert.deepEqual([workflow.positionFreedom(3).x, workflow.positionFreedom(3).y], [false, false]);
+  assert.deepEqual([workflow.positionFreedom(1, "slot").x, workflow.positionFreedom(1, "slot").y], [false, true]);
+  assert.match(workflow.refNote(workflow.selection("slot", 1, "position", 0.4)), /lengthwise sliding does not change that ideal plane/);
   assert.deepEqual(workflow.selection("slot", 2, "position", 0.4).datumRefs, ["A", "B"]);
   assert.equal(workflow.selection("slot", 3, "position", 0.4).zone.kind, "parallel-planes");
   assert.equal(workflow.selection("slot", 3, "profile-line", 0.4).zone.kind, "slot-contour");
@@ -127,20 +255,42 @@ test("the Three.js zone changes size and shows datum-dependent freedoms", () => 
 test("datum-dependent sliders expose only meaningful free zone motion", () => {
   const active = (feature, datumCount, control) => Object.entries(workflow.allowedZoneMotion(
     workflow.selection(feature, datumCount, control, 0.4))).filter(([, allowed]) => allowed).map(([axis]) => axis);
-  assert.deepEqual(active("hole", 0, "cylindricity"), ["tx", "ty", "tz", "rx", "ry", "rz"]);
+  assert.deepEqual(active("hole", 0, "straightness"), ["tx", "ty", "rx", "ry"]);
+  assert.deepEqual(active("hole", 0, "circularity"), ["tx", "ty"]);
+  assert.deepEqual(active("hole", 0, "cylindricity"), ["tx", "ty", "rx", "ry"]);
   assert.deepEqual(active("hole", 1, "position"), ["tx", "ty"]);
   assert.deepEqual(active("hole", 2, "position"), ["ty"]);
   assert.deepEqual(active("hole", 3, "position"), []);
   assert.deepEqual(active("hole", 3, "perpendicularity"), ["tx", "ty"]);
-  assert.deepEqual(active("slot", 1, "perpendicularity"), ["tx", "ty", "rz"]);
+  assert.deepEqual(active("slot", 0, "straightness"), ["ty", "rz"]);
+  assert.deepEqual(active("slot", 0, "flatness"), ["ty", "rx", "rz"]);
+  assert.deepEqual(active("slot", 1, "perpendicularity"), ["ty", "rz"]);
+  assert.deepEqual(active("slot", 1, "position"), ["ty", "rz"]);
   assert.deepEqual(active("slot", 2, "position"), ["ty"]);
+  assert.deepEqual(active("slot", 3, "position"), []);
+  assert.deepEqual(active("slot", 0, "profile-surface"), ["tx", "ty", "tz", "rx", "ry", "rz"]);
+  assert.deepEqual(active("slot", 1, "profile-surface"), ["tx", "ty", "rz"]);
+  assert.deepEqual(active("slot", 2, "profile-surface"), ["ty"]);
+  assert.deepEqual(active("surface", 0, "flatness"), ["tz", "rx", "ry"]);
   assert.deepEqual(active("surface", 3, "parallelism"), ["tz"]);
-  assert.deepEqual(active("surface", 0, "profile-surface"), ["tx", "ty", "tz", "rx", "ry", "rz"]);
+  assert.deepEqual(active("surface", 0, "profile-surface"), ["tz", "rx", "ry"]);
+  assert.deepEqual(active("surface", 1, "profile-surface"), []);
   const viewer = read("cad-modules", "cad-workflow", "mbd-three.js");
   assert.match(viewer, /function rectangularFrame\(/);
   assert.match(viewer, /rectangularFrame\(T, edgePoints, zoneLine/);
   assert.match(viewer, /zoneContent\.position\.copy\(zonePivot\)/);
   assert.match(viewer, /function setMotion\(motion\)/);
+});
+
+test("slot profile explicitly selects the rounded ends while median-plane position does not", () => {
+  const slotProfile = workflow.selection("slot", 3, "profile-surface", 0.4);
+  const slotPosition = workflow.selection("slot", 3, "position", 0.4);
+  assert.match(workflow.targetFor(slotProfile), /complete slot boundary, including rounded ends/);
+  assert.match(workflow.explanation(slotProfile), /complete slot boundary, including its rounded ends/);
+  assert.match(workflow.refNote(slotProfile), /differs from slot position/);
+  assert.match(workflow.refNote(slotPosition), /does not by itself control the slot's end geometry/);
+  const lab = read("cad-modules", "cad-workflow", "mbd-lab.js");
+  assert.match(lab, /red zone is schematic: spacing and finite extent are exaggerated, not a conformance or inspection check/);
 });
 
 test("workflow cards use readable theme colors and an accessible hover enlargement", () => {
@@ -186,7 +336,10 @@ test("new modules are wired into the course sequence and interactive runtimes", 
   assert.ok(workflowPage.indexOf('id="exchange-validation"') < workflowPage.indexOf('id="digital-thread"'));
   assert.match(workflowPage, /data-gdt-fullscreen/);
   assert.match(workflowPage, /data-gdt-tolerance/);
-  assert.equal((workflowPage.match(/type="range"/g) || []).length, 8);
+  assert.match(workflowPage, /<label for="gdt-zoom">Zoom<\/label>/);
+  assert.match(workflowPage, /data-gdt-zoom type="range"/);
+  assert.match(workflowPage, /data-gdt-zoom-output/);
+  assert.equal((workflowPage.match(/type="range"/g) || []).length, 9);
   assert.match(workflowPage, /<select id="gdt-datums" data-gdt-datums>/);
   assert.match(workflowPage, /<option value="0">No datum<\/option>/);
   assert.match(workflowPage, /value="shaft"/);

@@ -13,6 +13,23 @@
   const PAD = { x: 1.36, y: 1.08, width: 0.95, depth: 0.66, top: TOP + 0.13 };
   const SHAFT = { x: -0.46, y: -1.00, lowerR: 0.39, upperR: 0.24, lowerH: 0.64, upperH: 0.62 };
   const colors = { body: 0xfff54f, feature: 0x5ed8ff, zone: 0xf32438, datum: 0x6aaeff, grid: 0x304462 };
+  const MIN_DISTANCE = 6, MAX_DISTANCE = 18;
+  function clampDistance(value) { return Math.max(MIN_DISTANCE, Math.min(MAX_DISTANCE, value)); }
+  function distanceFromZoom(value) {
+    const percent = Number(value);
+    return MAX_DISTANCE - Math.max(0, Math.min(100, Number.isFinite(percent) ? percent : 0)) * (MAX_DISTANCE - MIN_DISTANCE) / 100;
+  }
+  function zoomFromDistance(value) { return Math.round((MAX_DISTANCE - clampDistance(value)) * 100 / (MAX_DISTANCE - MIN_DISTANCE)); }
+  function shouldZoomOnWheel(event, fullScreen) { return Boolean(fullScreen || event.ctrlKey || event.metaKey); }
+  const VIEW_PRESETS = Object.freeze({
+    top: Object.freeze({ azimuth: -Math.PI / 2, elevation: Math.PI / 2, up: Object.freeze([0, 1, 0]) }),
+    front: Object.freeze({ azimuth: -Math.PI / 2, elevation: 0, up: Object.freeze([0, 0, 1]) }),
+    side: Object.freeze({ azimuth: Math.PI, elevation: 0, up: Object.freeze([0, 0, 1]) })
+  });
+  function viewPreset(name) {
+    if (!Object.prototype.hasOwnProperty.call(VIEW_PRESETS, name)) throw new RangeError("Unknown camera view.");
+    return VIEW_PRESETS[name];
+  }
 
   function capsulePath(T, left, right, y, radius) {
     const path = new T.Path();
@@ -166,23 +183,56 @@
     let overlay = new T.Group(); scene.add(overlay);
     let zoneMotion = new T.Group(), zoneContent = new T.Group();
     const zonePivot = new T.Vector3();
-    const camera = new T.PerspectiveCamera(35, 1, 0.1, 100);
-    camera.up.set(0, 0, 1);
-    let azimuth = -2.25, elevation = 0.62, distance = 10.3, manualZoom = false, currentFeature = "hole";
+    const perspectiveCamera = new T.PerspectiveCamera(35, 1, 0.1, 100);
+    const orthographicCamera = new T.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+    const halfFieldTangent = Math.tan(35 * Math.PI / 360);
+    const maxOrbitElevation = Math.PI / 2 - 0.01;
+    let projection = "perspective", snappedView = null, activeView = "reset", viewListener = null;
+    let azimuth = -2.25, elevation = 0.62, distance = 10.3, manualZoom = false, currentFeature = "hole", zoomListener = null;
     const center = new T.Vector3(0, 0, 0.1);
+    function notifyZoom() { if (zoomListener) zoomListener(zoomFromDistance(distance)); }
+    function setActiveView(value) { activeView = value; if (viewListener) viewListener(value); }
+    function onViewChange(callback) { viewListener = callback; callback(activeView); }
+    function autoFitDistance(width, height) {
+      return currentFeature === "shaft" ? (width / height > 1.8 ? 9.5 : 10.8) : (width / height > 1.8 ? 10.5 : 12.2);
+    }
+    function updateProjection(width, height) {
+      const aspect = width / height;
+      perspectiveCamera.aspect = aspect;
+      perspectiveCamera.updateProjectionMatrix();
+      const halfHeight = distance * halfFieldTangent;
+      orthographicCamera.left = -halfHeight * aspect;
+      orthographicCamera.right = halfHeight * aspect;
+      orthographicCamera.top = halfHeight;
+      orthographicCamera.bottom = -halfHeight;
+      orthographicCamera.updateProjectionMatrix();
+    }
     function draw() {
+      const camera = projection === "orthographic" ? orthographicCamera : perspectiveCamera;
+      const up = snappedView === "top" ? viewPreset("top").up : [0, 0, 1];
+      camera.up.set(up[0], up[1], up[2]);
       camera.position.set(center.x + distance * Math.cos(elevation) * Math.cos(azimuth), center.y + distance * Math.cos(elevation) * Math.sin(azimuth), center.z + distance * Math.sin(elevation));
       camera.lookAt(center);
       renderer.render(scene, camera);
     }
     function resize() {
       const width = Math.max(1, host.clientWidth), height = Math.max(1, host.clientHeight);
-      if (!manualZoom) distance = currentFeature === "shaft" ? (width / height > 1.8 ? 9.5 : 10.8) : (width / height > 1.8 ? 10.5 : 12.2);
+      if (!manualZoom) distance = autoFitDistance(width, height);
       renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+      updateProjection(width, height);
       draw();
+      notifyZoom();
     }
+    function setDistance(value) {
+      manualZoom = true;
+      distance = clampDistance(value);
+      updateProjection(Math.max(1, host.clientWidth), Math.max(1, host.clientHeight));
+      draw();
+      notifyZoom();
+    }
+    function setZoom(value) { setDistance(distanceFromZoom(value)); }
+    function getZoom() { return zoomFromDistance(distance); }
+    function onZoomChange(callback) { zoomListener = callback; notifyZoom(); }
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
     if (ro) ro.observe(host);
     else window.addEventListener("resize", resize);
@@ -408,10 +458,11 @@
       scene.remove(group);
     }
     function update(state) {
+      if (state.feature !== currentFeature) manualZoom = false;
       currentFeature = state.feature;
       center.set(state.feature === "shaft" ? -0.34 : 0, state.feature === "shaft" ? -0.28 : 0, state.feature === "shaft" ? 0.2 : 0.1);
-      if (!manualZoom) distance = state.feature === "shaft" ? (host.clientWidth / Math.max(1, host.clientHeight) > 1.8 ? 9.5 : 10.8) :
-        (host.clientWidth / Math.max(1, host.clientHeight) > 1.8 ? 10.5 : 12.2);
+      if (!manualZoom) distance = autoFitDistance(host.clientWidth, Math.max(1, host.clientHeight));
+      updateProjection(Math.max(1, host.clientWidth), Math.max(1, host.clientHeight));
       disposeGroup(overlay);
       overlay = new T.Group(); scene.add(overlay);
       zoneMotion = new T.Group();
@@ -428,6 +479,7 @@
       addZone(state);
       addBasicDimensions(state);
       setMotion(state.motion);
+      notifyZoom();
     }
     function setMotion(motion) {
       const m = motion || {};
@@ -452,14 +504,19 @@
       if (!pointers.has(event.pointerId)) return;
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (pointers.size === 2 && pinch) {
-        manualZoom = true;
-        distance = Math.max(6, Math.min(18, pinch.distance * pinch.gap / Math.max(8, pointerGap())));
-        draw();
+        setDistance(pinch.distance * pinch.gap / Math.max(8, pointerGap()));
         return;
       }
       if (!drag) return;
+      if (snappedView) {
+        if (snappedView === "top") elevation = maxOrbitElevation;
+        snappedView = null;
+        drag.azimuth = azimuth;
+        drag.elevation = elevation;
+      }
+      if (activeView) setActiveView(null);
       azimuth = drag.azimuth - (event.clientX - drag.x) * 0.006;
-      elevation = Math.max(-1.35, Math.min(1.35, drag.elevation + (event.clientY - drag.y) * 0.006));
+      elevation = Math.max(-maxOrbitElevation, Math.min(maxOrbitElevation, drag.elevation + (event.clientY - drag.y) * 0.006));
       draw();
     });
     function release(event) {
@@ -470,23 +527,49 @@
     }
     canvas.addEventListener("pointerup", release);
     canvas.addEventListener("pointercancel", release);
-    canvas.addEventListener("wheel", function (event) { event.preventDefault(); manualZoom = true; distance = Math.max(6.0, Math.min(18, distance * (event.deltaY > 0 ? 1.08 : 0.92))); draw(); }, { passive: false });
+    canvas.addEventListener("wheel", function (event) {
+      const studio = canvas.closest(".gdt-studio");
+      const fullScreen = studio && (document.fullscreenElement === studio || studio.classList.contains("gdt-fallback-fullscreen"));
+      // Ordinary wheel scrolling must continue down the lesson. In the full
+      // screen studio there is no page beneath the viewer, so wheel zooms.
+      if (!shouldZoomOnWheel(event, fullScreen)) return;
+      event.preventDefault();
+      setDistance(distance * (event.deltaY > 0 ? 1.08 : 0.92));
+    }, { passive: false });
     canvas.tabIndex = 0;
     canvas.addEventListener("keydown", function (event) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key) && snappedView) {
+        if (snappedView === "top") elevation = maxOrbitElevation;
+        snappedView = null;
+      }
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key) && activeView) setActiveView(null);
       if (event.key === "ArrowLeft") azimuth -= 0.12;
       else if (event.key === "ArrowRight") azimuth += 0.12;
-      else if (event.key === "ArrowUp") elevation = Math.min(1.35, elevation + 0.12);
-      else if (event.key === "ArrowDown") elevation = Math.max(-1.35, elevation - 0.12);
-      else if (event.key === "+" || event.key === "=") { manualZoom = true; distance = Math.max(6, distance * 0.9); }
-      else if (event.key === "-" || event.key === "_") { manualZoom = true; distance = Math.min(18, distance * 1.1); }
+      else if (event.key === "ArrowUp") elevation = Math.min(maxOrbitElevation, elevation + 0.12);
+      else if (event.key === "ArrowDown") elevation = Math.max(-maxOrbitElevation, elevation - 0.12);
+      else if (event.key === "+" || event.key === "=") { event.preventDefault(); setDistance(distance * 0.9); return; }
+      else if (event.key === "-" || event.key === "_") { event.preventDefault(); setDistance(distance * 1.1); return; }
       else return;
       event.preventDefault(); draw();
     });
-    function resetView() { azimuth = -2.25; elevation = 0.62; manualZoom = false; resize(); }
-    function bottomView() { azimuth = -2.25; elevation = -0.86; manualZoom = false; resize(); }
+    function resetView() { projection = "perspective"; snappedView = null; azimuth = -2.25; elevation = 0.62; manualZoom = false; setActiveView("reset"); resize(); }
+    function bottomView() { projection = "perspective"; snappedView = null; azimuth = -2.25; elevation = -0.86; manualZoom = false; setActiveView("bottom"); resize(); }
+    function applyViewPreset(name) {
+      const preset = viewPreset(name);
+      projection = "orthographic";
+      snappedView = name;
+      azimuth = preset.azimuth;
+      elevation = preset.elevation;
+      manualZoom = false;
+      setActiveView(name);
+      resize();
+    }
+    function topView() { applyViewPreset("top"); }
+    function frontView() { applyViewPreset("front"); }
+    function sideView() { applyViewPreset("side"); }
     resize();
-    return { update, setMotion, resize, resetView, bottomView, dispose: function () { if (ro) ro.disconnect(); disposeGroup(overlay); renderer.dispose(); canvas.remove(); } };
+    return { update, setMotion, resize, resetView, bottomView, topView, frontView, sideView, setZoom, getZoom, onZoomChange, onViewChange, preserveZoom: function () { manualZoom = true; }, dispose: function () { if (ro) ro.disconnect(); disposeGroup(overlay); renderer.dispose(); canvas.remove(); } };
   }
 
-  return { createViewer, geometry: { HOLE, SLOT, SHAFT, TOP, BOTTOM } };
+  return { createViewer, distanceFromZoom, zoomFromDistance, shouldZoomOnWheel, viewPreset, geometry: { HOLE, SLOT, SHAFT, TOP, BOTTOM } };
 });

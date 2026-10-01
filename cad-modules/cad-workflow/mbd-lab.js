@@ -13,7 +13,7 @@
 
   const FEATURES = Object.freeze({
     hole: Object.freeze({ label: "Hole", target: "cylindrical bore" }),
-    slot: Object.freeze({ label: "Slot", target: "opposed walls" }),
+    slot: Object.freeze({ label: "Slot", target: "closed slot boundary" }),
     surface: Object.freeze({ label: "Planar pad", target: "top pad face" }),
     shaft: Object.freeze({ label: "Stepped shaft", target: "upper shaft step" })
   });
@@ -61,7 +61,7 @@
   }
   function positionFreedom(datumCount, feature) {
     if (![1, 2, 3].includes(datumCount)) throw new RangeError("Invalid datum setup.");
-    if (feature === "slot") return datumCount === 1 ? { x: true, y: true, label: "A only · slot may slide and rotate in plane" } :
+    if (feature === "slot") return datumCount === 1 ? { x: false, y: true, label: "A only · median plane may shift across width and rotate in plane" } :
       datumCount === 2 ? { x: false, y: true, label: "A–B · direction set; width location free" } :
         { x: false, y: false, label: "A–B–C · median plane located across slot width" };
     return datumCount === 1 ? { x: true, y: true, label: "A only · axis ⟂ bottom A · X and Y free" } :
@@ -74,15 +74,32 @@
     const id = state.control.id;
     const refs = state.datumRefs;
     if (!refs.length) {
-      MOTION_AXES.forEach(function (axis) { mask[axis] = true; });
+      // Motions along an ideal zone's own plane or axis, and spins around its
+      // symmetry axis, do not move that zone even if its finite drawing moves.
+      const free = state.feature === "hole" ?
+        ["circularity", "profile-line"].includes(id) ? ["tx", "ty"] : ["tx", "ty", "rx", "ry"] :
+        state.feature === "slot" ?
+          id === "flatness" ? ["ty", "rx", "rz"] :
+            id === "straightness" ? ["ty", "rz"] : MOTION_AXES :
+          state.feature === "surface" ? ["tz", "rx", "ry"] : [];
+      free.forEach(function (axis) { mask[axis] = true; });
       return mask;
     }
     if (id === "parallelism") { mask.tz = true; return mask; }
     if (id === "perpendicularity" || id === "position" || state.control.family === "Profile") {
-      mask.tx = !refs.includes("B");
-      mask.ty = !refs.includes("C");
-      mask.rz = state.feature !== "hole" && !refs.includes("B");
-      // A controls tilt; a circular zone's spin around its own axis is not a distinct motion.
+      if (state.feature === "hole") {
+        mask.tx = !refs.includes("B");
+        mask.ty = !refs.includes("C");
+      } else if (state.feature === "slot") {
+        // Slot position and perpendicularity control the median plane: sliding
+        // it along X changes neither that plane nor the controlled slot ends.
+        // Profile instead selects the complete, finite slot boundary.
+        mask.tx = state.control.family === "Profile" && !refs.includes("B");
+        mask.ty = !refs.includes("C");
+        mask.rz = !refs.includes("B");
+      }
+      // A controls tilt. In-plane motion of the planar pad's ideal profile
+      // zone does not change it; its CAD-basic height fixes the normal offset.
       return mask;
     }
     return mask;
@@ -91,7 +108,7 @@
     const id = state.control.id;
     if (state.feature === "shaft") return "upper cylindrical step";
     if (state.feature === "hole") return ["circularity", "profile-line"].includes(id) ? "bore section" : ["cylindricity", "profile-surface"].includes(id) ? "bore surface" : "derived bore axis";
-    if (state.feature === "slot") return id === "profile-line" ? "slot section" : id === "profile-surface" ? "slot walls" : id === "straightness" ? "median line" : "derived median plane";
+    if (state.feature === "slot") return id === "profile-line" ? "complete slot section, including rounded ends" : id === "profile-surface" ? "complete slot boundary, including rounded ends" : id === "straightness" ? "median line" : "derived median plane";
     return id === "profile-line" ? "pad-face section" : "top pad face";
   }
   function explanation(state) {
@@ -102,8 +119,8 @@
     if (id === "flatness") return state.feature === "slot" ? "The slot's derived median plane stays between two parallel planes separated by T." : "The selected planar pad face stays between two parallel planes separated by T; no datum is referenced.";
     if (id === "circularity") return "Each bore cross-section stays between two concentric circles with radial separation T.";
     if (id === "cylindricity") return "The whole bore surface stays between two coaxial cylinders with radial separation T.";
-    if (id === "profile-line") return state.feature === "surface" ? "A section of the planar pad face stays between two lines T apart." : "The selected section stays inside a band bounded by two normal-offset curves, T apart.";
-    if (id === "profile-surface") return state.feature === "surface" ? state.datumRefs.length ? "The planar pad face stays between two profile boundaries T apart, oriented and located by the referenced datums." : "The planar pad face stays between two profile boundaries T apart, with no datum reference." : "The selected surface stays within a three-dimensional envelope of two normal-offset surfaces, T apart.";
+    if (id === "profile-line") return state.feature === "surface" ? "A section of the planar pad face stays between two lines T apart." : state.feature === "slot" ? "The complete closed slot section, including its rounded ends, stays inside two normal-offset curves T apart." : "The selected bore section stays inside a band bounded by two normal-offset curves, T apart.";
+    if (id === "profile-surface") return state.feature === "surface" ? state.datumRefs.length ? "The planar pad face stays between two profile boundaries T apart, oriented and located by the referenced datums." : "The planar pad face stays between two profile boundaries T apart, with no datum reference." : state.feature === "slot" ? "The complete slot boundary, including its rounded ends, stays within a three-dimensional envelope of two normal-offset surfaces T apart." : "The bore surface stays within a three-dimensional envelope of two normal-offset surfaces T apart.";
     if (id === "parallelism") return "The top pad face stays between two planes T apart, parallel to bottom datum A. The zone is not located in height by parallelism alone.";
     if (id === "perpendicularity") return `The ${targetFor(state)} stays inside a zone perpendicular to bottom datum A.`;
     return state.feature === "hole" ? "The derived bore axis stays inside a cylindrical position zone of diameter T." : "The slot's derived median plane stays between two parallel planes separated by T.";
@@ -111,10 +128,10 @@
   function refNote(state) {
     if (state.control.family === "Runout") return "The lower cylindrical journal establishes datum axis D; only the upper step is controlled. T is radial, with no diameter symbol or MMC bonus. The red gap is enlarged for visibility and its radial placement is schematic, not fixed to nominal size.";
     if (state.control.family === "Form") return "Form controls do not use datum references. The selected datum setup is not in this feature control frame.";
-    if (!state.datumRefs.length) return "No datum is referenced. The profile zone controls form but is free to shift and rotate relative to the part; it does not establish location or orientation.";
+    if (!state.datumRefs.length) return state.feature === "slot" ? "No datum is referenced. This profile selects the complete closed slot boundary, including rounded ends; its finite zone can shift and rotate. By contrast, slot position controls only the derived median plane." : "No datum is referenced. The profile zone controls form but does not establish location or orientation; only motions that change the ideal zone are enabled.";
     if (state.control.id === "position") {
       if (state.feature === "slot") {
-        if (state.datumCount === 1) return "A constrains tilt of the slot's derived median plane but leaves in-plane rotation and translation free; this is not full slot location.";
+        if (state.datumCount === 1) return "A constrains tilt of the slot's derived median plane but leaves widthwise translation and in-plane rotation free; lengthwise sliding does not change that ideal plane or control the slot ends.";
         if (state.datumCount === 2) return "The short end datum B sets the in-plane direction. The median plane can still shift across the slot width until C is referenced.";
         return "C, the long side, fixes the median plane across the slot width. The boxed 2.30 mm is its basic distance from C. Position of that median plane does not by itself control the slot's end geometry or its lengthwise extent.";
       }
@@ -124,9 +141,62 @@
     }
     if (state.control.id === "parallelism") return "Only bottom datum A is used for this orientation control. B and C are not included in this feature control frame even if the datum setup is selected.";
     if (state.control.id === "perpendicularity") return state.feature === "hole" ? "Only A is needed. Like position referenced to A alone, this cylindrical orientation zone can shift in X and Y; it does not locate the hole." : "Only bottom A is used. The slot's median-plane zone is perpendicular to A but is not located across the plate.";
-    return "The datum references orient and, where applicable, locate the nominal profile zone; basic geometry defines its nominal shape.";
+    return state.feature === "slot" ? "The datum references orient and locate the complete closed slot-profile boundary, including rounded ends. This differs from slot position, which controls only the derived median plane." : "The datum references orient and, where applicable, locate the nominal profile zone; basic geometry defines its nominal shape.";
   }
   function numberText(value) { return Number(value).toFixed(2); }
+
+  function createFullscreenController(lab, viewer) {
+    const doc = lab.ownerDocument;
+    const button = lab.querySelector("[data-gdt-fullscreen]");
+    if (!button) return null;
+    const label = button.querySelector("[data-gdt-fullscreen-label]");
+    let pending = false;
+    function isFull() { return doc.fullscreenElement === lab || lab.classList.contains("gdt-fallback-fullscreen"); }
+    function sync() {
+      const active = isFull();
+      label.textContent = active ? "Exit full screen" : "Full screen";
+      button.setAttribute("aria-label", active ? "Exit full screen" : "Enter full screen");
+      button.setAttribute("aria-pressed", String(active));
+      if (viewer) viewer.resize();
+    }
+    function setFallback(active) {
+      lab.classList.toggle("gdt-fallback-fullscreen", active);
+      doc.documentElement.classList.toggle("gdt-fallback-page", active);
+      sync();
+    }
+    async function toggle() {
+      if (pending) return;
+      pending = true;
+      button.disabled = true;
+      if (viewer) viewer.preserveZoom();
+      try {
+        if (doc.fullscreenElement === lab) {
+          if (typeof doc.exitFullscreen === "function") await doc.exitFullscreen();
+        } else if (lab.classList.contains("gdt-fallback-fullscreen")) {
+          setFallback(false);
+        } else if (typeof lab.requestFullscreen === "function") {
+          // Call during the click gesture. Awaiting anything first would lose
+          // transient user activation in browsers that require it.
+          try { await lab.requestFullscreen(); }
+          catch (error) { if (doc.fullscreenElement !== lab) setFallback(true); }
+        } else {
+          setFallback(true);
+        }
+      } finally {
+        pending = false;
+        button.disabled = false;
+        sync();
+      }
+    }
+    button.addEventListener("click", toggle);
+    doc.addEventListener("fullscreenchange", sync);
+    doc.addEventListener("fullscreenerror", sync);
+    doc.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && lab.classList.contains("gdt-fallback-fullscreen")) setFallback(false);
+    });
+    sync();
+    return { isFull, toggle, sync };
+  }
 
   function mountLab(lab) {
     if (lab.dataset.mbdMounted === "true") return;
@@ -138,10 +208,21 @@
     const stationInput = lab.querySelector("[data-gdt-station]");
     const motionInputs = [...lab.querySelectorAll("[data-gdt-motion]")];
     const motionReset = lab.querySelector("[data-gdt-reset-motion]");
+    const zoomInput = lab.querySelector("[data-gdt-zoom]");
+    const zoomOutput = lab.querySelector("[data-gdt-zoom-output]");
     const host = lab.querySelector("[data-gdt-viewer]");
     if (!datumInput || !controlInput || !toleranceInput || !host) return;
     const viewer = root.CADWorkflowThree && root.CADWorkflowThree.createViewer(host);
     if (!viewer) host.querySelector("[data-gdt-webgl-fallback]").hidden = false;
+    if (viewer && zoomInput && zoomOutput) {
+      viewer.onZoomChange(function (percent) {
+        const value = Math.round(percent);
+        zoomInput.value = String(value);
+        zoomInput.setAttribute("aria-valuetext", `${value} percent zoom`);
+        zoomOutput.textContent = `${value}%`;
+      });
+      zoomInput.addEventListener("input", function () { viewer.setZoom(Number(zoomInput.value)); });
+    } else if (zoomInput) zoomInput.disabled = true;
     lab.dataset.mbdMounted = "true";
     function checked(inputs) { return inputs.find(function (input) { return input.checked; }).value; }
     function readMotion() {
@@ -165,7 +246,7 @@
       updateMotionOutputs();
       const active = MOTION_AXES.filter(function (axis) { return allowed[axis]; });
       lab.querySelector("[data-gdt-motion-help]").textContent = !state.datumRefs.length ?
-        "No datum in this frame: the illustrated finite zone can translate and rotate freely." :
+        `No datum in this frame · zone-changing motions: ${active.map(function (axis) { return axis[0] === "t" ? `move ${axis[1].toUpperCase()}` : `rotate ${axis[1].toUpperCase()}`; }).join(", ")}. Other motions leave the ideal zone unchanged.` :
         active.length ? `Frame ${state.datumRefs.join("–")} · free: ${active.map(function (axis) { return axis[0] === "t" ? `move ${axis[1].toUpperCase()}` : `rotate ${axis[1].toUpperCase()}`; }).join(", ")}. Other zone motions are locked.` :
           `Frame ${state.datumRefs.join("–")}: the illustrated zone is fixed by these references.`;
       return readMotion();
@@ -208,7 +289,7 @@
       lab.querySelector("[data-gdt-zone-type]").textContent = state.zone.name;
       lab.querySelector("[data-gdt-tolerance-output]").textContent = `${numberText(state.tolerance)} mm`;
       lab.querySelector("[data-gdt-zone-description]").textContent = explanation(state);
-      lab.querySelector("[data-gdt-reference-note]").textContent = refNote(state);
+      lab.querySelector("[data-gdt-reference-note]").textContent = `${refNote(state)} The red zone is schematic: spacing and finite extent are exaggerated, not a conformance or inspection check.`;
       lab.querySelector("[data-gdt-datum-help]").textContent = state.datumRefs.length ?
         `Frame: ${state.datumRefs.join(" → ")}. A = bottom; B = short end; C = long side.` :
         "No datum references in this frame. A = bottom; B = short end; C = long side.";
@@ -252,33 +333,30 @@
       updateMotionOutputs();
       if (viewer) viewer.setMotion(readMotion());
     });
-    lab.querySelector("[data-gdt-reset-view]").addEventListener("click", function () { if (viewer) viewer.resetView(); });
-    lab.querySelector("[data-gdt-bottom-view]").addEventListener("click", function () { if (viewer) viewer.bottomView(); });
+    const viewButtons = [
+      ["[data-gdt-reset-view]", "resetView", "reset", "Default 3D perspective view"],
+      ["[data-gdt-top-view]", "topView", "top", "Orthographic top view, looking down on the plate"],
+      ["[data-gdt-front-view]", "frontView", "front", "Orthographic front view from long side C"],
+      ["[data-gdt-side-view]", "sideView", "side", "Orthographic side view from short end B"],
+      ["[data-gdt-bottom-view]", "bottomView", "bottom", "Oblique underside view of datum A"]
+    ].map(function ([selector, method, name, announcement]) {
+      const button = lab.querySelector(selector);
+      if (!button) return null;
+      if (!viewer) { button.disabled = true; return { button, name }; }
+      button.addEventListener("click", function () {
+        viewer[method]();
+        lab.querySelector("[data-gdt-live]").textContent = announcement;
+      });
+      return { button, name };
+    }).filter(Boolean);
+    if (viewer) viewer.onViewChange(function (active) {
+      viewButtons.forEach(function ({ button, name }) { button.setAttribute("aria-pressed", String(active === name)); });
+    });
 
-    const fullButton = lab.querySelector("[data-gdt-fullscreen]");
-    function isFull() { return doc.fullscreenElement === lab || lab.classList.contains("gdt-fallback-fullscreen"); }
-    function syncFullButton() {
-      const active = isFull();
-      fullButton.querySelector("[data-gdt-fullscreen-label]").textContent = active ? "Exit full screen" : "Full screen";
-      fullButton.setAttribute("aria-label", active ? "Exit full screen" : "Enter full screen");
-      fullButton.setAttribute("aria-pressed", String(active));
-      if (viewer) viewer.resize();
-    }
-    fullButton.addEventListener("click", function () {
-      if (doc.fullscreenElement === lab) {
-        doc.exitFullscreen();
-        lab.classList.remove("gdt-fallback-fullscreen");
-      } else lab.classList.toggle("gdt-fallback-fullscreen");
-      syncFullButton();
-    });
-    doc.addEventListener("fullscreenchange", syncFullButton);
-    doc.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && lab.classList.contains("gdt-fallback-fullscreen")) { lab.classList.remove("gdt-fallback-fullscreen"); syncFullButton(); }
-    });
+    createFullscreenController(lab, viewer);
     populate(checked(featureInputs), Number(datumInput.value));
     render(false);
-    syncFullButton();
   }
   function mountAll(documentObject) { [...documentObject.querySelectorAll("[data-mbd-lab]")].forEach(mountLab); }
-  return { FEATURES, CONTROLS, availableControls, zoneFor, selection, positionFreedom, allowedZoneMotion, targetFor, explanation, refNote, mountAll };
+  return { FEATURES, CONTROLS, availableControls, zoneFor, selection, positionFreedom, allowedZoneMotion, targetFor, explanation, refNote, createFullscreenController, mountAll };
 });

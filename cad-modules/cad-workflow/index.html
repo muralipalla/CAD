@@ -20,13 +20,13 @@
   <link rel="stylesheet" href="../../assets/css/theory.css?v=80b09196d884">
   <link rel="stylesheet" href="../../assets/css/references.css?v=a6274048fd1a">
   <link rel="stylesheet" href="../../assets/css/cad-professional.css?v=2">
-  <link rel="stylesheet" href="mbd-lab.css?v=12">
+  <link rel="stylesheet" href="mbd-lab.css?v=16">
   <link rel="stylesheet" href="mbd-mmc.css?v=2">
-  <link rel="stylesheet" href="mbd-rule1.css?v=3">
+  <link rel="stylesheet" href="mbd-rule1.css?v=4">
   <script src="../../assets/js/main.js" defer></script>
   <script src="../../assets/vendor/three.min.js" defer></script>
-  <script src="mbd-three.js?v=19" defer></script>
-  <script src="mbd-lab.js?v=14" defer></script>
+  <script src="mbd-three.js?v=23" defer></script>
+  <script src="mbd-lab.js?v=18" defer></script>
   <script src="mbd-mmc.js?v=3" defer></script>
   <script src="mbd-rule1.js?v=3" defer></script>
   <script>
@@ -127,7 +127,7 @@
         <tbody>
           <tr><td>Form</td><td>Is one feature acceptably shaped by itself?</td><td>Straightness, flatness, circularity, cylindricity</td></tr>
           <tr><td>Orientation</td><td>Is a feature acceptably directed relative to a datum?</td><td>Parallelism, perpendicularity, angularity</td></tr>
-          <tr><td>Location</td><td>Is a feature acceptably located relative to basic dimensions and datums?</td><td>Position, concentric relationships where applicable</td></tr>
+          <tr><td>Location</td><td>Is a feature acceptably located relative to basic dimensions and datums?</td><td>Position of axes and median planes, including coaxial relationships</td></tr>
           <tr><td>Profile</td><td>Does a line or surface remain within the specified boundary?</td><td>Profile of a line, profile of a surface</td></tr>
           <tr><td>Runout</td><td>How does a surface vary while the part rotates about a datum axis?</td><td>Circular runout, total runout</td></tr>
         </tbody>
@@ -137,6 +137,7 @@
       <h3 id="datums-and-reference-frames">Datum Features, Datums, and Datum Reference Frames</h3>
       <p>A <strong>datum feature</strong> is a physical feature of the part selected for establishing a reference. A <strong>datum</strong> is the theoretically exact reference derived from that imperfect feature. Ordered datums establish a <strong>datum reference frame</strong> that constrains the part for orientation and location.</p>
       <p>For the part used below, the bottom mounting face is datum feature A, the smaller short end face establishes B, and the longer side face establishes C. The order matters: the primary datum is established first, the secondary datum constrains the remaining motion next, and the tertiary datum completes the frame. A alone does not fix a hole's in-plane location.</p>
+      <p>Datum geometry changes which motions remain free. In a simple rigid-part setup, a primary planar datum constrains motion normal to its plane and two tilts, leaving two in-plane translations and rotation about the plane normal. A primary cylindrical datum establishes an axis and constrains two transverse translations and two tilts, while translation and rotation along that axis remain free. Later datums constrain remaining motion according to their geometry.</p>
 
       <h3 id="feature-control-frame">Feature Control Frame and Tolerance Zone</h3>
       <p>A feature control frame states the controlled characteristic, tolerance value and zone shape, applicable modifiers, and datum-reference order. Basic dimensions locate or orient the theoretically exact zone. For example, position of a hole axis may use a cylindrical zone of diameter \(T\), while position of a slot's median plane uses two parallel planes separated by \(T\). Form controls such as flatness do not reference datums.</p>
@@ -170,14 +171,14 @@
       <p>Rotate the 3D part and choose a feature, datum setup, and geometric control to see the corresponding tolerance zone. Zone thickness is enlarged for clarity; the displayed value remains in millimetres.</p>
       <section class="gdt-studio" data-mbd-lab aria-labelledby="mbd-lab-title">
         <header class="gdt-studio-header">
-          <div><p class="gdt-eyebrow">Interactive 3D GD&amp;T studio</p><h3 id="mbd-lab-title">Explore the tolerance zone</h3><p>Drag to orbit · wheel or pinch to zoom · select one feature at a time</p></div>
+          <div><p class="gdt-eyebrow">Interactive 3D GD&amp;T studio</p><h3 id="mbd-lab-title">Explore the tolerance zone</h3><p>Drag to orbit · Zoom slider, Ctrl+wheel, or pinch · wheel zooms directly in full screen</p></div>
           <button type="button" class="gdt-fullscreen" data-gdt-fullscreen aria-label="Enter full screen"><span aria-hidden="true">⛶</span> <span data-gdt-fullscreen-label>Full screen</span></button>
         </header>
         <div class="gdt-studio-main">
           <form class="gdt-controls" aria-label="Tolerance zone settings">
             <fieldset class="gdt-feature-choices"><legend><span class="gdt-control-number">01</span> Feature to control</legend>
               <label><input type="radio" name="gdt-feature" value="hole" checked><span><strong>Hole</strong><small>Cylindrical bore</small></span></label>
-              <label><input type="radio" name="gdt-feature" value="slot"><span><strong>Slot</strong><small>Opposed walls</small></span></label>
+              <label><input type="radio" name="gdt-feature" value="slot"><span><strong>Slot</strong><small>Closed boundary</small></span></label>
               <label><input type="radio" name="gdt-feature" value="surface"><span><strong>Surface</strong><small>Planar pad</small></span></label>
               <label><input type="radio" name="gdt-feature" value="shaft"><span><strong>Shaft</strong><small>Stepped post</small></span></label>
             </fieldset>
@@ -189,7 +190,7 @@
             <div class="gdt-control-field"><label for="gdt-control"><span class="gdt-control-number">03</span> Geometric control</label><select id="gdt-control" data-gdt-control></select><p class="gdt-field-help" data-gdt-availability></p></div>
             <div class="gdt-control-field gdt-slider-field"><label for="gdt-tolerance"><span><span class="gdt-control-number">04</span> Tolerance value</span><output for="gdt-tolerance" data-gdt-tolerance-output>0.40 mm</output></label><input id="gdt-tolerance" data-gdt-tolerance type="range" min="0.10" max="1.00" step="0.05" value="0.40"><div class="gdt-range-ends"><span data-gdt-tolerance-min>0.10 mm</span><span data-gdt-tolerance-max>1.00 mm</span></div></div>
             <div class="gdt-control-field gdt-slider-field" data-gdt-station-field hidden><label for="gdt-station"><span><span class="gdt-control-number">05</span> Axial section</span><output for="gdt-station" data-gdt-station-output>50% of upper step</output></label><input id="gdt-station" data-gdt-station type="range" min="0" max="100" step="1" value="50"><p class="gdt-field-help">The circular-runout band can be checked independently at every height.</p></div>
-            <details class="gdt-motion" data-gdt-motion-panel open><summary><span class="gdt-control-number">05</span> Move / rotate zone</summary>
+            <details class="gdt-motion" data-gdt-motion-panel><summary><span class="gdt-control-number">05</span> Move / rotate zone</summary>
               <p class="gdt-field-help" data-gdt-motion-help>Sliders move only the illustrated tolerance zone. Locked axes follow the datum references in its frame.</p>
               <div class="gdt-motion-group"><h4>Move · mm</h4>
                 <div class="gdt-motion-row"><label for="gdt-motion-tx">X <output for="gdt-motion-tx" data-gdt-motion-output="tx">0.00 mm</output></label><input id="gdt-motion-tx" aria-label="Move zone along X" data-gdt-motion="tx" type="range" min="-0.80" max="0.80" step="0.05" value="0"></div>
@@ -210,10 +211,10 @@
             <div class="gdt-visual-heading"><div><p>SELECTED CONTROL</p><h4 data-gdt-title>Position</h4></div><span class="gdt-zone-type" data-gdt-zone-type>Cylindrical zone</span></div>
             <div class="gdt-frame-row"><span class="gdt-frame-caption">Feature control frame</span><div class="gdt-frame" data-gdt-frame aria-label="Position, diameter 0.40 millimetres, datums A B C"></div></div>
             <div class="gdt-canvas-wrap" data-gdt-viewer aria-label="Interactive three-dimensional part and tolerance zone">
-              <div class="gdt-view-hud"><span data-gdt-freedom>Bottom A · X and Y free</span><button type="button" data-gdt-reset-view>Reset view</button><button type="button" data-gdt-bottom-view>View bottom A</button></div>
+              <div class="gdt-view-hud"><span data-gdt-freedom>Bottom A · X and Y free</span><div class="gdt-view-actions" role="group" aria-label="Camera views"><button type="button" data-gdt-reset-view aria-label="Reset to 3D view">Reset</button><button type="button" data-gdt-top-view aria-label="Top view">Top</button><button type="button" data-gdt-front-view aria-label="Front view from long side C">Front</button><button type="button" data-gdt-side-view aria-label="Side view from short end B">Side</button><button type="button" data-gdt-bottom-view aria-label="Oblique underside view of datum A">Bottom A</button></div></div>
               <div class="gdt-webgl-fallback" data-gdt-webgl-fallback hidden>3D graphics are unavailable in this browser. The control frame and zone description remain available below.</div>
             </div>
-            <div class="gdt-visual-footer"><span><i class="gdt-key-feature" aria-hidden="true"></i>Selected feature</span><span><i class="gdt-key-zone" aria-hidden="true"></i>Allowed zone</span><span><i class="gdt-key-datum" aria-hidden="true"></i>Active datums</span><span data-gdt-basic-legend hidden><i class="gdt-key-basic" aria-hidden="true"></i>Boxed = basic dimension (mm)</span></div>
+            <div class="gdt-visual-footer"><span><i class="gdt-key-feature" aria-hidden="true"></i>Selected feature</span><span><i class="gdt-key-zone" aria-hidden="true"></i>Allowed zone</span><span><i class="gdt-key-datum" aria-hidden="true"></i>Active datums</span><span data-gdt-basic-legend hidden><i class="gdt-key-basic" aria-hidden="true"></i>Boxed = basic dimension (mm)</span><div class="gdt-zoom"><label for="gdt-zoom">Zoom</label><input id="gdt-zoom" data-gdt-zoom type="range" min="0" max="100" step="1" value="50" aria-valuetext="50 percent zoom"><output for="gdt-zoom" data-gdt-zoom-output>50%</output></div></div>
           </div>
         </div>
         <div class="gdt-explanation"><div><span class="gdt-explanation-kicker">ZONE GEOMETRY</span><p data-gdt-zone-description></p></div><p data-gdt-reference-note></p></div>
@@ -221,12 +222,20 @@
       </section>
       <h2 id="material-condition-modifier">Material Condition Modifiers</h2>
       <p>Choose a hole, slot, or shaft and compare maximum or least material condition. Adjust the actual specimen size to see bonus tolerance, total positional tolerance, and the corresponding fixed limiting boundary. This exact-scale lesson is independent of the 3D runout studio <a href="../references/index.html#ref-36">[36]</a>.</p>
+      <p>For a controlled feature of size, no material modifier means regardless of feature size (RFS) and no size-dependent bonus. A datum feature of size without a boundary modifier is referenced regardless of material boundary (RMB); the planar A/B/C references in this lesson add no datum shift. The <span aria-label="maximum material condition">Ⓜ</span>/<span aria-label="least material condition">Ⓛ</span> bonus below uses idealized feature size. Actual form, datum-simulator contact, and measurement uncertainty require a complete inspection method.</p>
       <div class="mmc-lab" data-mmc-lab><p>Enable JavaScript to explore the MMC example.</p></div>
 
       <h2 id="rule-one-independency">Rule #1 and the Independency Principle</h2>
-      <p>Compare a size-controlled cylindrical shaft under two distinct standards contexts. ASME Y14.5 Rule #1 couples size and form through a perfect-form envelope at maximum material condition (MMC). Under the ISO 8015 independency default, a size limit does not itself impose that whole-feature envelope; an envelope requirement can be added explicitly. The 3D example exaggerates one bowed form deviation to make the difference visible. See the <a href="https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=936463">NIST Rule #1 teaching material</a> and <a href="https://preview.sist.si/sist-preview/55979/fbc0c15d54514a4f815a1aaa6844b520/ISO-8015-2011.pdf">ISO 8015, clause 5.5</a>.</p>
+      <p>Compare a size-controlled shaft under ASME Y14.5 and ISO GPS. The 3D lesson exaggerates axis bow so the whole-feature envelope is visible. See the <a href="https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=936463">NIST Rule #1 teaching material</a> and <a href="https://www.iso.org/standard/55979.html">ISO 8015:2011</a>.</p>
+      <div class="notes-center"><div class="notes-table-wrap"><table>
+        <thead><tr><th scope="col">Governing rule</th><th scope="col">Size and form</th><th scope="col">Explicit alternative</th></tr></thead>
+        <tbody>
+          <tr><td>ASME Y14.5 Rule #1</td><td>For a regular feature of size with size limits, the default perfect-form boundary is at MMC.</td><td>Place <span aria-label="circled I independency modifier">Ⓘ</span> with its size dimension when that feature is to be independent of the Rule #1 envelope.</td></tr>
+          <tr><td>ISO 8015 independency</td><td>Each specification is independent by default; a size limit alone does not add the whole-feature envelope.</td><td>Add the <a href="https://www.iso.org/standard/14405-1">ISO 14405-1:2025</a> envelope requirement <span aria-label="circled E envelope modifier">Ⓔ</span> to the size specification when the envelope is required.</td></tr>
+        </tbody>
+      </table></div></div>
       <div class="rule1-lab" data-rule1-lab><p>Enable JavaScript to explore the 3D cylinder.</p></div>
-      <p>Axis bow is one form deviation; taper, barrel shape, lobing, and surface waviness are others. Both systems still require the specified local sizes. Rule #1 additionally limits the entire surface by the MMC envelope; independence does not remove any separately specified form requirements.</p>
+      <p>Both systems still require the specified local sizes, and separately specified form controls still apply. ASME Rule #1 is a default for regular features of size, not every surface or size indication; an independency <span aria-label="circled I">Ⓘ</span> or applicable free-state indication changes the usual envelope requirement. Axis bow is one form deviation; taper, barrel shape, lobing, and waviness are others. Check the specified feature, modifiers, and governing edition.</p>
 
       <h2 id="release-and-revision">Release, Baselines, and Revisions</h2>
       <p>A release identifies an exact approved baseline rather than a mutable working file. The release record should identify the item, revision, lifecycle state, ownership, units, approvals, dependencies, applicable standards, and the authoritative product-definition dataset. Depending on the contract and workflow, the package can include native/MBD data, neutral derivatives, drawings, a bill of materials, material and process requirements, and linked verification evidence.</p>
